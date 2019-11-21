@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang = "en">
+{% load static %}
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+</head>
+
+{% block body %}
+<h1>Sider Searcher</h1>
+<table id = "table" class = "display">
+    <thead class = "table table-hover table-striped hidden">
+        <tr>
+            <th>DrugID</th>
+            <th>StereoIsomerID</th>
+            <th>UMLSConceptID</th>
+            <th>FrequencyLower</th>
+            <th>FrequencyUpper</th>
+            <th>SideEffect</th>
+            <th>DrugName</th>
+            <th>ATCCode</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for s in object_list %}
+        <tr>
+            <td>{{ s.drug_id }}</td>
+            <td>{{ s.stereoisomer }}</td>
+            <td>{{ s.umls_concept_id }}</td>
+            <td>{{ s.frequency_lower }}</td>
+            <td>{{ s.frequency_upper }}</td>
+            <td>{{ s.side_effect }}</td>
+            <td>{{ s.drug_name }}</td>
+            <td>{{ s.atc_code }}</td>
+        </tr>
+       {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+<script src = "{% static 'js/jquery-3.4.1.min.js' %}"></script>
+<script src = "{% static 'dataTables/js/jquery.dataTables.min.js' %}"></script>
+<script src = "{% static 'dataTables/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src = "{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+
+
+<script>
+    $(document).ready( function () {
+    $('#table').DataTable({
+
+    });
+} );
+</script>
+</html>

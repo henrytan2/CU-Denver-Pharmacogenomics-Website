@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <meta charset = "urf-8" name = "viewport" content = "width=device-width, initial-scale=1"/>
+        {% load static %}
+        <link rel = "stylesheet" type = "text/css" href = "{% static 'bootstrap/css/bootstrap.min.css' %}"/>
+        <link rel = "stylesheet" type = "text/css" href = "{% static 'dataTables/css/dataTables.bootstrap4.min.css' %}"/>
+    </head>
+<body>
+    <div class = "col-md-3"></div>
+    <div class = "col-md-6 well">
+        {% block body %}
+        {% endblock %}
+    </div>
+
+</body>
+<script src = "{% static 'js/jquery-3.4.1.min.js' %}"></script>
+<script src = "{% static 'dataTables/js/jquery.dataTables.min.js' %}"></script>
+<script src = "{% static 'dataTables/js/dataTables.bootstrap4.min.js' %}"></script>
+</html>

@@ -1,0 +1,41 @@
+Metadata-Version: 2.1
+Name: django-query
+Version: 1.0.6
+Summary: Get Django Query Values by POST/GET
+Home-page: https://github.com/Brightcells/django-query
+Author: Hackathon
+Author-email: kimi.huang@brightcells.com
+License: UNKNOWN
+Keywords: Djagno Query POST GET
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Django
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Office/Business :: Financial :: Spreadsheet
+
+============
+django-query
+============
+
+Installation
+============
+
+::
+
+    pip install django-query
+
+
+Usage
+=====
+
+::
+
+    from django_query import get_query_value
+
+    get_query_value(request, key, default=None, val_cast_func=None)
+
+
+
