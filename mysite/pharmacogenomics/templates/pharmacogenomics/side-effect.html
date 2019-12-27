@@ -1,55 +1,81 @@
 <!DOCTYPE html>
 <html lang = "en">
 {% load static %}
-
 <head>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
 </head>
 
 {% block body %}
 <h1>Sider Searcher</h1>
-<table id = "table" class = "display">
-    <thead class = "table table-hover table-striped hidden">
+<table id = "table"
+       class = "table table-hover table-striped hidden">
+    <thead >
         <tr>
-            <th>DrugID</th>
-            <th>StereoIsomerID</th>
-            <th>UMLSConceptID</th>
-            <th>FrequencyLower</th>
-            <th>FrequencyUpper</th>
             <th>SideEffect</th>
-            <th>DrugName</th>
-            <th>ATCCode</th>
+            <th data-orderable="false"
+                data-name="Add"
+            >Add</th>
         </tr>
     </thead>
     <tbody>
         {% for s in object_list %}
         <tr>
-            <td>{{ s.drug_id }}</td>
-            <td>{{ s.stereoisomer }}</td>
-            <td>{{ s.umls_concept_id }}</td>
-            <td>{{ s.frequency_lower }}</td>
-            <td>{{ s.frequency_upper }}</td>
             <td>{{ s.side_effect }}</td>
-            <td>{{ s.drug_name }}</td>
-            <td>{{ s.atc_code }}</td>
+            <td class="actions">
+                <button type="submit"
+                        class="btn-default list-add-btn">
+                    <span class="glyphicon glyphicon glyphicon-ok toggle-add"></span>
+<!--                    <span class="glyphicon glyphicon glyphicon-remove toggle-remove" hidden="hidden"></span>-->
+                </button></td>
         </tr>
        {% endfor %}
     </tbody>
 </table>
 {% endblock %}
+<div class="submit-btn-container"
+    style="float: right;">
+    <button type="submit"
+            class="btn btn-primary btn-lg submit-btn">
+        Submit
+    </button>
+</div>
 
+</html>
 <script src = "{% static 'js/jquery-3.4.1.min.js' %}"></script>
 <script src = "{% static 'dataTables/js/jquery.dataTables.min.js' %}"></script>
-<script src = "{% static 'dataTables/js/dataTables.bootstrap4.min.js' %}"></script>
 <script src = "{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
 
 
 <script>
+    var dtTable;
+    var sideEffectList = [];
     $(document).ready( function () {
-    $('#table').DataTable({
+        WireUpDataTable();
+    });
+
+    function WireUpDataTable() {
+        dtTable = $("#table")
+            .on("init.dt", function () { $("#table").removeClass("hidden"); })
+            .DataTable({
+            });
+    }
+
+    $("#table").on("click", ".list-add-btn", function () {
+       var $tr = $(this).closest('tr');
+       var data = dtTable.row($tr).data();
+       if ($(this).find("span").hasClass("glyphicon-ok")) {
+            $(this).find("span").removeClass("glyphicon-ok").addClass("glyphicon-remove");
+            sideEffectList.push(data[1]);
+
+       }
+
+       else if ($(this).find("span").hasClass("glyphicon-remove")) {
+            $(this).find("span").removeClass("glyphicon-remove").addClass("glyphicon-ok");
+            var index = sideEffectList.indexOf(data[1]);
+            sideEffectList.splice(index, 1);
+       }
 
     });
-} );
 </script>
-</html>

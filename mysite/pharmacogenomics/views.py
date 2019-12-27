@@ -17,15 +17,9 @@ class SideEffectView(generic.ListView):
     # form_class = DrugIDForm
     model = SideEffect
     template_name = 'pharmacogenomics/side-effect.html'
-    def get_queryset(self):
-        return self.model.objects.filter(side_effect='Abdominal pain')
 
-def get_gene_id(request):
-    if request.method == 'POST':
-        form = DrugIDForm(request.POST)
-        if form.is_valid():
-            return HttpResponseRedirect("url 'pharmacogenomics:side-effect'")
-        else:
-            form = DrugIDForm()
-        return render(request, 'pharmacogenomics/index.html', {'form': form})
+    def get_queryset(self):
+        # side_effect_list = SideEffect.objects.values_list('side_effect', flat=True).distinct()
+        return self.model.objects.values('side_effect').distinct()
+
 
