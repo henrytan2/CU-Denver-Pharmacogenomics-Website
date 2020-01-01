@@ -1,56 +1,80 @@
 <!DOCTYPE html>
-<html lang = "en">
+<html lang="en">
 {% load static %}
+
 <head>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <title>Sider Searcher</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="//cdn.datatables.net/1.10.12/css/jquery.dataTables.min.css">
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
 </head>
 
 {% block body %}
 <h1>Sider Searcher</h1>
-<table id = "table"
-       class = "table table-hover table-striped hidden">
-    <thead >
-        <tr>
-            <th>SideEffect</th>
-            <th data-orderable="false"
-                data-name="Add"
-            >Add</th>
-        </tr>
+<table id="table"
+       class="table table-hover table-striped hidden">
+    <thead>
+    <tr>
+        <th>SideEffect</th>
+        <th data-orderable="false"
+            data-name="Add">
+            Add
+        </th>
+    </tr>
     </thead>
     <tbody>
-        {% for s in object_list %}
-        <tr>
-            <td>{{ s.side_effect }}</td>
-            <td class="actions">
-                <button type="submit"
-                        class="btn-default list-add-btn">
-                    <span class="glyphicon glyphicon glyphicon-ok toggle-add"></span>
-<!--                    <span class="glyphicon glyphicon glyphicon-remove toggle-remove" hidden="hidden"></span>-->
-                </button></td>
-        </tr>
-       {% endfor %}
+    {% for s in object_list %}
+    <tr>
+        <td>{{ s.side_effect }}</td>
+        <td class="actions">
+            <button type="submit"
+                    class="btn-default list-add-btn">
+                <span class="glyphicon glyphicon glyphicon-ok toggle-add"></span>
+            </button>
+        </td>
+    </tr>
+    {% endfor %}
     </tbody>
 </table>
 {% endblock %}
+
 <div class="submit-btn-container"
-    style="float: right;">
+     style="float: right;"
+     onclick="location.href='{% url 'pharmacogenomics:side-effect-results'%}'">
     <button type="submit"
+            id="side-effect-list-submit"
             class="btn btn-primary btn-lg submit-btn">
         Submit
     </button>
 </div>
 
 </html>
-<script src = "{% static 'js/jquery-3.4.1.min.js' %}"></script>
-<script src = "{% static 'dataTables/js/jquery.dataTables.min.js' %}"></script>
-<script src = "{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+<script src="{% static 'dataTables/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'designer/js/jquery.cookie.js' %}"></script>
 
 
-<script>
+<script type="text/javascript">
+    var csrftoken = $.cookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        return (/(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
     var dtTable;
     var sideEffectList = [];
+
+
     $(document).ready( function () {
         WireUpDataTable();
     });
@@ -60,6 +84,14 @@
             .on("init.dt", function () { $("#table").removeClass("hidden"); })
             .DataTable({
             });
+
+        $("#side-effect-list-submit").click(function () {
+            $.ajax({
+                type: 'POST',
+                url: '{% url 'pharmacogenomics:side-effect-results' %}',
+                data: {'sideEffectList': sideEffectList}
+            });
+    });
     }
 
     $("#table").on("click", ".list-add-btn", function () {
@@ -67,15 +99,16 @@
        var data = dtTable.row($tr).data();
        if ($(this).find("span").hasClass("glyphicon-ok")) {
             $(this).find("span").removeClass("glyphicon-ok").addClass("glyphicon-remove");
-            sideEffectList.push(data[1]);
+            sideEffectList.push(data[0]);
 
        }
 
        else if ($(this).find("span").hasClass("glyphicon-remove")) {
             $(this).find("span").removeClass("glyphicon-remove").addClass("glyphicon-ok");
-            var index = sideEffectList.indexOf(data[1]);
+            var index = sideEffectList.indexOf(data[0]);
             sideEffectList.splice(index, 1);
        }
-
     });
+
+
 </script>

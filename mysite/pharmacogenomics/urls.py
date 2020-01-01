@@ -3,6 +3,8 @@ from . import views
 
 app_name = 'pharmacogenomics'
 urlpatterns = [
-    path('side-effect/', views.SideEffectView.as_view(), name='side-effect'),
     path('', views.IndexView.as_view(), name='index'),
+    path('side-effect/', views.SideEffectView.as_view(), name='side-effect'),
+    path('side-effect-results/', views.SideEffectResultsView.as_view(), name='side-effect-results'),
+    path('contact', views.ContactView.as_view(), name='contact')
 ]
