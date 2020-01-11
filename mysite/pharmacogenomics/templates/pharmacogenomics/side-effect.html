@@ -4,42 +4,45 @@
 
 <head>
     <title>Sider Searcher</title>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.10.20/b-1.6.1/b-flash-1.6.1/datatables.min.css"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'datatables/css/datatables.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'datatables/css/dataTables.bootstrap4.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'datatable-buttons-1.6.1/css/buttons.bootstrap4.min.css' %}">
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.css" rel="stylesheet" type='text/css'>
 </head>
 
 {% block body %}
-<h1>Sider Searcher</h1>
-<table id="table"
-       class="table table-hover table-striped hidden">
-    <thead>
-    <tr>
-        <th>SideEffect</th>
-        <th data-orderable="false"
-            data-name="Add">
-            Add
-        </th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for s in object_list %}
-    <tr>
-        <td>{{ s.side_effect }}</td>
-        <td class="actions">
-            <button type="submit"
-                    class="btn btn-default list-add-btn">
-                <span class="glyphicon glyphicon-ok toggle-add"></span>
-            </button>
-        </td>
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
+    <h1>Sider Searcher - Results</h1>
+    <table id="table"
+           class="table table-hover table-striped hidden">
+        <thead>
+        <tr>
+            <th>SideEffect</th>
+            <th data-orderable="false"
+                data-name="Add">
+                Add
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for s in object_list %}
+            <tr>
+                <td>{{ s.side_effect }}</td>
+                <td class="actions">
+                    <button type="submit"
+                            class="btn btn-outline-secondary list-add-btn">
+                        <span class="fa fa-check"></span>
+                    </button>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
 
 <div class="submit-btn-container"
      style="float: right;"
-     onclick="location.href='{% url 'pharmacogenomics:side-effect-results'%}'">
+     onclick="location.href='{% url 'pharmacogenomics:side-effect-results' %}'">
     <button type="submit"
             id="side-effect-list-submit"
             class="btn btn-primary submit-btn">
@@ -49,8 +52,11 @@
 
 </html>
 <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
-<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.20/b-1.6.1/b-flash-1.6.1/datatables.min.js"></script>
 <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'datatables/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'datatables/js/dataTables.bootstrap.min.js' %}"></script>
+<script src="{% static 'datatables/js/datatables.min.js' %}"></script>
+<script src="{% static 'datatable-buttons-1.6.1/js/buttons.bootstrap.min.js' %}"></script>
 <script src="{% static 'designer/js/jquery.cookie.js' %}"></script>
 
 
@@ -62,7 +68,7 @@
     }
 
     $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
+        beforeSend: function (xhr, settings) {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }
@@ -73,32 +79,31 @@
     var sideEffectList = [];
 
 
-    $(document).ready( function () {
+    $(document).ready(function () {
         WireUpDataTable();
     });
 
     function WireUpDataTable() {
         dtTable = $("#table")
-            .on("init.dt", function () { $("#table").removeClass("hidden"); })
-            .DataTable({
-            });
+            .on("init.dt", function () {
+                $("#table").removeClass("hidden");
+            })
+            .DataTable({});
     }
 
     $("#table").on("click", ".list-add-btn", function () {
-       var $tr = $(this).closest('tr');
-       var data = dtTable.row($tr).data();
-       if ($(this).find("span").hasClass("glyphicon-ok")) {
-            $(this).find("span").removeClass("glyphicon-ok").addClass("glyphicon-remove");
+        var $tr = $(this).closest('tr');
+        var data = dtTable.row($tr).data();
+        if ($(this).find("span").hasClass("fa-check")) {
+            $(this).find("span").removeClass("fa-check").addClass("fa-remove");
             sideEffectList.push(data[0]);
             $.ajax({
                 type: 'POST',
                 url: '{% url 'pharmacogenomics:side-effect' %}',
                 data: {'sideEffectList': sideEffectList}
             });
-       }
-
-       else if ($(this).find("span").hasClass("glyphicon-remove")) {
-            $(this).find("span").removeClass("glyphicon-remove").addClass("glyphicon-ok");
+        } else if ($(this).find("span").hasClass("fa-remove")) {
+            $(this).find("span").removeClass("fa-remove").addClass("fa-check");
             var index = sideEffectList.indexOf(data[0]);
             sideEffectList.splice(index, 1);
             $.ajax({
@@ -106,8 +111,6 @@
                 url: '{% url 'pharmacogenomics:side-effect' %}',
                 data: {'sideEffectList': sideEffectList}
             });
-       }
+        }
     });
-
-
 </script>
