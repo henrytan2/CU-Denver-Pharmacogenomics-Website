@@ -24,7 +24,7 @@ SECRET_KEY = 'ugbnazv9chk*!1d2mfs(&w#beok=wqa%h_i8f&l_es=exl+u*n'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["cudenverpharmacogenomics.pythonanywhere.com"]
+ALLOWED_HOSTS = ["cudenverpharmacogenomics.pythonanywhere.com", "127.0.0.1"]
 
 
 # Application definition

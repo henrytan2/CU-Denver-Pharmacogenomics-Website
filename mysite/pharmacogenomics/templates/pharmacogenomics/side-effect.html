@@ -3,18 +3,30 @@
 {% load static %}
 
 
-{{ csrf_token }}
+{% csrf_token %}
 <head>
     <title>Sider Searcher</title>
     <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'datatables/css/datatables.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'datatables/css/dataTables.bootstrap4.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'datatable-buttons-1.6.1/css/buttons.bootstrap4.min.css' %}">
-    <link href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.css" rel="stylesheet" type='text/css'>
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.css" rel="stylesheet"
+          type='text/css'>
 </head>
 
 {% block body %}
-    <h1>Sider Searcher - Results</h1>
+    <h1>Sider Searcher</h1>
+    <p>
+        Side Searcher is a tool used to group drug side effects of interest and find which drugs appear most in the
+        group of side effects. Side effect info is pulled from <a href="http://sideeffects.embl.de/">SIDER</a><br>
+        Note: Placebo side effects have been removed. <br>
+        <b>Instructions:</b><br>
+        1. Add the side effects you are interested in by clicking the check button in the add column. <br>
+        2. Hit Submit <br>
+        3. You will be redirected to a page with a filtered list of the side effects you chose <br>
+        4. From that page you can view the drugs ranked by count by clicking on the 'View Drugs Ranked' button<br>
+        5. Both result pages are available for download in CSV format.
+    </p>
     <table id="table"
            class="table table-hover table-striped hidden">
         <thead>
@@ -47,7 +59,7 @@
      onclick="location.href='{% url 'pharmacogenomics:side-effect-results' %}'">
     <button type="submit"
             id="side-effect-list-submit"
-            class="btn btn-primary submit-btn">
+            class="btn btn-primary submit-btn" disabled>
         Submit
     </button>
 </div>
@@ -96,6 +108,7 @@
     $("#table").on("click", ".list-add-btn", function () {
         var $tr = $(this).closest('tr');
         var data = dtTable.row($tr).data();
+
         if ($(this).find("span").hasClass("fa-check")) {
             $(this).find("span").removeClass("fa-check").addClass("fa-remove");
             sideEffectList.push(data[0]);
@@ -113,6 +126,14 @@
                 url: '{% url 'pharmacogenomics:side-effect' %}',
                 data: {'sideEffectList': sideEffectList}
             });
+        }
+
+        if (sideEffectList.length === 0) {
+            $("#side-effect-list-submit").prop("disabled", true);
+        }
+
+        if (sideEffectList.length > 0) {
+            $("#side-effect-list-submit").prop("disabled", false);
         }
     });
 </script>
