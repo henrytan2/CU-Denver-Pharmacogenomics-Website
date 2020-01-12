@@ -1,17 +1,13 @@
+{% extends "pharmacogenomics/base.html" %}
+
+{% block content %}
+
 <!DOCTYPE html>
 <html lang="en">
 {% load static %}
 
 <head>
     <title>Sider Searcher - Results</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'datatables/css/datatables.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'datatables/css/dataTables.bootstrap4.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'datatable-buttons-1.6.1/css/buttons.bootstrap4.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'datatable-buttons-1.6.1/css/buttons.foundation.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'datatable-buttons-1.6.1/css/buttons.semanticui.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'datatable-buttons-1.6.1/css/buttons.dataTables.min.css' %}">
-    <link href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.css" rel="stylesheet" type='text/css'>
 </head>
 
 {% block body %}
@@ -56,20 +52,6 @@
 
 </html>
 
-<script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
-<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
-<script src="{% static 'datatables/js/jquery.dataTables.min.js' %}"></script>
-<script src="{% static 'datatables/js/dataTables.bootstrap.min.js' %}"></script>
-<script src="{% static 'datatables/js/datatables.min.js' %}"></script>
-<script src="{% static 'datatable-buttons-1.6.1/js/buttons.bootstrap4.min.js' %}"></script>
-<script src="{% static 'datatable-buttons-1.6.1/js/buttons.colVis.min.js' %}"></script>
-<script src="{% static 'datatable-buttons-1.6.1/js/buttons.flash.min.js' %}"></script>
-<script src="{% static 'datatable-buttons-1.6.1/js/buttons.foundation.min.js' %}"></script>
-<script src="{% static 'datatable-buttons-1.6.1/js/buttons.html5.min.js' %}"></script>
-<script src="{% static 'datatable-buttons-1.6.1/js/buttons.jqueryui.min.js' %}"></script>
-<script src="{% static 'designer/js/jquery.cookie.js' %}"></script>
-
-
 <script>
     var dtTable;
 
@@ -90,3 +72,5 @@
             });
     }
 </script>
+
+{% endblock content %}

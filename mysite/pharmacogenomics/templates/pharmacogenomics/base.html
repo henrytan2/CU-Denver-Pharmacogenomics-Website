@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
 {% load static %}
 
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Sider Searcher</title>
+    <title></title>
     <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'datatables/css/datatables.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'datatables/css/dataTables.bootstrap4.min.css' %}">
@@ -15,7 +14,19 @@
     <link href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.css" rel="stylesheet"
           type='text/css'>
 </head>
-</html>
+<body>
+<nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+    <ul class="navbar-nav">
+        <li class="nav-item active">
+            <a class="nav-link" href="{% url 'pharmacogenomics:index' %}">
+                <span>
+                    <img src="{% static 'images/logo-black.png' %}" width="30" height="30" alt="">
+                </span>
+                CU Denver Pharmacogenomics
+            </a>
+        </li>
+    </ul>
+</nav>
 
 <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
 <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
@@ -29,3 +40,8 @@
 <script src="{% static 'datatable-buttons-1.6.1/js/buttons.html5.min.js' %}"></script>
 <script src="{% static 'datatable-buttons-1.6.1/js/buttons.jqueryui.min.js' %}"></script>
 <script src="{% static 'designer/js/jquery.cookie.js' %}"></script>
+
+{% block content %}
+{% endblock content %}
+</body>
+</html>
