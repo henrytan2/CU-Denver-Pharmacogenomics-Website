@@ -22,7 +22,7 @@
         5. Both result pages are available for download in CSV format.
     </p>
     <table id="table"
-           class="table table-hover table-striped hidden">
+           class="table table-hover table-striped d-none">
         <thead>
         <tr>
             <th>SideEffect</th>
@@ -86,7 +86,7 @@
     function WireUpDataTable() {
         dtTable = $("#table")
             .on("init.dt", function () {
-                $("#table").removeClass("hidden");
+                $("#table").removeClass("d-none");
             })
             .DataTable({});
     }
