@@ -10,7 +10,7 @@
 {% block body %}
     <h1>Sider Searcher - Drugs Ranked</h1>
     <table id="drugs-ranked"
-           class="table table-hover table-striped hidden">
+           class="table table-hover table-striped d-none">
         <thead>
         <tr>
             <th>DrugName</th>
@@ -44,7 +44,7 @@
     function WireUpDataTable() {
         dtTable = $("#drugs-ranked")
             .on("init.dt", function () {
-                $("#drugs-ranked").removeClass("hidden");
+                $("#drugs-ranked").removeClass("d-none");
             })
             .DataTable({
                 dom: 'lBfrtip',
