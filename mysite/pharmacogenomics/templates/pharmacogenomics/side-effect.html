@@ -1,23 +1,17 @@
+{% extends "pharmacogenomics/base.html" %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="en">
-{% load static %}
-
 
 {% csrf_token %}
 <head>
     <title>Sider Searcher</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'datatables/css/datatables.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'datatables/css/dataTables.bootstrap4.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'datatable-buttons-1.6.1/css/buttons.bootstrap4.min.css' %}">
-    <link href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.css" rel="stylesheet"
-          type='text/css'>
 </head>
 
 {% block body %}
     <h1>Sider Searcher</h1>
     <p>
-        Side Searcher is a tool used to group drug side effects of interest and find which drugs appear most in the
+        Side Searcher is a tool used to group drug side effects and find which drugs appear most in the
         group of side effects. Side effect info is pulled from <a href="http://sideeffects.embl.de/">SIDER</a><br>
         Note: Placebo side effects have been removed. <br>
         <b>Instructions:</b><br>
@@ -65,14 +59,6 @@
 </div>
 
 </html>
-<script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
-<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
-<script src="{% static 'datatables/js/jquery.dataTables.min.js' %}"></script>
-<script src="{% static 'datatables/js/dataTables.bootstrap.min.js' %}"></script>
-<script src="{% static 'datatables/js/datatables.min.js' %}"></script>
-<script src="{% static 'datatable-buttons-1.6.1/js/buttons.bootstrap.min.js' %}"></script>
-<script src="{% static 'designer/js/jquery.cookie.js' %}"></script>
-
 
 <script type="text/javascript">
     var csrftoken = $.cookie('csrftoken');
@@ -137,3 +123,5 @@
         }
     });
 </script>
+
+{% endblock content %}

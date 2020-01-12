@@ -42,6 +42,9 @@ class SideEffectRankedDrugsView(generic.ListView):
             .values('drug_name').annotate(dcount=Count('drug_name'))
 
 
-class ContactView(generic.ListView):
-    model = SideEffect
+class ContactView(generic.TemplateView):
     template_name = 'pharmacogenomics/contact.html'
+
+
+class PeopleView(generic.TemplateView):
+    template_name = 'pharmacogenomics/people.html'
