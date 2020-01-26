@@ -1,31 +1,163 @@
-{% extends "pharmacogenomics/base.html" %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Reed Lab|Pharmacogenomics|Oganic chemistry</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" 
+integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css?family=Gupter&display=swap" rel="stylesheet">
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-144184820-1"></script>
 
-{% block content %}
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <title>CU Denver Pharmacogenomics Home</title>
-    </head>
-    <body>
+<style>
+body {
+background-image: url("images/concrete.png");}
+h1 {font-family: 'Gupter', serif;}
+h2 {font-family: 'Gupter', serif;}
+h5 {font-family: 'Gupter', serif;}
+p {font-family: 'Gupter', serif;}
+
+a {
+    color: grey;
+    text-decoration: none;
+    background-color: transparent;
+}
 
 
-    <div class="row"
-         style="font-size: 22px; margin-top: 22px;">
-        <a class="col-2 offset-3" href="{% url 'pharmacogenomics:index' %}">Home</a>
-        <a class="col-2" href="{% url 'pharmacogenomics:side-effect' %}">SiderSearcher</a>
-        <a class="col-2" href="{% url 'pharmacogenomics:people' %}">People</a>
-        <a class="col-2" href="{% url 'pharmacogenomics:contact' %}">Contact</a>
-    </div>
 
+</style>
+</head>
+<body>
 
-    <div class="container">
-        <div class="row" style="margin-top: 30px;">
-            <div class="col offset-3">
-                <h1 style="
+	<!-----NAV START---->
+	<div class="row" 
+    style = "margin-left: 397Px;
+    font-size: 22px;
+	margin-top: 22px;"
+>
+		
+<ul class="nav" style="text-align:center !important>
+
+<li class="nav-item" style="padding-right: 30px; color:grey;">
+    <a class="nav-link active" href="index.html">home</a>
+  </li>
+  <li class="nav-item" style="padding-right: 30px; padding-left: 30px;">
+    <a class="nav-link active" href="sider.html">SiderSearcher</a>
+  </li>
+  <li class="nav-item" style="padding-right: 30px;">
+    <a class="nav-link" href="people.html">People</a>
+  </li>
+  <li class="nav-item" style="padding-right: 30px;">
+    <a class="nav-link" href="contact.html">Contact</a>
+  </li>
+</ul>
+</div>
+		
+		
+<!-----NAV END ----->
+<div class="container">
+<div class="row" style= "text-align: center; color:grey margin-top: 35px; margin-top: 30px;">
+    <div class="col-lg">
+	<h1 style= "
     letter-spacing: 35px;
     font-size: 60px;">Reed Lab</h1>
-            </div>
-        </div>
-        <hr>
-    </div>
-{% endblock content %}
+	</div>
+	</div>
+	<hr>
+	</div>
+
+
+<!-----Hero START---->
+<div class="container"> 
+<img src="images/collage.jpg" class="img-fluid" alt="Responsive image">
+</div>
+<p style="
+    text-align: center;
+    margin-left: 200px;
+    margin-right: 200px;
+    font-size: 21px;
+    margin-top: 40px;
+	margin-bottom: 40px;
+">
+Professor Reed's research program falls at the interface between nanoscience and medicine. The first focus of his research is on nanoparticle-lipid conjugates as membrane mimics. The second is on nanomaterials for phototherapeutic applications and the third is utilizing artificial Intelligence, informed by computational chemistry, to predict what genetic patterns cause some people to be harmed by the drugs that are meant to help them.
+</p>
+<div class="container"> 
+<div class="row" style=" background-color:#B2CEDE; font-size: 30px; margin-top: 20px;">
+<div class= "col-lg"> 
+<p style="text-align: center; padding-top: 15px;">Interested in joining the lab? <a href="contact.html" style="text-decoration: none;">  Contact Dr. Reed</a> for information about current openings. </p>
+ </div>
+ </div>
+ </div>
+  <!-----Hero END---->
+  <div class="container">
+  <hr>
+  </div>
+  
+  <!-----PUBS START---->
+<div class="container">
+<div class="row" style= "text-align: left; color:grey margin-top: 40px;">
+    <div class="col-lg" style= "margin-top: 40px;">
+	<h2>Selected Publications</h2>
+	<a href="https://scholar.google.com/citations?hl=en&user=f3CHyKEAAAAJ&view_op=list_works&sortby=pubdate" style="text-decoration: none;">Google Scholar</a> <br> 
+	
+	<div class="row" style= "text-align: left; color:grey margin-top: 20px;;font-size: 21px;">
+    <div class="col-lg">
+	<p> Computational study on the removal of photolabile protecting groups by photochemical reactions
+CH Yang, J Denne, S Reed, H Wang
+Computational and Theoretical Chemistry 1151, 1-11		<b>2019</b><br>
+
+<br>Measurement and multilayer model of cooling of gold nanoparticles: Transient thermoreflectance experiments and multilayer analytical modeling
+BG Green, SM Budy, SM Reed, ME Siemens
+Journal of Applied Physics 124 (14), 144301		<b>2018</b><br>
+
+<br>Lipid-coated gold nanoparticles and FRET allow sensitive monitoring of liposome clustering mediated by the synaptotagmin-7 C2A domain
+DJ Hamilton, MD Coffman, JD Knight, SM Reed
+Langmuir 33 (36), 9222-9230		<b>2017</b> <br>
+
+<br>Synthesis and assembly of gold nanoparticles/polymers: Spheres, prisms, octadehra, and rods... oh my!
+S Budy, D Hamilton, Y Cai, M Knowles, S Reed
+ABSTRACTS OF PAPERS OF THE AMERICAN CHEMICAL SOCIETY 253		<b>2017</b> <br>
+
+<br>Conformational changes in C-reactive protein affect binding to curved membranes in a lipid bilayer model of the apoptotic cell surface
+AA Alnaas, CL Moon, M Alton, SM Reed, MK Knowles
+The Journal of Physical Chemistry B 121 (12), 2631-2639		<b>2017</b> <br>
+
+<br>Polymer mediated layer-by-layer assembly of different shaped gold nanoparticles
+SM Budy, DJ Hamilton, Y Cai, MK Knowles, SM Reed
+Journal of colloid and interface science 487, 336-347 <b>2017</b><br>
+	</p>
+	<hr>
+	</div> </div>
+  <!---- PUBS END---->
+  
+</head>
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+</body>
+</html>
