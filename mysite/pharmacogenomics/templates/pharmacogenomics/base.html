@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title></title>
+    <title>Reed Lab|Pharmacogenomics|Organic Chemistry</title>
     <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'datatables/css/datatables.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'datatables/css/dataTables.bootstrap4.min.css' %}">
@@ -40,7 +40,35 @@
 <script src="{% static 'datatable-buttons-1.6.1/js/buttons.html5.min.js' %}"></script>
 <script src="{% static 'datatable-buttons-1.6.1/js/buttons.jqueryui.min.js' %}"></script>
 <script src="{% static 'designer/js/jquery.cookie.js' %}"></script>
+{% block css %}
+    <style>
+        body {
+            background-image: url("{% static "images/concrete.png" %}");
+        }
 
+        h1 {
+            font-family: 'Gupter', serif;
+        }
+
+        h2 {
+            font-family: 'Gupter', serif;
+        }
+
+        h5 {
+            font-family: 'Gupter', serif;
+        }
+
+        p {
+            font-family: 'Gupter', serif;
+        }
+
+        a {
+            color: grey;
+            text-decoration: none;
+            background-color: transparent;
+        }
+    </style>
+{% endblock css %}
 {% block content %}
 {% endblock content %}
 </body>
