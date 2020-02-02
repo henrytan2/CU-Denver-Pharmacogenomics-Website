@@ -1,16 +1,14 @@
 {% extends "pharmacogenomics/base.html" %}
-
+{% load static %}
 {% block content %}
 
-<!DOCTYPE html>
-<html lang="en">
-{% load static %}
+    <!DOCTYPE html>
+    <html lang="en">
 
-<head>
-    <title>Sider Searcher - Results</title>
-</head>
-
-{% block body %}
+    <head>
+        <title>Sider Searcher - Results</title>
+    </head>
+    <body style="background-image:none">
     <table id="sider-results"
            class="table table-hover table-striped d-none">
         <thead>
@@ -48,29 +46,27 @@
             onclick="location.href='{% url 'pharmacogenomics:side-effect-ranked-drugs' %}'">
         View Drugs Ranked
     </button>
-{% endblock %}
+    </body>
+    </html>
 
-</html>
+    <script>
+        var dtTable;
 
-<script>
-    var dtTable;
+        $(document).ready(function () {
+            WireUpDataTable();
+        });
 
-    $(document).ready(function () {
-        WireUpDataTable();
-    });
-
-    function WireUpDataTable() {
-        dtTable = $("#sider-results")
-            .on("init.dt", function () {
-                $("#sider-results").removeClass("d-none");
-            })
-            .DataTable({
-                dom: 'lBfrtip',
-                buttons: [
-                    'csv'
-                ]
-            });
-    }
-</script>
-
+        function WireUpDataTable() {
+            dtTable = $("#sider-results")
+                .on("init.dt", function () {
+                    $("#sider-results").removeClass("d-none");
+                })
+                .DataTable({
+                    dom: 'lBfrtip',
+                    buttons: [
+                        'csv'
+                    ]
+                });
+        }
+    </script>
 {% endblock content %}
