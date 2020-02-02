@@ -39,8 +39,9 @@
                     <td>{{ s.side_effect }}</td>
                     <td class="actions">
                         <button type="submit"
-                                class="btn btn-outline-secondary list-add-btn">
-                            <span class="fa fa-check"></span>
+                                class="btn btn-outline-secondary list-add-btn"
+                                style="min-width: 40px">
+                            <span class="fas fa-check"></span>
                         </button>
                     </td>
                 </tr>
@@ -95,17 +96,16 @@
         $("#table").on("click", ".list-add-btn", function () {
             var $tr = $(this).closest('tr');
             var data = dtTable.row($tr).data();
-
-            if ($(this).find("span").hasClass("fa-check")) {
-                $(this).find("span").removeClass("fa-check").addClass("fa-remove");
+            if ($(this).find("svg").hasClass("fa-check")) {
+                $(this).find("svg").removeClass("fa-check").addClass("fa-times");
                 sideEffectList.push(data[0]);
                 $.ajax({
                     type: 'POST',
                     url: '{% url 'pharmacogenomics:side-effect' %}',
                     data: {'sideEffectList': sideEffectList}
                 });
-            } else if ($(this).find("span").hasClass("fa-remove")) {
-                $(this).find("span").removeClass("fa-remove").addClass("fa-check");
+            } else if ($(this).find("svg").hasClass("fa-times")) {
+                $(this).find("svg").removeClass("fa-times").addClass("fa-check");
                 var index = sideEffectList.indexOf(data[0]);
                 sideEffectList.splice(index, 1);
                 $.ajax({
