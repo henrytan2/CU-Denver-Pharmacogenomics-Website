@@ -19,4 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('pharmacogenomics/', include('pharmacogenomics.urls')),
+    # path('gtex-exac/', include('gtex_exac.urls')),
 ]
