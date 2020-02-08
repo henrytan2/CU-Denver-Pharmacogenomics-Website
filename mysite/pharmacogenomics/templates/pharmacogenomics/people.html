@@ -1,4 +1,4 @@
-{% extends 'pharmacogenomics/base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 {% block content %}
     <!DOCTYPE html>
@@ -8,8 +8,8 @@
     <div class="row justify-content-center" style="font-size:25px">
         <a class="col-2" href={% url 'pharmacogenomics:index' %}>Home</a>
         <a class="col-2" href={% url 'pharmacogenomics:side-effect' %}>SiderSearcher</a>
-        <a class="col-2" href="{% url 'pharmacogenomics:people' %}">People</a>
-        <a class="col-2" href="{% url 'pharmacogenomics:contact' %}">Contact</a>
+        <a class="col-2" href={% url 'pharmacogenomics:people' %}>People</a>
+        <a class="col-2" href={% url 'pharmacogenomics:contact' %}>Contact</a>
     </div>
 
     <div class="container">

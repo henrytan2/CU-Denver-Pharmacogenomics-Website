@@ -1,5 +1,5 @@
 from django.db.models import Count
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse
 from django.views import generic
 from .models import SideEffect
 
