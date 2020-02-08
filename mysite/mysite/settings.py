@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ["cudenverpharmacogenomics.pythonanywhere.com", "127.0.0.1"]
 
 INSTALLED_APPS = [
     'pharmacogenomics.apps.PharmacogenomicsConfig',
+    'gtexome.apps.GtexomeConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
