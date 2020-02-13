@@ -14,7 +14,6 @@
     <link rel="stylesheet" type="text/css" href="{% static 'datatable-buttons-1.6.1/css/buttons.dataTables.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'font-awesome/css/all.min.css' %}">
 </head>
-<body>
 <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
     <ul class="navbar-nav">
         <li class="nav-item active">
@@ -71,6 +70,14 @@
     </style>
 {% endblock css %}
 {% block content %}
+    <body>
+    </body>
 {% endblock content %}
-</body>
+<hr>
+<footer style="color:#ffffff; background:#343a40;">
+    <div class="d-flex pl-3 align-items-center"
+         style="height: 2.5em; font-size:1.25em">
+        &copy {% now "Y" %}
+    </div>
+</footer>
 </html>

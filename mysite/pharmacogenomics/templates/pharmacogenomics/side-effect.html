@@ -1,8 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-    <!DOCTYPE html>
-    <html lang="en">
-
     {% csrf_token %}
     <head>
         <title>Sider Searcher</title>
@@ -13,7 +10,8 @@
         <h1>Sider Searcher</h1>
         <p>
             Side Searcher is a tool used to group drug side effects and find which drugs appear most in the
-            group of side effects. Side effect info is pulled from <a style="color:#0000FF;" href="http://sideeffects.embl.de/">SIDER</a><br>
+            group of side effects. Side effect info is pulled from <a style="color:#0000FF;"
+                                                                      href="http://sideeffects.embl.de/">SIDER</a><br>
             Note: Placebo side effects have been removed. <br>
             <b>Instructions:</b><br>
             1. Add the side effects you are interested in by clicking the check button in the add column. <br>
@@ -51,7 +49,7 @@
     {% endblock %}
 
     <div class="submit-btn-container"
-         style="float: right;"
+         style="text-align: right; margin-top: 10px"
          onclick="location.href='{% url 'pharmacogenomics:side-effect-results' %}'">
         <button type="submit"
                 id="side-effect-list-submit"
@@ -59,8 +57,7 @@
             Submit
         </button>
     </div>
-    </body>
-    </html>
+</body>
 
     <script type="text/javascript">
         var csrftoken = $.cookie('csrftoken');

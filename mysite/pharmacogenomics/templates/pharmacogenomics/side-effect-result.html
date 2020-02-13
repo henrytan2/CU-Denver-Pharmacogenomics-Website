@@ -1,13 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-
-    <!DOCTYPE html>
-    <html lang="en">
-
-    <head>
-        <title>Sider Searcher - Results</title>
-    </head>
     <body style="background-image:none">
     <table id="sider-results"
            class="table table-hover table-striped d-none">
@@ -41,13 +34,14 @@
         {% endfor %}
         </tbody>
     </table>
-    <button class="btn btn-primary"
-            style="float:right;"
-            onclick="location.href='{% url 'pharmacogenomics:side-effect-ranked-drugs' %}'">
-        View Drugs Ranked
-    </button>
+    <div style="text-align: right; margin-top: 10px">
+        <button class="btn btn-primary"
+                onclick="location.href='{% url 'pharmacogenomics:side-effect-ranked-drugs' %}'">
+            View Drugs Ranked
+        </button>
+    </div>
+
     </body>
-    </html>
 
     <script>
         var dtTable;
