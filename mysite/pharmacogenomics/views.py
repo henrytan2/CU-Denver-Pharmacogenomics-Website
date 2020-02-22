@@ -22,7 +22,6 @@ class SideEffectView(generic.ListView):
             request.session['side_effect_list'] = self.side_effect_list
             return HttpResponse('pharmacogenomics:side-effect-results', {'side_effect_list': self.side_effect_list})
 
-
 class SideEffectResultsView(generic.ListView):
     model = SideEffect
     template_name = 'pharmacogenomics/side-effect-result.html'
