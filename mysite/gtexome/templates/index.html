@@ -3,10 +3,44 @@
 {% block content %}
     <body style="background:none">
     <h1>GTExome</h1>
+    <button class="btn btn-secondary"
+            data-toggle="modal"
+            data-target="#directionsModal" style="margin:12px;text-align: right;">
+        Info
+    </button>
+    <div class="modal fade" id="directionsModal" tabindex="-1" role="dialog" aria-labelledby="directionsModal"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="directionsModalTitle">Info</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    GTExome is a tool to connect genotype expression data to exome data by filtering the
+                    <a href="https://gtexportal.org/home/">GTEx database</a> for specific TPM ranges in different
+                    tissue types to get a list of genes. From the list of genes, you can view the exome data
+                    sourced from <a href="https://gnomad.broadinstitute.org">gnomAD/ExAC</a>.
+                    <b>Directions:</b><br>
+                    1. Add tissue types from the left list by clicking the plus button.<br>
+                    2. The tissue type will appear with an input range for TPM on the right list.<br>
+                    3. Hit the Submit button once you are done inputting tissue types and TPM ranges.<br>
+                    4. You will be redirected to a results page with a list of genes available in csv format.<br>
+                    5. Each Gene ID is a link to exome data available in csv format.<br>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col">
             <div class="card">
-                <div class="card-body" style="height:300px; overflow-y: auto;">
+                <div class="card-body" style="height:100vh; overflow-y: auto;">
                     <h3>Tissue types:</h3>
                     <ul id="tissue-list" class="list-group" style="overflow-y: scroll">
                         {% for field in object_list %}
@@ -24,7 +58,7 @@
         </div>
         <div class="col">
             <div class="card">
-                <div class="card-body" style="height:300px; overflow-y: auto;">
+                <div class="card-body" style="height:100vh; overflow-y: auto;">
                     <h3>Filter by TPM range: </h3>
                     <ul id="filter-list" class="list-group" style="overflow-y: scroll">
                     </ul>
@@ -32,7 +66,7 @@
             </div>
         </div>
     </div>
-    <div style="text-align: right;">
+    <div style="text-align: right; margin:12px">
         <button class="btn btn-primary" onclick="GetAllFilters()">
             Submit
         </button>
