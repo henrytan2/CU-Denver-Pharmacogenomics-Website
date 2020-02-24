@@ -5,6 +5,7 @@
            class="table table-hover table-striped d-none">
         <thead>
         <tr>
+            <th>AlleleFrequency</th>
             <th>AlleleCount</th>
             <th>Pos</th>
             <th>BaseQRankSum</th>
@@ -34,7 +35,6 @@
             <th>AlleleCount_SouthAsian</th>
             <th>AlleleCount_European(Finnish)</th>
             <th>Category</th>
-            <th>AlleleFrequency</th>
             <th>MajorConsequence</th>
             <th>HGVSc</th>
             <th>rsid</th>
@@ -44,13 +44,13 @@
             <th>Chrom</th>
             <th>HomCount</th>
             <th>AlleleNum</th>
-            <th>PopAns_European(Non-Finnish)</th>
-            <th>PopAns_EastAsian</th>
-            <th>PopAns_Other</th>
-            <th>PopAns_African</th>
-            <th>PopAns_Latino</th>
-            <th>PopAns_SouthAsian</th>
-            <th>PopAns_European(Finnish)</th>
+            <th>AlleleNum_European(Non-Finnish)</th>
+            <th>AlleleNum_EastAsian</th>
+            <th>AlleleNum_Other</th>
+            <th>AlleleNum_African</th>
+            <th>AlleleNum_Latino</th>
+            <th>AlleleNum_SouthAsian</th>
+            <th>AlleleNum_European(Finnish)</th>
             <th>Filter</th>
             <th>Flags</th>
             <th>HGVS</th>
@@ -94,6 +94,10 @@
                     ],
                     data: data,
                     columns: [
+                        {
+                            data: "allele_freq",
+                            defaultContent: ""
+                        },
                         {
                             data: "allele_count",
                             defaultContent: ""
@@ -208,10 +212,6 @@
                         },
                         {
                             data: "category",
-                            defaultContent: ""
-                        },
-                        {
-                            data: "allele_freq",
                             defaultContent: ""
                         },
                         {
