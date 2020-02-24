@@ -1,5 +1,5 @@
 from django.db.models import Count
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse
 from django.views import generic
 from .models import SideEffect
 
@@ -21,7 +21,6 @@ class SideEffectView(generic.ListView):
             self.side_effect_list = request.POST.getlist('sideEffectList[]')
             request.session['side_effect_list'] = self.side_effect_list
             return HttpResponse('pharmacogenomics:side-effect-results', {'side_effect_list': self.side_effect_list})
-
 
 class SideEffectResultsView(generic.ListView):
     model = SideEffect

@@ -1,19 +1,14 @@
-{% extends "pharmacogenomics/base.html" %}
+{% extends "base.html" %}
 {% block content %}
-    <!DOCTYPE html>
-    <html lang="en">
-
-    {% csrf_token %}
     <head>
         <title>Sider Searcher</title>
     </head>
-
-    {% block body %}
         <body style="background-image:none;">
         <h1>Sider Searcher</h1>
         <p>
-            Side Searcher is a tool used to group drug side effects and find which drugs appear most in the
-            group of side effects. Side effect info is pulled from <a style="color:#0000FF;" href="http://sideeffects.embl.de/">SIDER</a><br>
+            Sider Searcher is a tool used to group drug side effects and find which drugs appear most in the
+            group of side effects. Side effect info is pulled from <a style="color:#0000FF;"
+                                                                      href="http://sideeffects.embl.de/">SIDER</a><br>
             Note: Placebo side effects have been removed. <br>
             <b>Instructions:</b><br>
             1. Add the side effects you are interested in by clicking the check button in the add column. <br>
@@ -41,17 +36,16 @@
                         <button type="submit"
                                 class="btn btn-outline-secondary list-add-btn"
                                 style="min-width: 40px">
-                            <span class="fas fa-check"></span>
+                            <span class="fas fa-plus"></span>
                         </button>
                     </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
-    {% endblock %}
 
     <div class="submit-btn-container"
-         style="float: right;"
+         style="text-align: right; margin-top: 10px"
          onclick="location.href='{% url 'pharmacogenomics:side-effect-results' %}'">
         <button type="submit"
                 id="side-effect-list-submit"
@@ -59,27 +53,11 @@
             Submit
         </button>
     </div>
-    </body>
-    </html>
+</body>
 
     <script type="text/javascript">
-        var csrftoken = $.cookie('csrftoken');
-
-        function csrfSafeMethod(method) {
-            return (/(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-        }
-
-        $.ajaxSetup({
-            beforeSend: function (xhr, settings) {
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
-            }
-        });
-
         var dtTable;
         var sideEffectList = [];
-
 
         $(document).ready(function () {
             WireUpDataTable();
@@ -96,8 +74,8 @@
         $("#table").on("click", ".list-add-btn", function () {
             var $tr = $(this).closest('tr');
             var data = dtTable.row($tr).data();
-            if ($(this).find("svg").hasClass("fa-check")) {
-                $(this).find("svg").removeClass("fa-check").addClass("fa-times");
+            if ($(this).find("svg").hasClass("fa-plus")) {
+                $(this).find("svg").removeClass("fa-plus").addClass("fa-times");
                 sideEffectList.push(data[0]);
                 $.ajax({
                     type: 'POST',
@@ -105,7 +83,7 @@
                     data: {'sideEffectList': sideEffectList}
                 });
             } else if ($(this).find("svg").hasClass("fa-times")) {
-                $(this).find("svg").removeClass("fa-times").addClass("fa-check");
+                $(this).find("svg").removeClass("fa-times").addClass("fa-plus");
                 var index = sideEffectList.indexOf(data[0]);
                 sideEffectList.splice(index, 1);
                 $.ajax({

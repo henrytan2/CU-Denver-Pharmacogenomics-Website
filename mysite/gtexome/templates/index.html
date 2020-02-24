@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <body style="background:none">
+    <h1>GTExome</h1>
+    <button class="btn btn-secondary"
+            data-toggle="modal"
+            data-target="#directionsModal" style="margin:12px;text-align: right;">
+        Info
+    </button>
+    <div class="modal fade" id="directionsModal" tabindex="-1" role="dialog" aria-labelledby="directionsModal"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="directionsModalTitle">Info</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    GTExome is a tool to connect genotype expression data to exome data by filtering the
+                    <a href="https://gtexportal.org/home/">GTEx database</a> for specific TPM ranges in different
+                    tissue types to get a list of genes. From the list of genes, you can view the exome data
+                    sourced from <a href="https://gnomad.broadinstitute.org">gnomAD/ExAC</a>.
+                    <b>Directions:</b><br>
+                    1. Add tissue types from the left list by clicking the plus button.<br>
+                    2. The tissue type will appear with an input range for TPM on the right list.<br>
+                    3. Hit the Submit button once you are done inputting tissue types and TPM ranges.<br>
+                    4. You will be redirected to a results page with a list of genes available in csv format.<br>
+                    5. Each Gene ID is a link to exome data available in csv format.<br>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-body" style="height:100vh; overflow-y: auto;">
+                    <h3>Tissue types:</h3>
+                    <ul id="tissue-list" class="list-group" style="overflow-y: scroll">
+                        {% for field in object_list %}
+                            <li class="list-group-item">
+                                {{ field }}
+                                <button class="btn btn-outline-secondary tissue-buttons float-right"
+                                        style="min-width: 40px;">
+                                    <span class="fa fa-plus"></span>
+                                </button>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-body" style="height:100vh; overflow-y: auto;">
+                    <h3>Filter by TPM range: </h3>
+                    <ul id="filter-list" class="list-group" style="overflow-y: scroll">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="text-align: right; margin:12px">
+        <button class="btn btn-primary" onclick="GetAllFilters()">
+            Submit
+        </button>
+    </div>
+    </body>
+    <script>
+        $(document).ready(function () {
+            tissueTypeButtonHandler();
+        });
+
+        function tissueTypeButtonHandler() {
+            $(".tissue-buttons").click(function () {
+                var tissueText = $(this).parent().text().trim();
+                var tissueID = tissueText.replace("(", "-").replace(")", "");
+                if ($(this).find("svg").hasClass("fa-plus")) {
+                    $(this).find("svg").removeClass("fa-plus").addClass("fa-times");
+                    $("#filter-list").append('' +
+                        '<li id="' + tissueID + '" class="list-group-item"><span>' + tissueText + '</span>' +
+                        '<form class="float-right form-inline">' +
+                        '<input class="lower" type="number">' +
+                        'to' +
+                        '<input class="upper" type="number">' +
+                        '</form>' +
+                        '</li>');
+                } else if ($(this).find("svg").hasClass("fa-times")) {
+                    $(this).find("svg").removeClass("fa-times").addClass("fa-plus");
+                    $("#" + tissueID).remove();
+                }
+            });
+        }
+
+        function GetAllFilters() {
+            var filterDictionary = [];
+            $("#filter-list li").each(function () {
+                var tissueText = $(this).text();
+                var tissue = tissueText.substring(0, tissueText.length - 2);
+                var lower = $(this).find(".lower").val();
+                var upper = $(this).find(".upper").val();
+                filterDictionary.push({
+                    tissue: tissue,
+                    range: {
+                        lower: lower,
+                        upper: upper,
+                    }
+                });
+            });
+            $.ajax({
+                type: 'POST',
+                url: '{% url 'gtexome:index' %}',
+                data: {'filterDictionary': JSON.stringify(filterDictionary)},
+                success: function () {
+                    window.location = "{% url 'gtexome:results' %}";
+                }
+            });
+        }
+    </script>
+{% endblock content %}

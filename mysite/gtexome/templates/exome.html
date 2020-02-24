@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+{% block content %}
+    <body style="background-image:none;">
+    <table id="ExomeTable"
+           class="table table-hover table-striped d-none">
+        <thead>
+        <tr>
+            <th>AlleleFrequency</th>
+            <th>AlleleCount</th>
+            <th>Pos</th>
+            <th>BaseQRankSum</th>
+            <th>MQRankSum</th>
+            <th>InbreedingCoeff</th>
+            <th>VQSLOD</th>
+            <th>FS</th>
+            <th>MQ</th>
+            <th>DP</th>
+            <th>QD</th>
+            <th>ClippingRankSum</th>
+            <th>ReadPosRankSum</th>
+            <th>VariantID</th>
+            <th>Alt</th>
+            <th>Homozygotes_European(Non-Finnish)</th>
+            <th>Homozygotes_EastAsian</th>
+            <th>Homozygotes_Other</th>
+            <th>Homozygotes_African</th>
+            <th>Homozygotes_Latino</th>
+            <th>Homozygotes_SouthAsian</th>
+            <th>Homozygotes_European(Finnish)</th>
+            <th>AlleleCount_European(Non-Finnish)</th>
+            <th>AlleleCount_EastAsian</th>
+            <th>AlleleCount_Other</th>
+            <th>AlleleCount_African</th>
+            <th>AlleleCount_Latino</th>
+            <th>AlleleCount_SouthAsian</th>
+            <th>AlleleCount_European(Finnish)</th>
+            <th>Category</th>
+            <th>MajorConsequence</th>
+            <th>HGVSc</th>
+            <th>rsid</th>
+            <th>ref</th>
+            <th id="transcript-coordinates">TranscriptCoordinates</th>
+            <th>HGVSp</th>
+            <th>Chrom</th>
+            <th>HomCount</th>
+            <th>AlleleNum</th>
+            <th>AlleleNum_European(Non-Finnish)</th>
+            <th>AlleleNum_EastAsian</th>
+            <th>AlleleNum_Other</th>
+            <th>AlleleNum_African</th>
+            <th>AlleleNum_Latino</th>
+            <th>AlleleNum_SouthAsian</th>
+            <th>AlleleNum_European(Finnish)</th>
+            <th>Filter</th>
+            <th>Flags</th>
+            <th>HGVS</th>
+            <th>CANONICAL</th>
+        </tr>
+        </thead>
+    </table>
+    </body>
+
+    <script>
+        var dtTable;
+        var exacData;
+        var transcript;
+        $(document).ready(function () {
+            var currentURLString = window.location.href;
+            var currentURL = new URL(currentURLString);
+            var geneID = currentURL.searchParams.get("gene_id");
+            document.title = geneID;
+            $.ajax({
+                type: "POST",
+                data: {"geneID": geneID},
+                url: "{% url 'gtexome:exome' %}",
+                success: function (response) {
+                    exacData = response;
+                    transcript  = Object.keys(response[0]["transcript_coordinates"].valueOf())[0];
+                    $("#transcript-coordinates").text("TranscriptCoordinate:" + transcript);
+                    WireUpDataTable(exacData);
+                }
+            });
+        });
+
+        function WireUpDataTable(data) {
+            dtTable = $("#ExomeTable")
+                .on("init.dt", function () {
+                    $("#ExomeTable").removeClass("d-none");
+                })
+                .DataTable({
+                    dom: "lBfrtip",
+                    buttons: [
+                        "csv"
+                    ],
+                    data: data,
+                    columns: [
+                        {
+                            data: "allele_freq",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "allele_count",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pos",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "quality_metrics.BaseQRankSum",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "quality_metrics.MQRankSum",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "quality_metrics.InbreedingCoeff",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "quality_metrics.VQSLOD",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "quality_metrics.FS",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "quality_metrics.MQ",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "quality_metrics.DP",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "quality_metrics.QD",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "quality_metrics.ClippingRankSum",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "quality_metrics.ReadPosRankSum",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "variant_id",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "alt",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_homs.European (Non-Finnish)",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_homs.East Asian",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_homs.Other",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_homs.African",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_homs.Latino",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_homs.South Asian",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_homs.European (Finnish)",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_acs.European (Non-Finnish)",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_acs.East Asian",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_acs.Other",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_acs.African",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_acs.Latino",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_acs.South Asian",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_acs.European (Finnish)",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "category",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "major_consequence",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "HGVSc",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "rsid",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "ref",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "transcript_coordinates." + transcript,
+                            defaultContent: ""
+                        },
+                        {
+                            data: "HGVSp",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "hom_count",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "chrom",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "allele_num",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_ans.European (Non-Finnish)",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_ans.East Asian",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_ans.Other",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_ans.African",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_ans.Latino",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_ans.South Asian",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "pop_ans.European (Finnish)",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "filter",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "flags",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "HGVS",
+                            defaultContent: ""
+                        },
+                        {
+                            data: "CANONICAL",
+                            defaultContent: ""
+                        },
+                    ],
+                    order: [[0, "desc"]]
+                });
+        }
+
+        function RenderColumns() {
+            var columnsArray = [];
+            for (var i = 0; i < exacData.length; i++) {
+                var keys = Object.keys(exacData[i]);
+                for (var k in Object.keys(exacData[i])) {
+                    if (exacData[i].hasOwnProperty(keys[k])) {
+                        columnsArray.push({
+                            "title": keys[k],
+                            "data": keys[k],
+                            "name": keys[k]
+                        })
+                    }
+                }
+            }
+            return columnsArray;
+        }
+    </script>
+{% endblock %}

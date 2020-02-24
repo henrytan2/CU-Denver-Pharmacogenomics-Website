@@ -19,5 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('pharmacogenomics/', include('pharmacogenomics.urls')),
-    path('gtex-exac/', include('gtexome.urls')),
+    path('gtexome/', include('gtexome.urls')),
 ]

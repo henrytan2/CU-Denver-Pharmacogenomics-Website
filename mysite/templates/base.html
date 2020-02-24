@@ -14,7 +14,6 @@
     <link rel="stylesheet" type="text/css" href="{% static 'datatable-buttons-1.6.1/css/buttons.dataTables.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'font-awesome/css/all.min.css' %}">
 </head>
-<body>
 <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
     <ul class="navbar-nav">
         <li class="nav-item active">
@@ -23,6 +22,26 @@
                     <img src="{% static 'images/logo-black.png' %}" width="30" height="30" alt="">
                 </span>
                 CU Denver Pharmacogenomics
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'pharmacogenomics:side-effect' %}">
+                Sider Searcher
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'gtexome:index' %}">
+                GTExome
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'pharmacogenomics:people' %}">
+                People
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'pharmacogenomics:contact' %}">
+                Contact
             </a>
         </li>
     </ul>
@@ -41,36 +60,45 @@
 <script src="{% static 'datatable-buttons-1.6.1/js/buttons.html5.min.js' %}"></script>
 <script src="{% static 'datatable-buttons-1.6.1/js/buttons.jqueryui.min.js' %}"></script>
 <script src="{% static 'designer/js/jquery.cookie.js' %}"></script>
+<script>
+    var csrftoken = $.cookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        return (/(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+</script>
 {% block css %}
     <style>
         body {
             background-image: url("{% static "images/concrete.png" %}");
         }
 
-        h1 {
-            font-family: 'Gupter', serif;
-        }
-
-        h2 {
-            font-family: 'Gupter', serif;
-        }
-
-        h5 {
-            font-family: 'Gupter', serif;
-        }
-
-        p {
-            font-family: 'Gupter', serif;
-        }
-
-        a {
-            color: grey;
-            text-decoration: none;
-            background-color: transparent;
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            margin: 0;
         }
     </style>
 {% endblock css %}
 {% block content %}
+    <body>
+    </body>
 {% endblock content %}
-</body>
+<hr>
+<footer style="color:#ffffff; background:#343a40;">
+    <div class="d-flex pl-3 align-items-center"
+         style="height: 2.5em; font-size:1.25em">
+        &copy {% now "Y" %}
+    </div>
+</footer>
 </html>
