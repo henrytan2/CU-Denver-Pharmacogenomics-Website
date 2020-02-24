@@ -1,16 +1,9 @@
-{% extends "pharmacogenomics/base.html" %}
+{% extends "base.html" %}
 {% load static %}
 {% block content %}
     <!DOCTYPE html>
     <html lang="en">
     <body>
-
-    <div class="row justify-content-center" style="font-size:25px">
-        <a class="col-2" href={% url 'pharmacogenomics:index' %}>Home</a>
-        <a class="col-2" href={% url 'pharmacogenomics:side-effect' %}>SiderSearcher</a>
-        <a class="col-2" href="{% url 'pharmacogenomics:people' %}">People</a>
-        <a class="col-2" href="{% url 'pharmacogenomics:contact' %}">Contact</a>
-    </div>
 
     <div class="row" style="text-align: center; margin-top: 30px;">
         <div class="col-lg">
@@ -42,20 +35,18 @@
         <div class="row" style=" background-color:#B2CEDE; font-size: 30px; margin-top: 20px;">
             <div class="col-lg">
                 <p style="text-align: center; padding-top: 15px;">Interested in joining the lab?
-                    <a href="{% url 'pharmacogenomics:contact' %}" style="text-decoration: none;">
-                        Contact Dr. Reed
-                    </a>
-                    for information about current openings.
+                    <a href="{% url 'pharmacogenomics:contact' %}"
+                        style="text-decoration: none;">
+                    Contact Dr. Reed
+                    </a> for information about current openings.
                 </p>
             </div>
         </div>
     </div>
-    <!-----Hero END---->
     <div class="container">
         <hr>
     </div>
 
-    <!-----PUBS START---->
     <div class="container">
         <div class="row" style="text-align: left; margin-top: 40px;">
             <div class="col-lg" style="margin-top: 40px;">
@@ -96,7 +87,6 @@
                             SM Budy, DJ Hamilton, Y Cai, MK Knowles, SM Reed
                             Journal of colloid and interface science 487, 336-347 <b>2017</b><br>
                         </p>
-                        <hr>
                     </div>
                 </div>
                 <!---- PUBS END---->

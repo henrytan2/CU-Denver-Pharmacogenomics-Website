@@ -3,11 +3,15 @@ from django.db import models
 
 # Create your models here.
 class GTEx(models.Model):
+    class Meta:
+        managed = True
+        db_table = 'gtexome_gtex'
+
     gene_id = models.CharField('Gene ID', max_length=20)
     description = models.CharField('Description', max_length=20)
     adipose_subcutaneous = models.FloatField('Adipose-Subcutaneous', max_length=10)
     adipose_visceral_omentum = models.FloatField('Adipose-Visceral(Omentum)', max_length=10)
-    adrenal_gland = models.FloatField('adrenal_gland', max_length=10)
+    adrenal_gland = models.FloatField('Adrenal-Gland', max_length=10)
     artery_aorta = models.FloatField('Artery-Aorta', max_length=10)
     artery_coronary = models.FloatField('Artery-Coronary', max_length=10)
     artery_tibial = models.FloatField('Artery-Tibial', max_length=10)
@@ -62,7 +66,6 @@ class GTEx(models.Model):
 
     def __str__(self):
         return self.gene_id
-
 
 
 
