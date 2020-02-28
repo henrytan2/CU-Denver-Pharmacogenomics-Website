@@ -5,7 +5,7 @@ from .models import SideEffect
 
 
 class IndexView(generic.TemplateView):
-    template_name = 'pharmacogenomics/index.html'
+    template_name = 'pharmacogenomics/gtexome.html'
 
 
 class SideEffectView(generic.ListView):

@@ -6,7 +6,7 @@ import json
 
 class IndexView(generic.ListView):
     model = GTEx
-    template_name = 'index.html'
+    template_name = 'gtexome.html'
     filter_dictionary = []
 
     def get_queryset(self):
