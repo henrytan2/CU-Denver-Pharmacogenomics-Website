@@ -16,6 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from . import views
+import sys
+
+sys.path.append("..")
+from ..pharmacogenomics.views import SideEffectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -23,6 +27,7 @@ urlpatterns = [
     path('people/', views.PeopleView.as_view(), name='people'),
     path('contact/', views.ContactView.as_view(), name='contact'),
     path('pharmacogenomics/', views.IndexView.as_view(), name='index2'),
-    path('pharmacogenomics/', include('pharmacogenomics.urls')),
+    path('sider-searcher/', include('pharmacogenomics.urls')),
+    path('pharmacogenomics/side-effect/', SideEffectView.as_view(), name='sider2'),
     path('gtexome/', include('gtexome.urls')),
 ]
