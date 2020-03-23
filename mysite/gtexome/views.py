@@ -1,5 +1,7 @@
 from django.http import HttpResponse, JsonResponse
 from django.views import generic
+from django.views.decorators.csrf import csrf_exempt
+
 from .models import GTEx
 import requests
 import json
@@ -50,6 +52,7 @@ class ResultsView(generic.ListView):
         return self.model.objects.filter(**kwargs)
 
 
+@csrf_exempt
 class ExomeView(generic.TemplateView):
     template_name = 'exome.html'
     exac_data = ''
