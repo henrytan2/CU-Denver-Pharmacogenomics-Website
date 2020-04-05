@@ -5,56 +5,50 @@
            class="table table-hover table-striped d-none">
         <thead>
         <tr>
-            <th>AlleleFrequency</th>
-            <th>AlleleCount</th>
-            <th>Pos</th>
-            <th>BaseQRankSum</th>
-            <th>MQRankSum</th>
-            <th>InbreedingCoeff</th>
-            <th>VQSLOD</th>
-            <th>FS</th>
-            <th>MQ</th>
-            <th>DP</th>
-            <th>QD</th>
-            <th>ClippingRankSum</th>
-            <th>ReadPosRankSum</th>
             <th>VariantID</th>
-            <th>Alt</th>
-            <th>Homozygotes_European(Non-Finnish)</th>
-            <th>Homozygotes_EastAsian</th>
-            <th>Homozygotes_Other</th>
-            <th>Homozygotes_African</th>
-            <th>Homozygotes_Latino</th>
-            <th>Homozygotes_SouthAsian</th>
-            <th>Homozygotes_European(Finnish)</th>
-            <th>AlleleCount_European(Non-Finnish)</th>
-            <th>AlleleCount_EastAsian</th>
-            <th>AlleleCount_Other</th>
-            <th>AlleleCount_African</th>
-            <th>AlleleCount_Latino</th>
-            <th>AlleleCount_SouthAsian</th>
-            <th>AlleleCount_European(Finnish)</th>
-            <th>Category</th>
-            <th>MajorConsequence</th>
-            <th>HGVSc</th>
-            <th>rsid</th>
-            <th>ref</th>
-            <th id="transcript-coordinates">TranscriptCoordinates</th>
-            <th>HGVSp</th>
-            <th>Chrom</th>
-            <th>HomCount</th>
-            <th>AlleleNum</th>
-            <th>AlleleNum_European(Non-Finnish)</th>
-            <th>AlleleNum_EastAsian</th>
-            <th>AlleleNum_Other</th>
-            <th>AlleleNum_African</th>
-            <th>AlleleNum_Latino</th>
-            <th>AlleleNum_SouthAsian</th>
-            <th>AlleleNum_European(Finnish)</th>
-            <th>Filter</th>
+            <th>AlleleFrequency</th>
+            <th>AlleleNumber</th>
+            <th>AlleleCount</th>
+            <th>AlleleCountHemi</th>
+            <th>AlleleCountHomozygote</th>
+            <th>Filters</th>
+            <th>AfricanAlleleCount</th>
+            <th>AfricanAlleleNumber</th>
+            <th>AfricanAlleleFreq</th>
+            <th>AmericanAlleleCount</th>
+            <th>AmericanAlleleNumber</th>
+            <th>AmericanAlleleFreq</th>
+            <th>AshkenaziJewishAlleleCount</th>
+            <th>AshkenaziJewishAlleleNumber</th>
+            <th>AshkenaziJewishAlleleFreq</th>
+            <th>EastAsianAlleleCount</th>
+            <th>EastAsianAlleleNumber</th>
+            <th>EastAsianAlleleFreq</th>
+            <th>FinnishAlleleCount</th>
+            <th>FinnishAlleleNumber</th>
+            <th>FinnishAlleleFreq</th>
+            <th>EuropeanAlleleCount</th>
+            <th>EuropeanAlleleNumber</th>
+            <th>EuropeanAlleleFreq</th>
+            <th>OtherAlleleCount</th>
+            <th>OtherAlleleNumber</th>
+            <th>OtherAlleleFreq</th>
+            <th>SouthAsianAlleleCount</th>
+            <th>SouthAsianAlleleNumber</th>
+            <th>SouthAsianAlleleFreq</th>
             <th>Flags</th>
+            <th>Chrom</th>
+            <th>Pos</th>
+            <th>Alt</th>
+            <th>Consequence</th>
+            <th>ConsequenceInCanonicalTranscript</th>
             <th>HGVS</th>
-            <th>CANONICAL</th>
+            <th>HGVSVc</th>
+            <th>HGVSVp</th>
+            <th>lof</th>
+            <th>lof_filter</th>
+            <th>lof_flags</th>
+            <th>rsid</th>
         </tr>
         </thead>
     </table>
@@ -62,7 +56,7 @@
 
     <script>
         var dtTable;
-        var exacData;
+        var gnomadData;
         var transcript;
         $(document).ready(function () {
             var currentURLString = window.location.href;
@@ -74,10 +68,14 @@
                 data: {"geneID": geneID},
                 url: "{% url 'gtexome:exome' %}",
                 success: function (response) {
-                    exacData = response;
-                    transcript  = Object.keys(response[0]["transcript_coordinates"].valueOf())[0];
-                    $("#transcript-coordinates").text("TranscriptCoordinate:" + transcript);
-                    WireUpDataTable(exacData);
+                    gnomadData = response;
+                    var exome_data = gnomadData.data["gene"]["variants"];
+                    exome_data.forEach(function (item) {
+                        if (item["exome"] === null) {
+                            item["exome"] = {"populations": null};
+                        }
+                    });
+                    WireUpDataTable(exome_data);
                 }
             });
         });
@@ -95,225 +93,328 @@
                     data: data,
                     columns: [
                         {
-                            data: "allele_freq",
-                            defaultContent: ""
+                            data: "variantId",
+                            defaultContent: "",
                         },
                         {
-                            data: "allele_count",
-                            defaultContent: ""
+                            data: "exome.af",
+                            defaultContent: "",
                         },
                         {
-                            data: "pos",
-                            defaultContent: ""
+                            data: "exome.an",
+                            defaultContent: "",
                         },
                         {
-                            data: "quality_metrics.BaseQRankSum",
-                            defaultContent: ""
+                            data: "exome.ac",
+                            defaultContent: "",
                         },
                         {
-                            data: "quality_metrics.MQRankSum",
-                            defaultContent: ""
+                            data: "exome.ac_hemi",
+                            defaultContent: "",
                         },
                         {
-                            data: "quality_metrics.InbreedingCoeff",
-                            defaultContent: ""
+                            data: "exome.ac_hom",
+                            defaultContent: "",
                         },
                         {
-                            data: "quality_metrics.VQSLOD",
-                            defaultContent: ""
+                            data: "exome.filters",
+                            defaultContent: "",
                         },
                         {
-                            data: "quality_metrics.FS",
-                            defaultContent: ""
+                            data: 'exome.populations',
+                            render:
+                                function(data) {
+                                if (data !== null) {
+                                    return data[0].ac;
+                                }
+                            },
+                            defaultContent: 0,
                         },
                         {
-                            data: "quality_metrics.MQ",
-                            defaultContent: ""
+                            data: "exome.populations",
+                            render:
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[0].an;
+                                    }
+                                },
+                            defaultContent: 0,
                         },
                         {
-                            data: "quality_metrics.DP",
-                            defaultContent: ""
+                            data: "exome.populations",
+                            render:
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[0].ac / data[0].an;
+                                    }
+                                },
+                            defaultContent: 0,
                         },
                         {
-                            data: "quality_metrics.QD",
-                            defaultContent: ""
+                            data: 'exome.populations',
+                            render:
+                                function(data) {
+                                if (data !== null) {
+                                    return data[1].ac;
+                                }
+                            },
+                            defaultContent: 0,
                         },
                         {
-                            data: "quality_metrics.ClippingRankSum",
-                            defaultContent: ""
+                            data: "exome.populations",
+                            render:
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[1].an;
+                                    }
+                                },
+                            defaultContent: 0,
                         },
                         {
-                            data: "quality_metrics.ReadPosRankSum",
-                            defaultContent: ""
+                            data: "exome.populations",
+                            render:
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[1].ac / data[1].an;
+                                    }
+                                },
+                            defaultContent: 0,
                         },
                         {
-                            data: "variant_id",
-                            defaultContent: ""
+                            data: 'exome.populations',
+                            render:
+                                function(data) {
+                                if (data !== null) {
+                                    return data[2].ac;
+                                }
+                            },
+                            defaultContent: 0,
                         },
                         {
-                            data: "alt",
-                            defaultContent: ""
+                            data: "exome.populations",
+                            render:
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[2].an;
+                                    }
+                                },
+                            defaultContent: 0,
                         },
                         {
-                            data: "pop_homs.European (Non-Finnish)",
-                            defaultContent: ""
+                            data: "exome.populations",
+                            render:
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[2].ac / data[2].an;
+                                    }
+                                },
+                            defaultContent: 0,
                         },
                         {
-                            data: "pop_homs.East Asian",
-                            defaultContent: ""
+                            data: 'exome.populations',
+                            render:
+                                function(data) {
+                                if (data !== null) {
+                                    return data[3].ac;
+                                }
+                            },
+                            defaultContent: 0,
                         },
                         {
-                            data: "pop_homs.Other",
-                            defaultContent: ""
+                            data: "exome.populations",
+                            render:
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[3].an;
+                                    }
+                                },
+                            defaultContent: 0,
                         },
                         {
-                            data: "pop_homs.African",
-                            defaultContent: ""
+                            data: "exome.populations",
+                            render:
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[3].ac / data[3].an;
+                                    }
+                                },
+                            defaultContent: 0,
                         },
                         {
-                            data: "pop_homs.Latino",
-                            defaultContent: ""
+                            data: 'exome.populations',
+                            render:
+                                function(data) {
+                                if (data !== null) {
+                                    return data[4].ac;
+                                }
+                            },
+                            defaultContent: 0,
                         },
                         {
-                            data: "pop_homs.South Asian",
-                            defaultContent: ""
+                            data: "exome.populations",
+                            render:
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[4].an;
+                                    }
+                                },
+                            defaultContent: 0,
                         },
                         {
-                            data: "pop_homs.European (Finnish)",
-                            defaultContent: ""
+                            data: "exome.populations",
+                            render:
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[4].ac / data[4].an;
+                                    }
+                                },
+                            defaultContent: 0,
                         },
                         {
-                            data: "pop_acs.European (Non-Finnish)",
-                            defaultContent: ""
+                            data: 'exome.populations',
+                            render:
+                                function(data) {
+                                if (data !== null) {
+                                    return data[5].ac;
+                                }
+                            },
+                            defaultContent: 0,
                         },
                         {
-                            data: "pop_acs.East Asian",
-                            defaultContent: ""
+                            data: "exome.populations",
+                            render:
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[5].an;
+                                    }
+                                },
+                            defaultContent: 0,
                         },
                         {
-                            data: "pop_acs.Other",
-                            defaultContent: ""
+                            data: "exome.populations",
+                            render:
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[5].ac / data[5].an;
+                                    }
+                                },
+                            defaultContent: 0,
                         },
                         {
-                            data: "pop_acs.African",
-                            defaultContent: ""
+                            data: 'exome.populations',
+                            render:
+                                function(data) {
+                                if (data !== null) {
+                                    return data[6].ac;
+                                }
+                            },
+                            defaultContent: 0,
                         },
                         {
-                            data: "pop_acs.Latino",
-                            defaultContent: ""
+                            data: "exome.populations",
+                            render:
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[6].an;
+                                    }
+                                },
+                            defaultContent: 0,
                         },
                         {
-                            data: "pop_acs.South Asian",
-                            defaultContent: ""
+                            data: "exome.populations",
+                            render:
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[6].ac / data[6].an;
+                                    }
+                                },
+                            defaultContent: 0,
                         },
                         {
-                            data: "pop_acs.European (Finnish)",
-                            defaultContent: ""
+                            data: 'exome.populations',
+                            render:
+                                function(data) {
+                                if (data !== null) {
+                                    return data[7].ac;
+                                }
+                            },
+                            defaultContent: 0,
                         },
                         {
-                            data: "category",
-                            defaultContent: ""
+                            data: "exome.populations",
+                            render:
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[7].an;
+                                    }
+                                },
+                            defaultContent: 0,
                         },
                         {
-                            data: "major_consequence",
-                            defaultContent: ""
-                        },
-                        {
-                            data: "HGVSc",
-                            defaultContent: ""
-                        },
-                        {
-                            data: "rsid",
-                            defaultContent: ""
-                        },
-                        {
-                            data: "ref",
-                            defaultContent: ""
-                        },
-                        {
-                            data: "transcript_coordinates." + transcript,
-                            defaultContent: ""
-                        },
-                        {
-                            data: "HGVSp",
-                            defaultContent: ""
-                        },
-                        {
-                            data: "hom_count",
-                            defaultContent: ""
-                        },
-                        {
-                            data: "chrom",
-                            defaultContent: ""
-                        },
-                        {
-                            data: "allele_num",
-                            defaultContent: ""
-                        },
-                        {
-                            data: "pop_ans.European (Non-Finnish)",
-                            defaultContent: ""
-                        },
-                        {
-                            data: "pop_ans.East Asian",
-                            defaultContent: ""
-                        },
-                        {
-                            data: "pop_ans.Other",
-                            defaultContent: ""
-                        },
-                        {
-                            data: "pop_ans.African",
-                            defaultContent: ""
-                        },
-                        {
-                            data: "pop_ans.Latino",
-                            defaultContent: ""
-                        },
-                        {
-                            data: "pop_ans.South Asian",
-                            defaultContent: ""
-                        },
-                        {
-                            data: "pop_ans.European (Finnish)",
-                            defaultContent: ""
-                        },
-                        {
-                            data: "filter",
-                            defaultContent: ""
+                            data: "exome.populations",
+                            render:
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[7].ac / data[7].an;
+                                    }
+                                },
+                            defaultContent: 0,
                         },
                         {
                             data: "flags",
-                            defaultContent: ""
+                            defaultContent: "",
                         },
                         {
-                            data: "HGVS",
-                            defaultContent: ""
+                            data: "chrom",
+                            defaultContent: "",
                         },
                         {
-                            data: "CANONICAL",
-                            defaultContent: ""
+                            data: "pos",
+                            defaultContent: "",
+                        },
+                        {
+                            data: "alt",
+                            defaultContent: "",
+                        },
+                        {
+                            data: "consequence",
+                            defaultContent: "",
+                        },
+                        {
+                            data: "consequence_in_canonical_transcript",
+                            defaultContent: "",
+                        },
+                        {
+                            data: "hgvs",
+                            defaultContent: "",
+                        },
+                        {
+                            data: "hgvsc",
+                            defaultContent: "",
+                        },
+                        {
+                            data: "hgvsp",
+                            defaultContent: "",
+                        },
+                        {
+                            data: "lof",
+                            defaultContent: "",
+                        },
+                        {
+                            data: "lof_filter",
+                            defaultContent: "",
+                        },
+                        {
+                            data: "lof_flags",
+                            defaultContent: "",
+                        },
+                        {
+                            data: "rsid",
+                            defaultContent: "",
                         },
                     ],
                     order: [[0, "desc"]]
                 });
-        }
-
-        function RenderColumns() {
-            var columnsArray = [];
-            for (var i = 0; i < exacData.length; i++) {
-                var keys = Object.keys(exacData[i]);
-                for (var k in Object.keys(exacData[i])) {
-                    if (exacData[i].hasOwnProperty(keys[k])) {
-                        columnsArray.push({
-                            "title": keys[k],
-                            "data": keys[k],
-                            "name": keys[k]
-                        })
-                    }
-                }
-            }
-            return columnsArray;
         }
     </script>
 {% endblock %}
