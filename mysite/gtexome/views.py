@@ -53,12 +53,49 @@ class ResultsView(generic.ListView):
 
 class ExomeView(generic.TemplateView):
     template_name = 'exome.html'
-    exac_data = ''
+    gnomad_data = ''
 
     def post(self, request):
-        exac_api_url = 'http://exac.hms.harvard.edu/rest/gene/variants_in_transcript/'
         gene_id = request.POST.get("geneID")
+
+        query = """query {
+  gene(gene_id: "%s", reference_genome: GRCh37) {
+    variants(dataset: gnomad_r2_1) {
+      variantId
+      exome {
+        ac
+        ac_hemi
+        ac_hom
+        an
+        af
+        filters
+        populations {
+          id
+          ac
+          an
+        }
+      }
+      flags
+      chrom
+      pos
+      alt
+      consequence
+      consequence_in_canonical_transcript
+      hgvs
+      hgvsc
+      hgvsp
+      lof
+      lof_filter
+      lof_flags
+      rsid
+      }      
+    }
+  }
+"""
+
+        query = query % gene_id
+
         if request.method == 'POST':
-            url = "{0}{1}".format(exac_api_url, gene_id)
-            self.exac_data = requests.get(url).json()
-            return JsonResponse(self.exac_data, safe=False)
+            url = 'https://gnomad.broadinstitute.org/api/'
+            self.gnomad_data = requests.post(url, json={'query': query}).json()
+            return JsonResponse(self.gnomad_data, safe=False)
