@@ -1,5 +1,6 @@
 from django.http import HttpResponse, JsonResponse
 from django.views import generic
+
 from .models import GTEx
 import requests
 import json
