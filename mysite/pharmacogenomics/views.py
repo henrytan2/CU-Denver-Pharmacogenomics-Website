@@ -35,4 +35,4 @@ class SideEffectRankedDrugsView(generic.ListView):
     def get_queryset(self):
         session_side_effect_list = self.request.session.get('side_effect_list')
         return self.model.objects.filter(side_effect__in=session_side_effect_list)\
-            .values('drug_name').annotate(dcount=Count('drug_name'))
+            .values('drug_name', 'drug_id').annotate(dcount=Count('drug_name'))
