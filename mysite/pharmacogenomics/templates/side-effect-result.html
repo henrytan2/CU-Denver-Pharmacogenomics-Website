@@ -8,12 +8,12 @@
         <tr>
             <th>Drug ID</th>
             <th>Stereoisomer ID</th>
+            <th>Drug name</th>
             <th>UMLS Concept ID</th>
             <th>Frequency (%)</th>
             <th>Frequency lower</th>
             <th>Frequency upper</th>
             <th>Side effect</th>
-            <th>Drug name</th>
             <th>ATC code</th>
         </tr>
         </thead>
@@ -23,12 +23,12 @@
             <tr>
                 <td>{{ s.drug_id }}</td>
                 <td>{{ s.stereoisomer }}</td>
+                <td><a href={% url 'pharmacogenomics:fda' %}?drug_name={{ s.drug_name }}>{{ s.drug_name }}</a></td>
                 <td>{{ s.umls_concept_id }}</td>
                 <td>{{ s.frequency_percent }}</td>
                 <td>{{ s.frequency_lower }}</td>
                 <td>{{ s.frequency_upper }}</td>
                 <td>{{ s.side_effect }}</td>
-                <td>{{ s.drug_name }}</td>
                 <td>{{ s.atc_code }}</td>
             </tr>
         {% endfor %}

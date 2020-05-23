@@ -6,4 +6,5 @@ urlpatterns = [
     path('side-effect/', views.SideEffectView.as_view(), name='side-effect'),
     path('results/', views.SideEffectResultsView.as_view(), name='side-effect-results'),
     path('drugs-ranked/', views.SideEffectRankedDrugsView.as_view(), name='side-effect-ranked-drugs'),
+    path(r'fda/', views.FDAInfoView.as_view(), name='fda'),
 ]

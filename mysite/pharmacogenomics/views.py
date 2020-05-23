@@ -1,7 +1,8 @@
 from django.db.models import Count
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views import generic
 from .models import SideEffect
+import requests
 
 
 class SideEffectView(generic.ListView):
@@ -36,3 +37,15 @@ class SideEffectRankedDrugsView(generic.ListView):
         session_side_effect_list = self.request.session.get('side_effect_list')
         return self.model.objects.filter(side_effect__in=session_side_effect_list)\
             .values('drug_name', 'drug_id').annotate(dcount=Count('drug_name'))
+
+
+class FDAInfoView(generic.TemplateView):
+    template_name = 'fda.html'
+
+    def post(self, request):
+        drug_name = request.POST.get("drugName")
+
+        if request.method == 'POST':
+            fda_api_url = f'https://api.fda.gov/drug/event.json?search=patient.drug.openfda.generic_name:"{drug_name}"&count=patient.reaction.reactionmeddrapt.exact '
+            response = requests.get(fda_api_url).json()
+            return JsonResponse(response, safe=False)
