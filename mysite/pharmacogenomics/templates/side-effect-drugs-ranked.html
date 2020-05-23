@@ -20,7 +20,7 @@
         <tbody>
         {% for d in object_list %}
             <tr>
-                <td>{{ d.drug_name }}</td>
+                <td><a href={% url 'pharmacogenomics:fda' %}?drug_name={{ d.drug_name }}>{{ d.drug_name }}</a></td>
                 <td><a href="https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/CID/{{ d.drug_id | slice:'3:' }}/record/SDF/?record_type=3d&response_type=save&response_basename=Conformer3D_CID_{{ d.drug_id | slice:'3:' }}">{{ d.drug_id }}</a></td>
                 <td>{{ d.dcount }}</td>
             </tr>
