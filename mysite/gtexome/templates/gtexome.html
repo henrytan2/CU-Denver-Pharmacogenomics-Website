@@ -2,10 +2,10 @@
 
 {% block content %}
     <body style="background:none">
-    <h1>GTExome</h1>
+    <h1 style="margin-left: 10px">GTExome</h1>
     <button class="btn btn-secondary"
             data-toggle="modal"
-            data-target="#directionsModal" style="margin:12px;text-align: right;">
+            data-target="#directionsModal" style="margin:10px;text-align: right;">
         Info
     </button>
     <div class="modal fade" id="directionsModal" tabindex="-1" role="dialog" aria-labelledby="directionsModal"
@@ -22,7 +22,7 @@
                     GTExome is a tool to connect genotype expression data to exome data by filtering the
                     <a href="https://gtexportal.org/home/">GTEx database</a> for specific TPM ranges in different
                     tissue types to get a list of genes. From the list of genes, you can view the exome data
-                    sourced from <a href="https://gnomad.broadinstitute.org">gnomAD/ExAC</a>.
+                    sourced from <a href="https://gnomad.broadinstitute.org">gnomAD/ExAC</a>.<br>
                     <b>Directions:</b><br>
                     1. Add tissue types from the left list by clicking the plus button.<br>
                     2. The tissue type will appear with an input range for TPM on the right list.<br>
@@ -34,6 +34,26 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="form-inline" style="margin-bottom: 10px; margin-left: 10px;">
+        <div id="filter-toggle" class="btn-group btn-group-toggle" data-toggle="buttons">
+            <label class="btn btn-info active">
+                <input type="radio" name="options" id="filter-by-ratio" autocomplete="off" checked> Filter By TPM Ratio
+            </label>
+            <label class="btn btn-info">
+                <input type="radio" name="options" id="filter-by-range" autocomplete="off"> Filter By TPM Range
+            </label>
+        </div>
+        <div class="form-inline" id="filter-ratio-input" style="margin-left: 10px;">
+            Ratio Range (Leave blank for unbounded lower/upper):
+            <label>
+                <input id="lower-ratio" type="number" style="margin-right: 10px"> ≤
+            </label>
+            <label>
+                <input id="upper-ratio" type="number" style="margin-left:10px">
+            </label>
         </div>
     </div>
 
@@ -67,14 +87,18 @@
         </div>
     </div>
     <div style="text-align: right; margin:12px">
-        <button class="btn btn-primary" onclick="GetAllFilters()">
+        <button id="submit-button" class="btn btn-primary" onclick="GetAllFilters()" disabled>
             Submit
         </button>
     </div>
     </body>
     <script>
+        let filterByRatio;
+
         $(document).ready(function () {
+            filterByRatio = $("#filter-by-ratio:checked").val();
             tissueTypeButtonHandler();
+            FilterToggleHandler();
         });
 
         function tissueTypeButtonHandler() {
@@ -83,44 +107,113 @@
                 var tissueID = tissueText.replace("(", "-").replace(")", "");
                 if ($(this).find("svg").hasClass("fa-plus")) {
                     $(this).find("svg").removeClass("fa-plus").addClass("fa-times");
-                    $("#filter-list").append('' +
-                        '<li id="' + tissueID + '" class="list-group-item"><span>' + tissueText + '</span>' +
-                        '<form class="float-right form-inline">' +
-                        '<input class="lower" type="number">' +
-                        'to' +
-                        '<input class="upper" type="number">' +
-                        '</form>' +
-                        '</li>');
+                    if (filterByRatio) {
+                        $("#filter-list").append(
+                            '<li id="' + tissueID + '" class="list-group-item"><span>' + tissueText + '</span></li>'
+                        );
+                    } else {
+                        $("#filter-list").append('' +
+                            '<li id="' + tissueID + '" class="list-group-item"><span>' + tissueText + '</span>' +
+                            '<form class="float-right form-inline">' +
+                            '<input class="lower" type="number">' +
+                            'to' +
+                            '<input class="upper" type="number">' +
+                            '</form>' +
+                            '</li>');
+                    }
                 } else if ($(this).find("svg").hasClass("fa-times")) {
                     $(this).find("svg").removeClass("fa-times").addClass("fa-plus");
                     $("#" + tissueID).remove();
+                }
+                if ($("#filter-list li").length > 0) {
+                    $("#submit-button").prop("disabled", false);
+                }
+                else {
+                    $("#submit-button").prop("disabled", true);
+                }
+            });
+        }
+
+        function FilterToggleHandler() {
+            $("#filter-toggle").change(function () {
+                filterByRatio = $("#filter-by-ratio:checked").val();
+                $("#filter-list").empty();
+                DeselectButtons();
+                let filterRatioInput = $("#filter-ratio-input");
+                if (filterByRatio) {
+                    if (filterRatioInput.hasClass("d-none")) {
+                        filterRatioInput.removeClass("d-none");
+                    }
+                } else {
+                    filterRatioInput.addClass("d-none");
+                }
+            });
+        }
+
+        function DeselectButtons() {
+            $(".tissue-buttons").each(function (i, button) {
+                if ($(button).find("svg").hasClass("fa-times")) {
+                    $(button).find("svg").removeClass("fa-times").addClass("fa-plus");
                 }
             });
         }
 
         function GetAllFilters() {
-            var filterDictionary = [];
-            $("#filter-list li").each(function () {
-                var tissueText = $(this).text();
-                var tissue = tissueText.substring(0, tissueText.length - 2);
-                var lower = $(this).find(".lower").val();
-                var upper = $(this).find(".upper").val();
-                filterDictionary.push({
-                    tissue: tissue,
-                    range: {
-                        lower: lower,
-                        upper: upper,
+            if (filterByRatio) {
+                let filterRatioDict = {};
+                let lowerFilterRatio = $("#lower-ratio").val();
+                let upperFilterRatio = $("#upper-ratio").val();
+                let tissues = [];
+
+                if (lowerFilterRatio === "") {
+                    lowerFilterRatio = Number.NEGATIVE_INFINITY;
+                }
+                if (upperFilterRatio === "") {
+                    upperFilterRatio = Infinity
+                }
+
+                filterRatioDict["lower"] = lowerFilterRatio;
+                filterRatioDict["upper"] = upperFilterRatio;
+
+                $("#filter-list li").each(function () {
+                    let tissueText = $(this).text();
+                    tissues.push(tissueText);
+                });
+
+                filterRatioDict["tissues"] = tissues;
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{% url 'gtexome:gtexome' %}",
+                    data: {'filterRatio': JSON.stringify(filterRatioDict)},
+                    success: function() {
+                        window.location = "{% url 'gtexome:ratio_results' %}"
                     }
                 });
-            });
-            $.ajax({
-                type: 'POST',
-                url: '{% url 'gtexome:gtexome' %}',
-                data: {'filterDictionary': JSON.stringify(filterDictionary)},
-                success: function () {
-                    window.location = "{% url 'gtexome:results' %}";
-                }
-            });
+            } else {
+                var filterDictionary = [];
+                $("#filter-list li").each(function () {
+                    var tissueText = $(this).text();
+                    var tissue = tissueText.substring(0, tissueText.length - 2);
+                    var lower = $(this).find(".lower").val();
+                    var upper = $(this).find(".upper").val();
+                    filterDictionary.push({
+                        tissue: tissue,
+                        range: {
+                            lower: lower,
+                            upper: upper,
+                        }
+                    });
+                });
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url 'gtexome:gtexome' %}',
+                    data: {'filterDictionary': JSON.stringify(filterDictionary)},
+                    success: function () {
+                        window.location = "{% url 'gtexome:range_results' %}";
+                    }
+                });
+            }
         }
     </script>
 {% endblock content %}
