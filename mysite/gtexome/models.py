@@ -66,6 +66,3 @@ class GTEx(models.Model):
 
     def __str__(self):
         return self.gene_id
-
-
-
