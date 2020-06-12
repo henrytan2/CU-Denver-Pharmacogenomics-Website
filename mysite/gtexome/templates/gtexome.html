@@ -24,11 +24,14 @@
                     tissue types to get a list of genes. From the list of genes, you can view the exome data
                     sourced from <a href="https://gnomad.broadinstitute.org">gnomAD/ExAC</a>.<br>
                     <b>Directions:</b><br>
-                    1. Add tissue types from the left list by clicking the plus button.<br>
-                    2. The tissue type will appear with an input range for TPM on the right list.<br>
-                    3. Hit the Submit button once you are done inputting tissue types and TPM ranges.<br>
-                    4. You will be redirected to a results page with a list of genes available in csv format.<br>
-                    5. Each Gene ID is a link to exome data available in csv format.<br>
+                    1. Select 'Filter By TPM Ratio' or 'Filter By TPM Range'.<br>
+                    2. Add tissue types from the left list by clicking the plus button.<br>
+                    &emsp;a. If 'Filter By TPM Ratio' is selected. Choose a ratio range to filter by or leave blank for unbounded lower/upper range.<br>
+                    &emsp;Ratio calculated by summing the TPM of selected tissues as the numerator and the sum of non-selected tissues as the denominator.<br>
+                    &emsp;b. If 'Filter By TPM Range' is selected. For each selected tissue, enter a range for median TPM.<br>
+                    4. Hit the Submit button once you are done.<br>
+                    5. You will be redirected to a results page with a list of genes available in csv format.<br>
+                    6. Each Gene ID is a link to exome data available in csv format.<br>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -79,7 +82,7 @@
         <div class="col">
             <div class="card">
                 <div class="card-body" style="height:100vh; overflow-y: auto;">
-                    <h3>Filter by TPM range: </h3>
+                    <h3>Selected Tissues: </h3>
                     <ul id="filter-list" class="list-group" style="overflow-y: scroll">
                     </ul>
                 </div>
