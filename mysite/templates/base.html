@@ -47,7 +47,7 @@
         </li>
     </ul>
 </nav>
-
+<br>
 <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
 <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'datatables/js/jquery.dataTables.min.js' %}"></script>
@@ -88,6 +88,18 @@
             -moz-appearance: none;
             appearance: none;
             margin: 0;
+        }
+
+        .multi-column {
+            -moz-column-count: 2;
+            -moz-column-gap: 10px;
+            -moz-column-fill: auto;
+            -webkit-column-count: 2;
+            -webkit-column-gap: 10px;
+            column-count: 2;
+            column-gap: 10px;
+            column-fill: auto;
+            list-style-position: inside;
         }
     </style>
 {% endblock css %}
