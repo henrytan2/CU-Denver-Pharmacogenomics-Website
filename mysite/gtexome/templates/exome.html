@@ -1,10 +1,110 @@
 {% extends 'base.html' %}
 {% block content %}
     <body style="background-image:none;">
+    <div style="padding-left: 10px;padding-bottom: 10px">
+        <button id="toggle-columns"
+                class="btn btn-secondary"
+                onclick="ToggleColumns()">
+            Toggle Columns
+        </button>
+        <button id="toggle-filters"
+                class="btn btn-secondary"
+                onclick="ToggleFilters()">
+            Show Filters
+        </button>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div id="columns" class="col" style="display:none;">
+                <div class="card" style="width: 40rem;">
+                    <div class="card-header">
+                        <h4> Toggle columns:</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="multi-column">
+                            <li><a href="#" class="toggle-vis" data-column="7">AfricanAlleleCount</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="8">AfricanAlleleNumber</a><br></li>
+                            <li><a href="#" class="toggle-vis" data-column="9">AfricanAlleleFreq</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="10">AmericanAlleleCount</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="11">AmericanAlleleNumber</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="12">AmericanAlleleFreq</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="13">AshkenaziJewishAlleleCount</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="14">AshkenaziJewishAlleleNumber</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="15">AshkenaziJewishAlleleFreq</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="16">EastAsianAlleleCount</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="17">EastAsianAlleleNumber</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="18">EastAsianAlleleFreq</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="19">FinnishAlleleCount</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="20">FinnishAlleleNumber</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="21">FinnishAlleleFreq</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="22">EuropeanAlleleCount</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="23">EuropeanAlleleNumber</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="24">EuropeanAlleleFreq</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="25">OtherAlleleCount</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="26">OtherAlleleNumber</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="27">OtherAlleleFreq</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="28">SouthAsianAlleleCount</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="29">SouthAsianAlleleNumber</a></li>
+                            <li><a href="#" class="toggle-vis" data-column="30">SouthAsianAlleleFreq</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="filters" class="col" style="display:none;">
+                <div class="card" style="width: 40rem;">
+                    <div class="card-header">
+                        <h4>Filters:</h4>
+                    </div>
+                    <div class=card-body>
+
+
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Column</th>
+                                <th>Search text</th>
+                                <th>Use regex</th>
+                                <th>Use smart search</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr id="filter-consequence" data-column="36">
+                                <td>Consequence</td>
+                                <td><input type="text" class="column-filter form-control-sm" id="col-36-filter"></td>
+                                <td style="text-align: center"><input type="checkbox" class="column-filter form-check-input" id="col-36-regex"></td>
+                                <td style="text-align: center"><input type="checkbox" class="column-filter form-check-input" id="col-36-smart" checked="checked"></td>
+                            </tr>
+                            <tr id="filter-consequence" data-column="38">
+                                <td>HGVS</td>
+                                <td><input type="text" class="column-filter form-control-sm" id="col-38-filter"></td>
+                                <td style="text-align: center"><input type="checkbox" class="column-filter form-check-input" id="col-38-regex"></td>
+                                <td style="text-align: center"><input type="checkbox" class="column-filter form-check-input" id="col-38-smart" checked="checked"></td>
+                            </tr>
+                            <tr id="filter-consequence" data-column="39">
+                                <td>HGVSc</td>
+                                <td><input type="text" class="column-filter form-control-sm" id="col-39-filter"></td>
+                                <td style="text-align: center"><input type="checkbox" class="column-filter form-check-input" id="col-39-regex"></td>
+                                <td style="text-align: center"><input type="checkbox" class="column-filter form-check-input" id="col-39-smart" checked="checked"></td>
+                            </tr>
+                            <tr id="filter-consequence" data-column="40">
+                                <td>HGVSp</td>
+                                <td><input type="text" class="column-filter form-control-sm" id="col-40-filter"></td>
+                                <td style="text-align: center"><input type="checkbox" class="column-filter form-check-input" id="col-40-regex"></td>
+                                <td style="text-align: center"><input type="checkbox" class="column-filter form-check-input" id="col-40-smart" checked="checked"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <table id="ExomeTable"
            class="table table-hover table-striped d-none">
         <thead>
         <tr>
+            <th>GeneID</th>
             <th>VariantID</th>
             <th>AlleleFrequency</th>
             <th>AlleleNumber</th>
@@ -58,10 +158,11 @@
         var dtTable;
         var gnomadData;
         var transcript;
+        var geneID;
         $(document).ready(function () {
             var currentURLString = window.location.href;
             var currentURL = new URL(currentURLString);
-            var geneID = currentURL.searchParams.get("gene_id");
+            geneID = currentURL.searchParams.get("gene_id");
             document.title = geneID;
             $.ajax({
                 type: "POST",
@@ -78,7 +179,39 @@
                     WireUpDataTable(exome_data);
                 }
             });
+            $("a.toggle-vis").click(function (e) {
+                e.preventDefault();
+                var column = dtTable.column($(this).attr("data-column"));
+                column.visible(!column.visible());
+            });
+            $("input.column-filter").on("keyup click", function() {
+                filterColumn($(this).parents("tr").attr("data-column"));
+            });
         });
+
+        function ToggleColumns() {
+            $("#columns").toggle("slow");
+        }
+
+        function ToggleFilters() {
+            $("#filters").toggle("slow");
+        }
+
+        function filterGlobal() {
+            $("#ExomeTable").DataTable().search(
+                $("#global-filter").val(),
+                $("#global-regex").prop("checked"),
+                $("#global-smart").prop("checked")
+            ).draw();
+        }
+
+        function filterColumn(i) {
+            $("#ExomeTable").DataTable().column(i).search(
+                $("#col-" + i + "-filter").val(),
+                $("#col-" + i + "-regex").prop("checked"),
+                $("#col-" + i + "-smart").prop("checked")
+            ).draw();
+        }
 
         function WireUpDataTable(data) {
             dtTable = $("#ExomeTable")
@@ -91,7 +224,11 @@
                         "csv"
                     ],
                     data: data,
+                    search: {regex: true},
                     columns: [
+                        {
+                            defaultContent: geneID,
+                        },
                         {
                             data: "variantId",
                             defaultContent: "",
@@ -123,11 +260,11 @@
                         {
                             data: 'exome.populations',
                             render:
-                                function(data) {
-                                if (data !== null) {
-                                    return data[0].ac;
-                                }
-                            },
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[0].ac;
+                                    }
+                                },
                             defaultContent: 0,
                         },
                         {
@@ -153,11 +290,11 @@
                         {
                             data: 'exome.populations',
                             render:
-                                function(data) {
-                                if (data !== null) {
-                                    return data[1].ac;
-                                }
-                            },
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[1].ac;
+                                    }
+                                },
                             defaultContent: 0,
                         },
                         {
@@ -183,11 +320,11 @@
                         {
                             data: 'exome.populations',
                             render:
-                                function(data) {
-                                if (data !== null) {
-                                    return data[2].ac;
-                                }
-                            },
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[2].ac;
+                                    }
+                                },
                             defaultContent: 0,
                         },
                         {
@@ -213,11 +350,11 @@
                         {
                             data: 'exome.populations',
                             render:
-                                function(data) {
-                                if (data !== null) {
-                                    return data[3].ac;
-                                }
-                            },
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[3].ac;
+                                    }
+                                },
                             defaultContent: 0,
                         },
                         {
@@ -243,11 +380,11 @@
                         {
                             data: 'exome.populations',
                             render:
-                                function(data) {
-                                if (data !== null) {
-                                    return data[4].ac;
-                                }
-                            },
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[4].ac;
+                                    }
+                                },
                             defaultContent: 0,
                         },
                         {
@@ -273,11 +410,11 @@
                         {
                             data: 'exome.populations',
                             render:
-                                function(data) {
-                                if (data !== null) {
-                                    return data[5].ac;
-                                }
-                            },
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[5].ac;
+                                    }
+                                },
                             defaultContent: 0,
                         },
                         {
@@ -303,11 +440,11 @@
                         {
                             data: 'exome.populations',
                             render:
-                                function(data) {
-                                if (data !== null) {
-                                    return data[6].ac;
-                                }
-                            },
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[6].ac;
+                                    }
+                                },
                             defaultContent: 0,
                         },
                         {
@@ -333,11 +470,11 @@
                         {
                             data: 'exome.populations',
                             render:
-                                function(data) {
-                                if (data !== null) {
-                                    return data[7].ac;
-                                }
-                            },
+                                function (data) {
+                                    if (data !== null) {
+                                        return data[7].ac;
+                                    }
+                                },
                             defaultContent: 0,
                         },
                         {
@@ -412,6 +549,12 @@
                             data: "rsid",
                             defaultContent: "",
                         },
+                    ],
+                    columnDefs: [
+                        {
+                            visible: false,
+                            targets: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+                        }
                     ],
                     order: [[1, "desc"]]
                 });
