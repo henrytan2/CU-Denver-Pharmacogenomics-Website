@@ -61,6 +61,7 @@
 <script src="{% static 'datatable-buttons-1.6.1/js/buttons.html5.min.js' %}"></script>
 <script src="{% static 'datatable-buttons-1.6.1/js/buttons.jqueryui.min.js' %}"></script>
 <script src="{% static 'designer/js/jquery.cookie.js' %}"></script>
+<script src="{% static 'vue/vue.js' %}"></script>
 <script>
     var csrftoken = $.cookie('csrftoken');
 
@@ -103,8 +104,10 @@
         }
     </style>
 {% endblock css %}
+<div id="vue-wrapper">
 {% block content %}
 {% endblock content %}
+</div>
 <hr>
 <footer style="color:#ffffff; background:#343a40;">
     <div class="d-flex pl-3 align-items-center"
@@ -112,4 +115,9 @@
         &copy {% now "Y" %}
     </div>
 </footer>
+<script type="application/javascript">
+    new Vue({
+        el:'#vue-wrapper'
+    });
+</script>
 </html>

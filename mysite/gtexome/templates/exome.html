@@ -104,61 +104,33 @@
            class="table table-hover table-striped d-none">
         <thead>
         <tr>
-            <th>GeneID</th>
-            <th>VariantID</th>
-            <th>AlleleFrequency</th>
-            <th>AlleleNumber</th>
-            <th>AlleleCount</th>
-            <th>AlleleCountHemi</th>
-            <th>AlleleCountHomozygote</th>
-            <th>Filters</th>
-            <th>AfricanAlleleCount</th>
-            <th>AfricanAlleleNumber</th>
-            <th>AfricanAlleleFreq</th>
-            <th>AmericanAlleleCount</th>
-            <th>AmericanAlleleNumber</th>
-            <th>AmericanAlleleFreq</th>
-            <th>AshkenaziJewishAlleleCount</th>
-            <th>AshkenaziJewishAlleleNumber</th>
-            <th>AshkenaziJewishAlleleFreq</th>
-            <th>EastAsianAlleleCount</th>
-            <th>EastAsianAlleleNumber</th>
-            <th>EastAsianAlleleFreq</th>
-            <th>FinnishAlleleCount</th>
-            <th>FinnishAlleleNumber</th>
-            <th>FinnishAlleleFreq</th>
-            <th>EuropeanAlleleCount</th>
-            <th>EuropeanAlleleNumber</th>
-            <th>EuropeanAlleleFreq</th>
-            <th>OtherAlleleCount</th>
-            <th>OtherAlleleNumber</th>
-            <th>OtherAlleleFreq</th>
-            <th>SouthAsianAlleleCount</th>
-            <th>SouthAsianAlleleNumber</th>
-            <th>SouthAsianAlleleFreq</th>
-            <th>Flags</th>
-            <th>Chrom</th>
-            <th>Pos</th>
-            <th>Alt</th>
-            <th>Consequence</th>
-            <th>ConsequenceInCanonicalTranscript</th>
-            <th>HGVS</th>
-            <th>HGVSVc</th>
-            <th>HGVSVp</th>
-            <th>lof</th>
-            <th>lof_filter</th>
-            <th>lof_flags</th>
-            <th>rsid</th>
+            {% for col, index in exome_columns.items %}
+                <th>{{ col }}</th>
+            {% endfor %}
         </tr>
         </thead>
     </table>
     </body>
+    <index></index>
+    <script id="index-template"
+            type="x-html-template">
+    <span>abc</span>
+    </script>
 
-    <script>
+    <script type="application/javascript">
+        Vue.component("index", {
+            template:"#index-template",
+            data: function() {
+              return {
+                  a: "abc",
+              }
+            },
+        });
         var dtTable;
         var gnomadData;
         var transcript;
         var geneID;
+        var exomeColumns = {{ exome_columns | safe }};
         $(document).ready(function () {
             var currentURLString = window.location.href;
             var currentURL = new URL(currentURLString);
@@ -553,7 +525,32 @@
                     columnDefs: [
                         {
                             visible: false,
-                            targets: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+                            targets: [
+                                exomeColumns['AfricanAlleleCount'],
+                                exomeColumns['AfricanAlleleNumber'],
+                                exomeColumns['AfricanAlleleFreq'],
+                                exomeColumns['AmericanAlleleCount'],
+                                exomeColumns['AmericanAlleleNumber'],
+                                exomeColumns['AmericanAlleleFreq'],
+                                exomeColumns['AshkenaziJewishAlleleCount'],
+                                exomeColumns['AshkenaziJewishAlleleNumber'],
+                                exomeColumns['AshkenaziJewishAlleleFreq'],
+                                exomeColumns['EastAsianAlleleCount'],
+                                exomeColumns['EastAsianAlleleNumber'],
+                                exomeColumns['EastAsianAlleleFreq'],
+                                exomeColumns['FinnishAlleleCount'],
+                                exomeColumns['FinnishAlleleNumber'],
+                                exomeColumns['FinnishAlleleFreq'],
+                                exomeColumns['EuropeanAlleleCount'],
+                                exomeColumns['EuropeanAlleleNumber'],
+                                exomeColumns['EuropeanAlleleFreq'],
+                                exomeColumns['OtherAlleleCount'],
+                                exomeColumns['OtherAlleleNumber'],
+                                exomeColumns['OtherAlleleFreq'],
+                                exomeColumns['SouthAsianAlleleCount'],
+                                exomeColumns['SouthAsianAlleleNumber'],
+                                exomeColumns['SouthAsianAlleleFreq'],
+                            ],
                         }
                     ],
                     order: [[1, "desc"]]

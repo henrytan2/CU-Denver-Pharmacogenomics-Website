@@ -1,9 +1,9 @@
 from django.http import HttpResponse, JsonResponse
 from django.views import generic
-
 from .models import GTEx
 import requests
 import json
+from .business.exome import ExomeColumns
 
 
 class IndexView(generic.ListView):
@@ -113,6 +113,11 @@ class RatioResultsView(generic.ListView):
 class ExomeView(generic.TemplateView):
     template_name = 'exome.html'
     gnomad_data = ''
+
+    def get_context_data(self, **kwargs):
+        context = super(ExomeView, self).get_context_data(**kwargs)
+        context['exome_columns'] = ExomeColumns.col_dict
+        return context
 
     def post(self, request):
         gene_id = request.POST.get("geneID")

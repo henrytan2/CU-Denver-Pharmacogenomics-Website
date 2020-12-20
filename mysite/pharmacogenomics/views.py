@@ -1,4 +1,5 @@
 from django.db.models import Count
+from django.core import serializers
 from django.http import HttpResponse, JsonResponse
 from django.views import generic
 from .models import SideEffect
@@ -11,7 +12,9 @@ class SideEffectView(generic.ListView):
     side_effect_list = []
 
     def get_queryset(self):
-        return self.model.objects.values('side_effect').distinct()
+        side_effects = self.model.objects.values('side_effect').distinct()
+        response = list(side_effects)
+        return response
 
     def post(self, request):
         if request.method == 'POST':
