@@ -105,9 +105,17 @@ class RatioResultsView(generic.ListView):
                 exclude_objs.append(obj.gene_id)
 
         all_objs = all_objs.exclude(gene_id__in=exclude_objs)
+        response = []
         for obj in all_objs:
-            obj.ratio = ratios[obj.gene_id]
-        return all_objs
+            ratio = ratios[obj.gene_id]
+            gene_id = obj.gene_id
+            description = obj.description
+            response.append({
+                'ratio': ratio,
+                'gene_id': gene_id,
+                'description': description,
+            })
+        return response
 
 
 class ExomeView(generic.TemplateView):

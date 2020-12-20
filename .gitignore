@@ -38,7 +38,7 @@ coverage.xml
 *.mo
 
 # pycharm
-idea/
+.idea/
 
 # Mr Developer
 .mr.developer.cfg
