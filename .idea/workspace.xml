@@ -1,23 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c83a1dec-f4f2-4315-a611-abc2522dacdf" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/mysite/gtexome/business/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mysite/gtexome/business/exome.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mysite/static/vue/vue.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mysite/static/vue/vue.min.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/CU-Denver-Pharmacogenomics-Website.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/CU-Denver-Pharmacogenomics-Website.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mysite/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mysite/gtexome/templates/exome.html" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/gtexome/templates/exome.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mysite/gtexome/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/gtexome/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mysite/mysite/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/mysite/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mysite/mysite/wsgi.py" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/mysite/wsgi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mysite/pharmacogenomics/templates/side-effect.html" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/pharmacogenomics/templates/side-effect.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mysite/pharmacogenomics/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/pharmacogenomics/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mysite/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/templates/base.html" afterDir="false" />
-    </list>
+    <list default="true" id="c83a1dec-f4f2-4315-a611-abc2522dacdf" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -103,7 +87,7 @@
       <option name="presentableId" value="Default" />
       <updated>1607755292394</updated>
       <workItem from="1607755294289" duration="4737000" />
-      <workItem from="1607834271477" duration="38374000" />
+      <workItem from="1607834271477" duration="38654000" />
     </task>
     <servers />
   </component>
