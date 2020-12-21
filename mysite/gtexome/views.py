@@ -55,7 +55,13 @@ class RangeResultsView(generic.ListView):
         for tissue, filter_range in filter_non_verbose.items():
             kwargs['{0}__{1}'.format(str(tissue), 'gte')] = float(filter_range['lower'])
             kwargs['{0}__{1}'.format(str(tissue), 'lte')] = float(filter_range['upper'])
-        return self.model.objects.filter(**kwargs)
+        response = []
+        for obj in self.model.objects.filter(**kwargs):
+            response.append({
+                'gene_id': obj.gene_id,
+                'description': obj.description
+            })
+        return response
 
 
 class RatioResultsView(generic.ListView):
