@@ -72,26 +72,42 @@
                             <tr id="filter-consequence" data-column="36">
                                 <td>Consequence</td>
                                 <td><input type="text" class="column-filter form-control-sm" id="col-36-filter"></td>
-                                <td style="text-align: center"><input type="checkbox" class="column-filter form-check-input" id="col-36-regex"></td>
-                                <td style="text-align: center"><input type="checkbox" class="column-filter form-check-input" id="col-36-smart" checked="checked"></td>
+                                <td style="text-align: center"><input type="checkbox"
+                                                                      class="column-filter form-check-input"
+                                                                      id="col-36-regex"></td>
+                                <td style="text-align: center"><input type="checkbox"
+                                                                      class="column-filter form-check-input"
+                                                                      id="col-36-smart" checked="checked"></td>
                             </tr>
                             <tr id="filter-consequence" data-column="38">
                                 <td>HGVS</td>
                                 <td><input type="text" class="column-filter form-control-sm" id="col-38-filter"></td>
-                                <td style="text-align: center"><input type="checkbox" class="column-filter form-check-input" id="col-38-regex"></td>
-                                <td style="text-align: center"><input type="checkbox" class="column-filter form-check-input" id="col-38-smart" checked="checked"></td>
+                                <td style="text-align: center"><input type="checkbox"
+                                                                      class="column-filter form-check-input"
+                                                                      id="col-38-regex"></td>
+                                <td style="text-align: center"><input type="checkbox"
+                                                                      class="column-filter form-check-input"
+                                                                      id="col-38-smart" checked="checked"></td>
                             </tr>
                             <tr id="filter-consequence" data-column="39">
                                 <td>HGVSc</td>
                                 <td><input type="text" class="column-filter form-control-sm" id="col-39-filter"></td>
-                                <td style="text-align: center"><input type="checkbox" class="column-filter form-check-input" id="col-39-regex"></td>
-                                <td style="text-align: center"><input type="checkbox" class="column-filter form-check-input" id="col-39-smart" checked="checked"></td>
+                                <td style="text-align: center"><input type="checkbox"
+                                                                      class="column-filter form-check-input"
+                                                                      id="col-39-regex"></td>
+                                <td style="text-align: center"><input type="checkbox"
+                                                                      class="column-filter form-check-input"
+                                                                      id="col-39-smart" checked="checked"></td>
                             </tr>
                             <tr id="filter-consequence" data-column="40">
                                 <td>HGVSp</td>
                                 <td><input type="text" class="column-filter form-control-sm" id="col-40-filter"></td>
-                                <td style="text-align: center"><input type="checkbox" class="column-filter form-check-input" id="col-40-regex"></td>
-                                <td style="text-align: center"><input type="checkbox" class="column-filter form-check-input" id="col-40-smart" checked="checked"></td>
+                                <td style="text-align: center"><input type="checkbox"
+                                                                      class="column-filter form-check-input"
+                                                                      id="col-40-regex"></td>
+                                <td style="text-align: center"><input type="checkbox"
+                                                                      class="column-filter form-check-input"
+                                                                      id="col-40-smart" checked="checked"></td>
                             </tr>
                             </tbody>
                         </table>
@@ -100,65 +116,101 @@
             </div>
         </div>
     </div>
-    <table id="ExomeTable"
-           class="table table-hover table-striped d-none">
-        <thead>
-        <tr>
-            {% for col, index in exome_columns.items %}
-                <th>{{ col }}</th>
-            {% endfor %}
-        </tr>
-        </thead>
-    </table>
     </body>
     <index></index>
     <script id="index-template"
             type="x-html-template">
-    <span>abc</span>
+        <table id="ExomeTable"
+               ref="datatable"
+               class="table table-hover table-striped d-none">
+        </table>
     </script>
 
     <script type="application/javascript">
+        document.ready({
+
+        })
         Vue.component("index", {
-            template:"#index-template",
-            data: function() {
-              return {
-                  a: "abc",
-              }
+            template: "#index-template",
+            data: function () {
+                return {
+                    dtTable: null,
+                    gnomadData: function () {
+                        $.ajax({
+                            type: "POST",
+                            data: {"geneID": geneID},
+                            url: "{% url 'gtexome:exome' %}",
+                            success: function (response) {
+                                var exome_data = response["gene"]["variants"];
+                                exome_data.forEach(function (item) {
+                                    if (item["exome"] === null) {
+                                        item["exome"] = {"populations": null};
+                                    }
+                                });
+                                return response;
+                            }
+                        })
+                    },
+                }
             },
+            mounted: function () {
+                var _this = this;
+                this.dtTable = $(this.$refs.datatable).DataTable({
+                    dom: "lBfrtip",
+                    buttons: [
+                        "csv"
+                    ],
+                    data: this.gnomadData,
+                    search: {regex: true},
+                    columns: RenderColumns(this),
+                    columnDefs: [
+                        {
+                            visible: false,
+                            targets: [
+                                exomeColumns['AfricanAlleleCount'],
+                                exomeColumns['AfricanAlleleNumber'],
+                                exomeColumns['AfricanAlleleFreq'],
+                                exomeColumns['AmericanAlleleCount'],
+                                exomeColumns['AmericanAlleleNumber'],
+                                exomeColumns['AmericanAlleleFreq'],
+                                exomeColumns['AshkenaziJewishAlleleCount'],
+                                exomeColumns['AshkenaziJewishAlleleNumber'],
+                                exomeColumns['AshkenaziJewishAlleleFreq'],
+                                exomeColumns['EastAsianAlleleCount'],
+                                exomeColumns['EastAsianAlleleNumber'],
+                                exomeColumns['EastAsianAlleleFreq'],
+                                exomeColumns['FinnishAlleleCount'],
+                                exomeColumns['FinnishAlleleNumber'],
+                                exomeColumns['FinnishAlleleFreq'],
+                                exomeColumns['EuropeanAlleleCount'],
+                                exomeColumns['EuropeanAlleleNumber'],
+                                exomeColumns['EuropeanAlleleFreq'],
+                                exomeColumns['OtherAlleleCount'],
+                                exomeColumns['OtherAlleleNumber'],
+                                exomeColumns['OtherAlleleFreq'],
+                                exomeColumns['SouthAsianAlleleCount'],
+                                exomeColumns['SouthAsianAlleleNumber'],
+                                exomeColumns['SouthAsianAlleleFreq'],
+                            ],
+                        }
+                    ],
+                    order: [[1, "desc"]]
+                })
+            }
         });
         var dtTable;
         var gnomadData;
         var transcript;
         var geneID;
         var exomeColumns = {{ exome_columns | safe }};
-        $(document).ready(function () {
-            var currentURLString = window.location.href;
-            var currentURL = new URL(currentURLString);
-            geneID = currentURL.searchParams.get("gene_id");
-            document.title = geneID;
-            $.ajax({
-                type: "POST",
-                data: {"geneID": geneID},
-                url: "{% url 'gtexome:exome' %}",
-                success: function (response) {
-                    gnomadData = response;
-                    var exome_data = gnomadData.data["gene"]["variants"];
-                    exome_data.forEach(function (item) {
-                        if (item["exome"] === null) {
-                            item["exome"] = {"populations": null};
-                        }
-                    });
-                    WireUpDataTable(exome_data);
-                }
-            });
-            $("a.toggle-vis").click(function (e) {
-                e.preventDefault();
-                var column = dtTable.column($(this).attr("data-column"));
-                column.visible(!column.visible());
-            });
-            $("input.column-filter").on("keyup click", function() {
-                filterColumn($(this).parents("tr").attr("data-column"));
-            });
+
+        $("a.toggle-vis").click(function (e) {
+            e.preventDefault();
+            var column = dtTable.column($(this).attr("data-column"));
+            column.visible(!column.visible());
+        });
+        $("input.column-filter").on("keyup click", function () {
+            filterColumn($(this).parents("tr").attr("data-column"));
         });
 
         function ToggleColumns() {
@@ -197,331 +249,7 @@
                     ],
                     data: data,
                     search: {regex: true},
-                    columns: [
-                        {
-                            defaultContent: geneID,
-                        },
-                        {
-                            data: "variantId",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "exome.af",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "exome.an",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "exome.ac",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "exome.ac_hemi",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "exome.ac_hom",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "exome.filters",
-                            defaultContent: "",
-                        },
-                        {
-                            data: 'exome.populations',
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[0].ac;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: "exome.populations",
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[0].an;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: "exome.populations",
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[0].ac / data[0].an;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: 'exome.populations',
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[1].ac;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: "exome.populations",
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[1].an;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: "exome.populations",
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[1].ac / data[1].an;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: 'exome.populations',
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[2].ac;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: "exome.populations",
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[2].an;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: "exome.populations",
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[2].ac / data[2].an;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: 'exome.populations',
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[3].ac;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: "exome.populations",
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[3].an;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: "exome.populations",
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[3].ac / data[3].an;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: 'exome.populations',
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[4].ac;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: "exome.populations",
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[4].an;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: "exome.populations",
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[4].ac / data[4].an;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: 'exome.populations',
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[5].ac;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: "exome.populations",
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[5].an;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: "exome.populations",
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[5].ac / data[5].an;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: 'exome.populations',
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[6].ac;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: "exome.populations",
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[6].an;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: "exome.populations",
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[6].ac / data[6].an;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: 'exome.populations',
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[7].ac;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: "exome.populations",
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[7].an;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: "exome.populations",
-                            render:
-                                function (data) {
-                                    if (data !== null) {
-                                        return data[7].ac / data[7].an;
-                                    }
-                                },
-                            defaultContent: 0,
-                        },
-                        {
-                            data: "flags",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "chrom",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "pos",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "alt",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "consequence",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "consequence_in_canonical_transcript",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "hgvs",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "hgvsc",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "hgvsp",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "lof",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "lof_filter",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "lof_flags",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "rsid",
-                            defaultContent: "",
-                        },
-                    ],
+                    columns: RenderColumns(vueComponent),
                     columnDefs: [
                         {
                             visible: false,
@@ -555,6 +283,335 @@
                     ],
                     order: [[1, "desc"]]
                 });
+        }
+    </script>
+    <script type="application/javascript">
+        function RenderColumns(vueComponent) {
+            return [
+                {
+                    defaultContent: geneID,
+                },
+                {
+                    data: "variantId",
+                    defaultContent: "",
+                },
+                {
+                    data: "exome.af",
+                    defaultContent: "",
+                },
+                {
+                    data: "exome.an",
+                    defaultContent: "",
+                },
+                {
+                    data: "exome.ac",
+                    defaultContent: "",
+                },
+                {
+                    data: "exome.ac_hemi",
+                    defaultContent: "",
+                },
+                {
+                    data: "exome.ac_hom",
+                    defaultContent: "",
+                },
+                {
+                    data: "exome.filters",
+                    defaultContent: "",
+                },
+                {
+                    data: 'exome.populations',
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[0].ac;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: "exome.populations",
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[0].an;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: "exome.populations",
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[0].ac / data[0].an;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: 'exome.populations',
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[1].ac;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: "exome.populations",
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[1].an;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: "exome.populations",
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[1].ac / data[1].an;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: 'exome.populations',
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[2].ac;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: "exome.populations",
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[2].an;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: "exome.populations",
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[2].ac / data[2].an;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: 'exome.populations',
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[3].ac;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: "exome.populations",
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[3].an;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: "exome.populations",
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[3].ac / data[3].an;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: 'exome.populations',
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[4].ac;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: "exome.populations",
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[4].an;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: "exome.populations",
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[4].ac / data[4].an;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: 'exome.populations',
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[5].ac;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: "exome.populations",
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[5].an;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: "exome.populations",
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[5].ac / data[5].an;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: 'exome.populations',
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[6].ac;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: "exome.populations",
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[6].an;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: "exome.populations",
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[6].ac / data[6].an;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: 'exome.populations',
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[7].ac;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: "exome.populations",
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[7].an;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: "exome.populations",
+                    render:
+                        function (data) {
+                            if (data !== null) {
+                                return data[7].ac / data[7].an;
+                            }
+                        },
+                    defaultContent: 0,
+                },
+                {
+                    data: "flags",
+                    defaultContent: "",
+                },
+                {
+                    data: "chrom",
+                    defaultContent: "",
+                },
+                {
+                    data: "pos",
+                    defaultContent: "",
+                },
+                {
+                    data: "alt",
+                    defaultContent: "",
+                },
+                {
+                    data: "consequence",
+                    defaultContent: "",
+                },
+                {
+                    data: "consequence_in_canonical_transcript",
+                    defaultContent: "",
+                },
+                {
+                    data: "hgvs",
+                    defaultContent: "",
+                },
+                {
+                    data: "hgvsc",
+                    defaultContent: "",
+                },
+                {
+                    data: "hgvsp",
+                    defaultContent: "",
+                },
+                {
+                    data: "lof",
+                    defaultContent: "",
+                },
+                {
+                    data: "lof_filter",
+                    defaultContent: "",
+                },
+                {
+                    data: "lof_flags",
+                    defaultContent: "",
+                },
+                {
+                    data: "rsid",
+                    defaultContent: "",
+                },
+            ];
         }
     </script>
 {% endblock %}
