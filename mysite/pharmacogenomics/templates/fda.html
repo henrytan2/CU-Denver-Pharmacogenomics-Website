@@ -46,9 +46,13 @@
                 .DataTable({
                     dom: "lBfrtip",
                     autoWidth: false,
-                    buttons: [
-                        "csv"
-                    ],
+                    buttons: [{
+                        extend: "csv",
+                        exportOptions: {
+                            columns: ":visible",
+                            rows: ":visible",
+                        }
+                    }],
                     data: data,
                     columns: [
                         {

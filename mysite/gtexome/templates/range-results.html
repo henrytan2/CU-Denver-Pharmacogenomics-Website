@@ -32,9 +32,13 @@
                         this.removeClass("d-none");
                     },
                     dom: "lBfrtip",
-                    buttons: [
-                        "csv"
-                    ],
+                    buttons: [{
+                        extend: "csv",
+                        exportOptions: {
+                            columns: ":visible",
+                            rows: ":visible",
+                        }
+                    }],
                     order: [[0, "desc"]],
                 })
             }

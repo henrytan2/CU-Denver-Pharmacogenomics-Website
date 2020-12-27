@@ -43,9 +43,13 @@
                 })
                 .DataTable({
                     dom: 'lBfrtip',
-                    buttons: [
-                        'csv'
-                    ],
+                    buttons: [{
+                        extend: "csv",
+                        exportOptions: {
+                            columns: ":visible",
+                            rows: ":visible",
+                        }
+                    }],
                     "order": [[2, "desc"]]
                 });
         }
