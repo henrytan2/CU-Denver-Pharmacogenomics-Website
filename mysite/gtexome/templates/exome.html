@@ -1,336 +1,327 @@
 {% extends 'base.html' %}
 {% block content %}
     <body style="background-image:none;">
-    <div style="padding-left: 10px;padding-bottom: 10px">
-        <button id="toggle-columns"
-                class="btn btn-secondary"
-                onclick="ToggleColumns()">
-            Toggle Columns
-        </button>
-        <button id="toggle-filters"
-                class="btn btn-secondary"
-                onclick="ToggleFilters()">
-            Show Filters
-        </button>
-    </div>
-
-    <div class="container-fluid">
-        <div class="row">
-            <div id="columns" class="col" style="display:none;">
-                <div class="card" style="width: 40rem;">
-                    <div class="card-header">
-                        <h4> Toggle columns:</h4>
-                    </div>
-                    <div class="card-body">
-                        <ul class="multi-column">
-                            <li><a href="#" class="toggle-vis" data-column="8">AfricanAlleleCount</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="9">AfricanAlleleNumber</a><br></li>
-                            <li><a href="#" class="toggle-vis" data-column="10">AfricanAlleleFreq</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="11">AmericanAlleleCount</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="12">AmericanAlleleNumber</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="13">AmericanAlleleFreq</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="14">AshkenaziJewishAlleleCount</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="15">AshkenaziJewishAlleleNumber</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="16">AshkenaziJewishAlleleFreq</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="17">EastAsianAlleleCount</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="18">EastAsianAlleleNumber</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="19">EastAsianAlleleFreq</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="20">FinnishAlleleCount</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="21">FinnishAlleleNumber</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="22">FinnishAlleleFreq</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="23">EuropeanAlleleCount</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="24">EuropeanAlleleNumber</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="25">EuropeanAlleleFreq</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="26">OtherAlleleCount</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="27">OtherAlleleNumber</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="28">OtherAlleleFreq</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="29">SouthAsianAlleleCount</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="30">SouthAsianAlleleNumber</a></li>
-                            <li><a href="#" class="toggle-vis" data-column="31">SouthAsianAlleleFreq</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div id="filters" class="col" style="display:none;">
-                <div class="card" style="width: 40rem;">
-                    <div class="card-header">
-                        <h4>Filters:</h4>
-                    </div>
-                    <div class=card-body>
-
-
-                        <table class="table">
-                            <thead>
-                            <tr>
-                                <th>Column</th>
-                                <th>Search text</th>
-                                <th>Use regex</th>
-                                <th>Use smart search</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr id="filter-consequence" data-column="36">
-                                <td>Consequence</td>
-                                <td><input type="text" class="column-filter form-control-sm" id="col-36-filter"></td>
-                                <td style="text-align: center"><input type="checkbox"
-                                                                      class="column-filter form-check-input"
-                                                                      id="col-36-regex"></td>
-                                <td style="text-align: center"><input type="checkbox"
-                                                                      class="column-filter form-check-input"
-                                                                      id="col-36-smart" checked="checked"></td>
-                            </tr>
-                            <tr id="filter-consequence" data-column="38">
-                                <td>HGVS</td>
-                                <td><input type="text" class="column-filter form-control-sm" id="col-38-filter"></td>
-                                <td style="text-align: center"><input type="checkbox"
-                                                                      class="column-filter form-check-input"
-                                                                      id="col-38-regex"></td>
-                                <td style="text-align: center"><input type="checkbox"
-                                                                      class="column-filter form-check-input"
-                                                                      id="col-38-smart" checked="checked"></td>
-                            </tr>
-                            <tr id="filter-consequence" data-column="39">
-                                <td>HGVSc</td>
-                                <td><input type="text" class="column-filter form-control-sm" id="col-39-filter"></td>
-                                <td style="text-align: center"><input type="checkbox"
-                                                                      class="column-filter form-check-input"
-                                                                      id="col-39-regex"></td>
-                                <td style="text-align: center"><input type="checkbox"
-                                                                      class="column-filter form-check-input"
-                                                                      id="col-39-smart" checked="checked"></td>
-                            </tr>
-                            <tr id="filter-consequence" data-column="40">
-                                <td>HGVSp</td>
-                                <td><input type="text" class="column-filter form-control-sm" id="col-40-filter"></td>
-                                <td style="text-align: center"><input type="checkbox"
-                                                                      class="column-filter form-check-input"
-                                                                      id="col-40-regex"></td>
-                                <td style="text-align: center"><input type="checkbox"
-                                                                      class="column-filter form-check-input"
-                                                                      id="col-40-smart" checked="checked"></td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    </body>
     <index></index>
+    </body>
+
     <script id="index-template"
             type="x-html-template">
-        <table id="ExomeTable"
-               ref="datatable"
-               class="table table-hover table-striped d-none">
-        </table>
+        <div ref="tableWrapper">
+            <div style="padding-left: 10px;padding-bottom: 10px">
+                <button id="toggle-columns"
+                        class="btn btn-secondary"
+                        v-on:click="toggleColumns">
+                    Toggle Columns
+                </button>
+                <button id="toggle-filters"
+                        class="btn btn-secondary"
+                        v-on:click="toggleFilters">
+                    Show Filters
+                </button>
+            </div>
+
+            <div v-if="geneNotFound">
+                <h1>Gene not found in ExAC</h1>
+            </div>
+
+            <div class="container-fluid">
+                <div class="row">
+                    <div id="columns" class="col" style="display: none;">
+                        <div class="card" style="width: 60rem;">
+                            <div class="card-header">
+                                <h4> Hidden columns:</h4>
+                            </div>
+                            <div class="card-body">
+                                <ul style="list-style: none"
+                                    class="multi-column">
+                                    <li v-for="(index, column) in exomeColumns"
+                                        style="width:20em;"
+                                        :key="column.column_name">
+                                        <label class="form-check-label">
+                                            <input v-model="hiddenColumns"
+                                                   class="form-check-input"
+                                                   v-on:change="toggleColumnVisibility(index)"
+                                                   :value="index"
+                                                   name="column"
+                                                   type="checkbox"/>
+                                            {% verbatim %}{{ column }}{% endverbatim %}
+                                        </label>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="filters"
+                         class="col"
+                         style="display: none;">
+                        <div class="card"
+                             style="width:50rem;">
+                            <div class="card-header">
+                                <h4>Filters:</h4>
+                            </div>
+                            <div class=card-body>
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>Column</th>
+                                        <th>Search text</th>
+                                        <th>Use regex</th>
+                                        <th>Use smart search</th>
+                                        <th>Remove</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr v-if="filters.length"
+                                        v-for="(filter, index) in filters">
+                                        <td>
+                                            <select id="column-list"
+                                                    v-on:change="doFilter(filter.columnIndex)"
+                                                    v-model="filter.columnIndex"
+                                                    class="form-control-sm">
+                                                <option v-for="(index, column) in exomeColumns"
+                                                        :value="index"
+                                                        :key="column.column_name">
+                                                    {% verbatim %}{{ column }}{% endverbatim %}
+                                                </option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input v-on:keyup="doFilter(filter.columnIndex)"
+                                                   v-model="filter.searchText"
+                                                   type="text"
+                                                   class="form-control form-control-sm">
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <input type="checkbox"
+                                                   v-model="filter.useRegex"
+                                                   v-on:change="doFilter(filter.columnIndex)"
+                                                   class="form-check-input">
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <input type="checkbox"
+                                                   v-model="filter.useSmartSearch"
+                                                   v-on:change="doFilter(filter.columnIndex)"
+                                                   class="form-check-input">
+                                        </td>
+                                        <td style="text-align: center">
+                                            <button class="btn btn-outline-secondary"
+                                                    v-on:click="removeFilter(index)">
+                                                <span class="fas fa-minus"></span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <button class="btn btn-outline-secondary" v-on:click="addNewFilter">Add New Filter
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table id="ExomeTable"
+                   ref="datatable"
+                   class="table table-hover table-striped d-none">
+            </table>
+        </div>
     </script>
 
     <script type="application/javascript">
-        document.ready({
+        var gnomadData = {{ gnomad_data | safe }};
+        var exomeColumns = {{ exome_columns | safe }};
+    </script>
 
-        })
+    <script type="application/javascript">
         Vue.component("index", {
             template: "#index-template",
             data: function () {
                 return {
                     dtTable: null,
-                    gnomadData: function () {
-                        $.ajax({
-                            type: "POST",
-                            data: {"geneID": geneID},
-                            url: "{% url 'gtexome:exome' %}",
-                            success: function (response) {
-                                var exome_data = response["gene"]["variants"];
-                                exome_data.forEach(function (item) {
-                                    if (item["exome"] === null) {
-                                        item["exome"] = {"populations": null};
-                                    }
-                                });
-                                return response;
-                            }
-                        })
-                    },
+                    gnomadData: gnomadData,
+                    exomeColumns: exomeColumns,
+                    geneNotFound: false,
+                    geneID: this.getGeneID(),
+                    filters: [{
+                        columnIndex: "",
+                        searchText: "",
+                        useRegex: false,
+                        useSmartSearch: false,
+                    }],
+                    hiddenColumns: [
+                        exomeColumns['AfricanAlleleCount'],
+                        exomeColumns['AfricanAlleleNumber'],
+                        exomeColumns['AfricanAlleleFreq'],
+                        exomeColumns['AmericanAlleleCount'],
+                        exomeColumns['AmericanAlleleNumber'],
+                        exomeColumns['AmericanAlleleFreq'],
+                        exomeColumns['AshkenaziJewishAlleleCount'],
+                        exomeColumns['AshkenaziJewishAlleleNumber'],
+                        exomeColumns['AshkenaziJewishAlleleFreq'],
+                        exomeColumns['EastAsianAlleleCount'],
+                        exomeColumns['EastAsianAlleleNumber'],
+                        exomeColumns['EastAsianAlleleFreq'],
+                        exomeColumns['FinnishAlleleCount'],
+                        exomeColumns['FinnishAlleleNumber'],
+                        exomeColumns['FinnishAlleleFreq'],
+                        exomeColumns['EuropeanAlleleCount'],
+                        exomeColumns['EuropeanAlleleNumber'],
+                        exomeColumns['EuropeanAlleleFreq'],
+                        exomeColumns['OtherAlleleCount'],
+                        exomeColumns['OtherAlleleNumber'],
+                        exomeColumns['OtherAlleleFreq'],
+                        exomeColumns['SouthAsianAlleleCount'],
+                        exomeColumns['SouthAsianAlleleNumber'],
+                        exomeColumns['SouthAsianAlleleFreq'],
+                    ],
+                }
+            },
+            methods: {
+                getGeneID: function () {
+                    var currentURLString = window.location.href;
+                    var currentURL = new URL(currentURLString);
+                    geneID = currentURL.searchParams.get("gene_id");
+                    return geneID;
+                },
+                toggleColumns: function () {
+                    $("#columns").toggle("slow");
+                },
+                toggleFilters: function () {
+                    $("#filters").toggle("slow");
+                },
+                toggleColumnVisibility: function (columnIndex) {
+                    var _this = this;
+                    var column = _this.dtTable.column(columnIndex);
+                    if (this.hiddenColumns.includes(columnIndex)) {
+                        column.visible(false);
+                    } else {
+                        column.visible(true);
+                    }
+                },
+                addNewFilter: function () {
+                    this.filters.push({
+                        columnIndex: "",
+                        searchText: "",
+                        useRegex: false,
+                        useSmartSearch: false,
+                    });
+                },
+                removeFilter: function (filterIndex) {
+                    var index = this.filters.indexOf(filterIndex);
+                    this.filters.splice(index, 1);
+                },
+                doFilter: function (index) {
+                    var _this = this;
+                    var d = _this.dtTable
+                    this.filters.forEach(function (filter) {
+                        d.column(index)
+                            .search(filter.searchText,
+                                filter.useRegex,
+                                filter.useSmartSearch);
+                    });
+                    d.draw();
                 }
             },
             mounted: function () {
+                if (this.gnomadData.hasOwnProperty("errors")) {
+                    if (this.gnomadData["errors"][0]["message"] === "Gene not found") {
+                        this.geneNotFound = true;
+                        return;
+                    }
+                }
                 var _this = this;
+                var exomeData = this.gnomadData["data"]["gene"]["variants"];
+                exomeData.forEach(function (item, i) {
+                    if (item["exome"] === null) {
+                        item["exome"] = {"populations": null};
+                    }
+                });
                 this.dtTable = $(this.$refs.datatable).DataTable({
                     dom: "lBfrtip",
-                    buttons: [
-                        "csv"
-                    ],
-                    data: this.gnomadData,
+                    buttons: [{
+                        extend: "csv",
+                        exportOptions: {
+                            columns: ":visible",
+                            rows: ":visible",
+                        }
+                    }],
+                    data: exomeData,
                     search: {regex: true},
                     columns: RenderColumns(this),
+                    initComplete: function () {
+                        this.removeClass("d-none");
+                    },
                     columnDefs: [
                         {
                             visible: false,
-                            targets: [
-                                exomeColumns['AfricanAlleleCount'],
-                                exomeColumns['AfricanAlleleNumber'],
-                                exomeColumns['AfricanAlleleFreq'],
-                                exomeColumns['AmericanAlleleCount'],
-                                exomeColumns['AmericanAlleleNumber'],
-                                exomeColumns['AmericanAlleleFreq'],
-                                exomeColumns['AshkenaziJewishAlleleCount'],
-                                exomeColumns['AshkenaziJewishAlleleNumber'],
-                                exomeColumns['AshkenaziJewishAlleleFreq'],
-                                exomeColumns['EastAsianAlleleCount'],
-                                exomeColumns['EastAsianAlleleNumber'],
-                                exomeColumns['EastAsianAlleleFreq'],
-                                exomeColumns['FinnishAlleleCount'],
-                                exomeColumns['FinnishAlleleNumber'],
-                                exomeColumns['FinnishAlleleFreq'],
-                                exomeColumns['EuropeanAlleleCount'],
-                                exomeColumns['EuropeanAlleleNumber'],
-                                exomeColumns['EuropeanAlleleFreq'],
-                                exomeColumns['OtherAlleleCount'],
-                                exomeColumns['OtherAlleleNumber'],
-                                exomeColumns['OtherAlleleFreq'],
-                                exomeColumns['SouthAsianAlleleCount'],
-                                exomeColumns['SouthAsianAlleleNumber'],
-                                exomeColumns['SouthAsianAlleleFreq'],
-                            ],
+                            targets: _this.hiddenColumns,
                         }
                     ],
-                    order: [[1, "desc"]]
-                })
+                    order: [[this.exomeColumns["AlleleFrequency"], "desc"]]
+                });
             }
         });
-        var dtTable;
-        var gnomadData;
-        var transcript;
-        var geneID;
-        var exomeColumns = {{ exome_columns | safe }};
-
-        $("a.toggle-vis").click(function (e) {
-            e.preventDefault();
-            var column = dtTable.column($(this).attr("data-column"));
-            column.visible(!column.visible());
-        });
-        $("input.column-filter").on("keyup click", function () {
-            filterColumn($(this).parents("tr").attr("data-column"));
-        });
-
-        function ToggleColumns() {
-            $("#columns").toggle("slow");
-        }
-
-        function ToggleFilters() {
-            $("#filters").toggle("slow");
-        }
-
-        function filterGlobal() {
-            $("#ExomeTable").DataTable().search(
-                $("#global-filter").val(),
-                $("#global-regex").prop("checked"),
-                $("#global-smart").prop("checked")
-            ).draw();
-        }
-
-        function filterColumn(i) {
-            $("#ExomeTable").DataTable().column(i).search(
-                $("#col-" + i + "-filter").val(),
-                $("#col-" + i + "-regex").prop("checked"),
-                $("#col-" + i + "-smart").prop("checked")
-            ).draw();
-        }
-
-        function WireUpDataTable(data) {
-            dtTable = $("#ExomeTable")
-                .on("init.dt", function () {
-                    $("#ExomeTable").removeClass("d-none");
-                })
-                .DataTable({
-                    dom: "lBfrtip",
-                    buttons: [
-                        "csv"
-                    ],
-                    data: data,
-                    search: {regex: true},
-                    columns: RenderColumns(vueComponent),
-                    columnDefs: [
-                        {
-                            visible: false,
-                            targets: [
-                                exomeColumns['AfricanAlleleCount'],
-                                exomeColumns['AfricanAlleleNumber'],
-                                exomeColumns['AfricanAlleleFreq'],
-                                exomeColumns['AmericanAlleleCount'],
-                                exomeColumns['AmericanAlleleNumber'],
-                                exomeColumns['AmericanAlleleFreq'],
-                                exomeColumns['AshkenaziJewishAlleleCount'],
-                                exomeColumns['AshkenaziJewishAlleleNumber'],
-                                exomeColumns['AshkenaziJewishAlleleFreq'],
-                                exomeColumns['EastAsianAlleleCount'],
-                                exomeColumns['EastAsianAlleleNumber'],
-                                exomeColumns['EastAsianAlleleFreq'],
-                                exomeColumns['FinnishAlleleCount'],
-                                exomeColumns['FinnishAlleleNumber'],
-                                exomeColumns['FinnishAlleleFreq'],
-                                exomeColumns['EuropeanAlleleCount'],
-                                exomeColumns['EuropeanAlleleNumber'],
-                                exomeColumns['EuropeanAlleleFreq'],
-                                exomeColumns['OtherAlleleCount'],
-                                exomeColumns['OtherAlleleNumber'],
-                                exomeColumns['OtherAlleleFreq'],
-                                exomeColumns['SouthAsianAlleleCount'],
-                                exomeColumns['SouthAsianAlleleNumber'],
-                                exomeColumns['SouthAsianAlleleFreq'],
-                            ],
-                        }
-                    ],
-                    order: [[1, "desc"]]
-                });
-        }
     </script>
     <script type="application/javascript">
         function RenderColumns(vueComponent) {
             return [
                 {
-                    defaultContent: geneID,
+                    defaultContent: vueComponent.geneID,
+                    title: "GeneID",
+                    render: function () {
+                        return vueComponent.geneID;
+                    }
                 },
                 {
                     data: "variantId",
+                    title: "VariantID",
                     defaultContent: "",
                 },
                 {
                     data: "exome.af",
+                    title: "AlleleFrequency",
                     defaultContent: "",
                 },
                 {
                     data: "exome.an",
+                    title: "AlleleNumber",
                     defaultContent: "",
                 },
                 {
                     data: "exome.ac",
+                    title: "AlleleCount",
                     defaultContent: "",
                 },
                 {
                     data: "exome.ac_hemi",
+                    title: "AlleleCountHemi",
                     defaultContent: "",
                 },
                 {
                     data: "exome.ac_hom",
+                    title: "AlleleCountHomozygote",
                     defaultContent: "",
                 },
                 {
                     data: "exome.filters",
+                    title: "Filters",
                     defaultContent: "",
                 },
                 {
-                    data: 'exome.populations',
+                    data: "exome",
+                    title: "AfricanAlleleCount",
                     render:
-                        function (data) {
-                            if (data !== null) {
-                                return data[0].ac;
+                        function (data, type) {
+                            if (type === "display") {
+                                if (data["populations"] !== null) {
+                                    return data["populations"][0].ac;
+                                }
                             }
                         },
                     defaultContent: 0,
                 },
                 {
                     data: "exome.populations",
+                    title: "AfricanAlleleNumber",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -341,6 +332,7 @@
                 },
                 {
                     data: "exome.populations",
+                    title: "AfricanAlleleFreq",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -351,6 +343,7 @@
                 },
                 {
                     data: 'exome.populations',
+                    title: "AmericanAlleleCount",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -361,6 +354,7 @@
                 },
                 {
                     data: "exome.populations",
+                    title: "AmericanAlleleNumber",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -371,6 +365,7 @@
                 },
                 {
                     data: "exome.populations",
+                    title: "AmericanAlleleFreq",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -381,6 +376,7 @@
                 },
                 {
                     data: 'exome.populations',
+                    title: "AshkenaziJewishAlleleCount",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -391,6 +387,7 @@
                 },
                 {
                     data: "exome.populations",
+                    title: "AshkenaziJewishAlleleNumber",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -401,6 +398,7 @@
                 },
                 {
                     data: "exome.populations",
+                    title: "AshkenaziJewishAlleleFreq",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -411,6 +409,7 @@
                 },
                 {
                     data: 'exome.populations',
+                    title: "EastAsianAlleleCount",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -421,6 +420,7 @@
                 },
                 {
                     data: "exome.populations",
+                    title: "EastAsianAlleleNumber",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -431,6 +431,7 @@
                 },
                 {
                     data: "exome.populations",
+                    title: "EastAsianAlleleFreq",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -441,6 +442,7 @@
                 },
                 {
                     data: 'exome.populations',
+                    title: "FinnishAlleleCount",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -451,6 +453,7 @@
                 },
                 {
                     data: "exome.populations",
+                    title: "FinnishAlleleNumber",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -461,6 +464,7 @@
                 },
                 {
                     data: "exome.populations",
+                    title: "FinnishAlleleFreq",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -471,6 +475,7 @@
                 },
                 {
                     data: 'exome.populations',
+                    title: "EuropeanAlleleCount",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -481,6 +486,7 @@
                 },
                 {
                     data: "exome.populations",
+                    title: "EuropeanAlleleNumber",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -491,6 +497,7 @@
                 },
                 {
                     data: "exome.populations",
+                    title: "EuropeanAlleleFreq",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -501,6 +508,7 @@
                 },
                 {
                     data: 'exome.populations',
+                    title: "OtherAlleleCount",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -511,6 +519,7 @@
                 },
                 {
                     data: "exome.populations",
+                    title: "OtherAlleleNumber",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -521,6 +530,7 @@
                 },
                 {
                     data: "exome.populations",
+                    title: "OtherAlleleFreq",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -531,6 +541,7 @@
                 },
                 {
                     data: 'exome.populations',
+                    title: "SouthAsianAlleleCount",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -541,6 +552,7 @@
                 },
                 {
                     data: "exome.populations",
+                    title: "SouthAsianAlleleNumber",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -551,6 +563,7 @@
                 },
                 {
                     data: "exome.populations",
+                    title: "SouthAsianAlleleFreq",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -561,57 +574,75 @@
                 },
                 {
                     data: "flags",
+                    title: "Flags",
                     defaultContent: "",
                 },
                 {
                     data: "chrom",
+                    title: "Chrom",
                     defaultContent: "",
                 },
                 {
                     data: "pos",
+                    title: "Pos",
                     defaultContent: "",
                 },
                 {
                     data: "alt",
+                    title: "Alt",
                     defaultContent: "",
                 },
                 {
                     data: "consequence",
+                    title: "Consequence",
                     defaultContent: "",
                 },
                 {
                     data: "consequence_in_canonical_transcript",
+                    title: "ConsequenceInCanonicalTranscript",
                     defaultContent: "",
                 },
                 {
                     data: "hgvs",
+                    title: "HGVS",
                     defaultContent: "",
                 },
                 {
                     data: "hgvsc",
+                    title: "HGVSc",
                     defaultContent: "",
                 },
                 {
                     data: "hgvsp",
+                    title: "HGVSp",
                     defaultContent: "",
                 },
                 {
                     data: "lof",
+                    title: "lof",
                     defaultContent: "",
                 },
                 {
                     data: "lof_filter",
+                    title: "lof_filter",
                     defaultContent: "",
                 },
                 {
                     data: "lof_flags",
+                    title: "lof_flags",
                     defaultContent: "",
                 },
                 {
                     data: "rsid",
+                    title: "rsid",
                     defaultContent: "",
                 },
             ];
         }
+    </script>
+
+    <script type="x-html-template"
+            id="filter-template">
+
     </script>
 {% endblock %}

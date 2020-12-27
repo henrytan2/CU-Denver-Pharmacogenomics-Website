@@ -4,8 +4,13 @@
     <list default="true" id="c83a1dec-f4f2-4315-a611-abc2522dacdf" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mysite/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mysite/gtexome/business/exome.py" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/gtexome/business/exome.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mysite/gtexome/templates/exome.html" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/gtexome/templates/exome.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mysite/gtexome/templates/ratio-results.html" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/gtexome/templates/ratio-results.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mysite/gtexome/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/gtexome/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mysite/pharmacogenomics/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/pharmacogenomics/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mysite/pharmacogenomics/managers.py" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/pharmacogenomics/managers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mysite/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/templates/base.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,6 +98,7 @@
       <updated>1607755292394</updated>
       <workItem from="1607755294289" duration="4737000" />
       <workItem from="1607834271477" duration="54343000" />
+      <workItem from="1608830482259" duration="35546000" />
     </task>
     <servers />
   </component>
@@ -101,16 +107,5 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/mysite/gtexome/views.py</url>
-          <line>178</line>
-          <option name="timeStamp" value="11" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

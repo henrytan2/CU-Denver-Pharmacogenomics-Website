@@ -28,6 +28,7 @@
                     autoWidth: false,
                     data: geneRatios,
                     columns: RenderColumns(this),
+                    paging: true,
                     initComplete: function () {
                         this.removeClass("d-none");
                     },
@@ -36,7 +37,7 @@
                         "csv"
                     ],
                     order: [[0, "desc"]],
-                })
+                });
             }
         });
     </script>

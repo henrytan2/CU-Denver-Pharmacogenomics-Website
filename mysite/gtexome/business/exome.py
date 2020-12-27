@@ -1,5 +1,5 @@
 class ExomeColumns:
-    col_dict = {
+    Get = {
         'GeneID': 0,
         'VariantID': 1,
         'AlleleFrequency': 2,

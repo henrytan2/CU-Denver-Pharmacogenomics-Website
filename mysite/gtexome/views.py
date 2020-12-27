@@ -130,50 +130,48 @@ class ExomeView(generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ExomeView, self).get_context_data(**kwargs)
-        context['exome_columns'] = ExomeColumns.col_dict
+        context['gnomad_data'] = self.make_request_to_gnomad()
+        context['exome_columns'] = ExomeColumns.Get
         return context
 
-    def post(self, request):
-        gene_id = request.POST.get("geneID")
-
+    def make_request_to_gnomad(self):
+        gene_id = self.request.GET['gene_id']
         query = """query {
-  gene(gene_id: "%s", reference_genome: GRCh37) {
-    variants(dataset: gnomad_r2_1) {
-      variantId
-      exome {
-        ac
-        ac_hemi
-        ac_hom
-        an
-        af
-        filters
-        populations {
-          id
-          ac
-          an
-        }
-      }
-      flags
-      chrom
-      pos
-      alt
-      consequence
-      consequence_in_canonical_transcript
-      hgvs
-      hgvsc
-      hgvsp
-      lof
-      lof_filter
-      lof_flags
-      rsid
-      }      
-    }
-  }
-"""
-
+          gene(gene_id: "%s", reference_genome: GRCh37) {
+            variants(dataset: gnomad_r2_1) {
+              variantId
+              exome {
+                ac
+                ac_hemi
+                ac_hom
+                an
+                af
+                filters
+                populations {
+                  id
+                  ac
+                  an
+                }
+              }
+              flags
+              chrom
+              pos
+              alt
+              consequence
+              consequence_in_canonical_transcript
+              hgvs
+              hgvsc
+              hgvsp
+              lof
+              lof_filter
+              lof_flags
+              rsid
+              }      
+            }
+          }
+        """
         query = query % gene_id
 
-        if request.method == 'POST':
-            url = 'https://gnomad.broadinstitute.org/api/'
-            self.gnomad_data = requests.post(url, json={'query': query}).json()
-            return JsonResponse(self.gnomad_data, safe=False)
+        url = 'https://gnomad.broadinstitute.org/api/'
+        response = json.dumps(requests.post(url, json={'query': query}).json())
+        return response
