@@ -3,11 +3,14 @@
   <component name="ChangeListManager">
     <list default="true" id="c83a1dec-f4f2-4315-a611-abc2522dacdf" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mysite/gtexome/templates/range-results.html" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/gtexome/templates/range-results.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mysite/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/db.sqlite3" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mysite/gtexome/templates/ratio-results.html" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/gtexome/templates/ratio-results.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mysite/gtexome/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/gtexome/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mysite/pharmacogenomics/templates/fda.html" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/pharmacogenomics/templates/fda.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mysite/pharmacogenomics/templates/side-effect-drugs-ranked.html" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/pharmacogenomics/templates/side-effect-drugs-ranked.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mysite/pharmacogenomics/templates/side-effect-result.html" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/pharmacogenomics/templates/side-effect-result.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mysite/pharmacogenomics/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/pharmacogenomics/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mysite/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/mysite/templates/base.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,7 +98,7 @@
       <updated>1607755292394</updated>
       <workItem from="1607755294289" duration="4737000" />
       <workItem from="1607834271477" duration="54343000" />
-      <workItem from="1608830482259" duration="36007000" />
+      <workItem from="1608830482259" duration="46966000" />
     </task>
     <servers />
   </component>

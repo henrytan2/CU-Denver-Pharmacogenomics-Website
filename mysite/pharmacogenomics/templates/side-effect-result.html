@@ -2,61 +2,46 @@
 {% load static %}
 {% block content %}
     <body style="background-image:none">
-    <table id="sider-results"
-           class="table table-hover table-striped d-none">
-        <thead>
-        <tr>
-            <th>Drug ID</th>
-            <th>Stereoisomer ID</th>
-            <th>Drug name</th>
-            <th>UMLS Concept ID</th>
-            <th>Frequency (%)</th>
-            <th>Frequency lower</th>
-            <th>Frequency upper</th>
-            <th>Side effect</th>
-            <th>ATC code</th>
-        </tr>
-        </thead>
-
-        <tbody>
-        {% for s in object_list %}
-            <tr>
-                <td>{{ s.drug_id }}</td>
-                <td>{{ s.stereoisomer }}</td>
-                <td><a href={% url 'pharmacogenomics:fda' %}?drug_name={{ s.drug_name }}>{{ s.drug_name }}</a></td>
-                <td>{{ s.umls_concept_id }}</td>
-                <td>{{ s.frequency_percent }}</td>
-                <td>{{ s.frequency_lower }}</td>
-                <td>{{ s.frequency_upper }}</td>
-                <td>{{ s.side_effect }}</td>
-                <td>{{ s.atc_code }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    <div style="text-align: right; margin-top: 10px">
-        <button class="btn btn-primary"
-                onclick="location.href='{% url 'pharmacogenomics:side-effect-ranked-drugs' %}'">
-            View Drugs Ranked
-        </button>
-    </div>
+    <index></index>
+    <script id="index-template"
+            type="x-html-template">
+        <div id="table-wrapper">
+            <table id="sider-results"
+                   class="table table-hover table-striped d-none"
+                   ref="datatable">
+            </table>
+            <div style="text-align: right; margin-top: 10px">
+                <button class="btn btn-primary"
+                        onclick="location.href='{% url 'pharmacogenomics:side-effect-ranked-drugs' %}'">
+                    View Drugs Ranked
+                </button>
+            </div>
+        </div>
+    </script>
 
     </body>
-
-    <script>
-        var dtTable;
-
-        $(document).ready(function () {
-            WireUpDataTable();
-        });
-
-        function WireUpDataTable() {
-            dtTable = $("#sider-results")
-                .on("init.dt", function () {
-                    $("#sider-results").removeClass("d-none");
-                })
-                .DataTable({
-                    dom: 'lBfrtip',
+    <script type="application/javascript">
+        var sideEffects = {{ object_list | safe }};
+    </script>
+    <script type="application/javascript">
+        Vue.component("index", {
+            template: "#index-template",
+            data: function () {
+                return {
+                    dtTable: null,
+                    sideEffects: sideEffects,
+                }
+            },
+            mounted: function () {
+                this.dtTable = $(this.$refs.datatable).DataTable({
+                    autoWidth: false,
+                    data: this.sideEffects,
+                    columns: RenderColumns(this),
+                    paging: true,
+                    initComplete: function () {
+                        this.removeClass("d-none");
+                    },
+                    dom: "lBfrtip",
                     buttons: [{
                         extend: "csv",
                         exportOptions: {
@@ -65,6 +50,65 @@
                         }
                     }],
                 });
+            },
+        });
+    </script>
+
+    <script type="application/javascript">
+        function RenderColumns(vueComponent) {
+            return [
+                {
+                    title: "Drug ID",
+                    data: "drug_id",
+                    defaultContent: "",
+                },
+                {
+                    title: "StereoIsomer ID",
+                    data: "stereoisomer",
+                    defaultContent: "",
+                },
+                {
+                    data: null,
+                    title: "Drug Name",
+                    defaultContent: "",
+                    render: function (data, type) {
+                        var drugName = data["drug_name"];
+                        var url = "{% url 'pharmacogenomics:fda' %}" + "?drug_name=" + drugName;
+                        var response = '<a href=' + url + '>' + drugName + '</a>';
+                        return response;
+                    }
+                },
+                {
+                    title: "UMLS Concept ID",
+                    data: "umls_concept_id",
+                    defaultContent: "",
+                },
+                {
+                    title: "Frequency (%)",
+                    data: "frequency_percent",
+                    defaultContent: "",
+                },
+                {
+                    title: "Frequency Lower",
+                    data: "frequency_lower",
+                    defaultContent: "",
+                },
+                {
+                    title: "Frequency Upper",
+                    data: "frequency_upper",
+                    defaultContent: "",
+                },
+                {
+                    title: "Side Effect",
+                    data: "side_effect",
+                    defaultContent: "",
+                },
+                {
+                    title: "ATC Code",
+                    data: "atc_code",
+                    defaultContent: "",
+                },
+            ]
         }
     </script>
 {% endblock content %}
