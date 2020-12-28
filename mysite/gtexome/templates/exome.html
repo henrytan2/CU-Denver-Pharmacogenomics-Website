@@ -75,7 +75,7 @@
                                         v-for="(filter, index) in filters">
                                         <td>
                                             <select id="column-list"
-                                                    v-on:change="doFilter(filter.columnIndex)"
+                                                    v-on:change="doFilter"
                                                     v-model="filter.columnIndex"
                                                     class="form-control-sm">
                                                 <option v-for="(index, column) in exomeColumns"
@@ -86,7 +86,7 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <input v-on:keyup="doFilter(filter.columnIndex)"
+                                            <input v-on:keyup="doFilter"
                                                    v-model="filter.searchText"
                                                    type="text"
                                                    class="form-control form-control-sm">
@@ -94,13 +94,13 @@
                                         <td style="text-align: center;">
                                             <input type="checkbox"
                                                    v-model="filter.useRegex"
-                                                   v-on:change="doFilter(filter.columnIndex)"
+                                                   v-on:change="doFilter"
                                                    class="form-check-input">
                                         </td>
                                         <td style="text-align: center;">
                                             <input type="checkbox"
                                                    v-model="filter.useSmartSearch"
-                                                   v-on:change="doFilter(filter.columnIndex)"
+                                                   v-on:change="doFilter"
                                                    class="form-check-input">
                                         </td>
                                         <td style="text-align: center">
@@ -145,7 +145,7 @@
                         columnIndex: "",
                         searchText: "",
                         useRegex: false,
-                        useSmartSearch: false,
+                        useSmartSearch: true,
                     }],
                     hiddenColumns: [
                         exomeColumns['AfricanAlleleCount'],
@@ -202,18 +202,19 @@
                         columnIndex: "",
                         searchText: "",
                         useRegex: false,
-                        useSmartSearch: false,
+                        useSmartSearch: true,
                     });
                 },
                 removeFilter: function (filterIndex) {
-                    var index = this.filters.indexOf(filterIndex);
-                    this.filters.splice(index, 1);
+                    var columnIndex = this.filters[filterIndex].columnIndex;
+                    this.dtTable.column(columnIndex).search("").draw();
+                    this.filters.splice(filterIndex, 1);
                 },
-                doFilter: function (index) {
+                doFilter: function () {
                     var _this = this;
                     var d = _this.dtTable
                     this.filters.forEach(function (filter) {
-                        d.column(index)
+                        d.column(filter.columnIndex)
                             .search(filter.searchText,
                                 filter.useRegex,
                                 filter.useSmartSearch);
