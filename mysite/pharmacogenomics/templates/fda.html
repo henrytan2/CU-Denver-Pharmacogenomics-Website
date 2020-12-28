@@ -1,66 +1,87 @@
 {% extends 'base.html' %}
 {% block content %}
     <body style="background-image:none;">
-    <div id="fda-info"></div>
-    <table id="FDATable"
-           class="table table-hover table-striped d-none">
-        <thead>
-        <tr>
-            <th>Term</th>
-            <th>Count</th>
-        </tr>
-        </thead>
-    </table>
+    <index></index>
     </body>
-    <script>
-        var fdaData;
-        var dtTable;
-
-        $(document).ready(function () {
-            var currentURLString = window.location.href;
-            var currentURL = new URL(currentURLString);
-            var drugName = currentURL.searchParams.get("drug_name");
-            document.title = drugName;
-            $.ajax({
-                type: "POST",
-                data: {"drugName": drugName},
-                url: "{% url 'pharmacogenomics:fda' %}",
-                success: function (response) {
-                    if (response["error"] != null) {
-                        $("#fda-info").append("<h1>No info was found on this drug from fda.gov</h1>");
-                    } else {
-                        fdaData = response;
-                        $("#fda-info").append("<p>Last updated: " + fdaData.meta.last_updated + " </p>" +
-                            "<h2>FDA Side Effect Data for " +drugName+ "</h2>");
-                        WireUpDataTable(fdaData["results"]);
-                    }
-                },
-            });
-        });
-
-        function WireUpDataTable(data) {
-            dtTable = $("#FDATable")
-                .on("init.dt", function () {
-                    $("#FDATable").removeClass("d-none");
-                })
-                .DataTable({
+    <script id="index-template"
+            type="x-html-template">
+        <div id="table-wrapper">
+            <div v-if="fdaError"><h1>No info was found on this drug from fda.gov</h1></div>
+            <div><p>Last updated: {% verbatim %}{{ lastUpdated }}{% endverbatim %}</p></div>
+            <div id="fda-info"><h2>FDA Side Effect Data for {% verbatim %}{{ drugName }}{% endverbatim %}</h2></div>
+            <table id="FDATable"
+                   ref="datatable"
+                   class="table table-hover table-striped d-none">
+                <thead>
+                <tr>
+                    <th>Term</th>
+                    <th>Count</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </script>
+    <script type="application/javascript">
+        var fdaData = {{ fda_data | safe }};
+    </script>
+    <script type="application/javascript">
+        Vue.component("index", {
+            template: "#index-template",
+            data: function () {
+                return {
+                    fdaData: fdaData,
+                    dtTable: null,
+                    fdaError: false,
+                    lastUpdated: fdaData.meta.last_updated,
+                }
+            },
+            computed: {
+                drugName: function () {
+                        var currentURLString = window.location.href;
+                        var currentURL = new URL(currentURLString);
+                        return currentURL.searchParams.get("drug_name");
+                    },
+            },
+            mounted: function () {
+                var currentURLString = window.location.href;
+                var currentURL = new URL(currentURLString);
+                var drugName = currentURL.searchParams.get("drug_name");
+                document.title = drugName;
+                if (this.fdaData["error"] != null) {
+                    this.fdaError = true;
+                    return;
+                }
+                this.dtTable = $(this.$refs.datatable).DataTable({
                     dom: "lBfrtip",
                     autoWidth: false,
-                    buttons: [
-                        "csv"
-                    ],
-                    data: data,
-                    columns: [
-                        {
-                            data: "term",
-                            defaultContent: "",
-                        },
-                        {
-                            data: "count",
-                            defaultContent: 0,
+                    initComplete: function () {
+                        this.removeClass("d-none");
+                    },
+                    buttons: [{
+                        extend: "csv",
+                        exportOptions: {
+                            columns: ":visible",
+                            rows: ":visible",
                         }
-                    ]
-                });
+                    }],
+                    data: fdaData.results,
+                    columns: RenderColumns(this),
+                })
+            },
+        });
+    </script>
+    <script type="application/javascript">
+        function RenderColumns(vueComponent) {
+            return [
+                {
+                    data: "term",
+                    defaultContent: "",
+                },
+                {
+                    data: "count",
+                    defaultContent: 0,
+                }
+            ]
         }
     </script>
 {% endblock %}

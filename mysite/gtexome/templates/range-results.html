@@ -2,42 +2,68 @@
 
 {% block content %}
     <body style="background-image: none">
-    <table id="gtex-results"
-           class="table table-hover table-striped d-none">
-        <thead>
-        <tr>
-            <th>GeneID</th>
-            <th>Description</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for item in object_list %}
-            <tr>
-                <td><a href="{% url 'gtexome:exome' %}?gene_id={{ item.gene_id }}">{{ item.gene_id }}</a></td>
-                <td>{{ item.description }}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <index></index>
     </body>
-
-    <script>
-        var dtTable;
-        $(document).ready(function () {
-            WireUpDataTable();
-        });
-
-        function WireUpDataTable() {
-            dtTable = $("#gtex-results")
-                .on("init.dt", function () {
-                    $("#gtex-results").removeClass("d-none");
-                })
-                .DataTable({
+    <script id="index-template"
+            type="text/x-html-template">
+        <table id="gtex-results"
+               ref="datatable"
+               class="table table-hover table-striped d-none">
+        </table>
+    </script>
+    <script type="application/javascript">
+        var genes = {{ object_list | safe }};
+    </script>
+    <script type="application/javascript">
+    Vue.component("index", {
+            data: function () {
+                return {
+                    dtTable: null,
+                }
+            },
+            template: "#index-template",
+            mounted: function () {
+                var _this = this;
+                this.dtTable = $(this.$refs.datatable).DataTable({
+                    autoWidth: false,
+                    data: genes,
+                    columns: RenderColumns(this),
+                    initComplete: function () {
+                        this.removeClass("d-none");
+                    },
                     dom: "lBfrtip",
-                    buttons: [
-                        "csv"
-                    ]
-                });
+                    buttons: [{
+                        extend: "csv",
+                        exportOptions: {
+                            columns: ":visible",
+                            rows: ":visible",
+                        }
+                    }],
+                    order: [[0, "desc"]],
+                })
+            }
+        });
+    </script>
+    <script type="application/javascript">
+        function RenderColumns(vueComponent) {
+            return [
+                {
+                    data: null,
+                    title: 'Gene ID',
+                    name: 'Gene ID',
+                    defaultContent: "",
+                    render: function (data, type) {
+                        var geneID = data['gene_id'];
+                        var response = '<a href="{% url 'gtexome:exome' %}?gene_id=' + geneID +'">' + geneID + '</a>';
+                        return response;
+                    }
+                },
+                {
+                    data: 'description',
+                    title: 'Description',
+                    name: 'Description',
+                }
+            ]
         }
     </script>
 {% endblock %}

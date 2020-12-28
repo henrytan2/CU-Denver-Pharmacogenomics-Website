@@ -1,9 +1,9 @@
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from django.views import generic
-
 from .models import GTEx
 import requests
 import json
+from .business.exome import ExomeColumns
 
 
 class IndexView(generic.ListView):
@@ -55,7 +55,13 @@ class RangeResultsView(generic.ListView):
         for tissue, filter_range in filter_non_verbose.items():
             kwargs['{0}__{1}'.format(str(tissue), 'gte')] = float(filter_range['lower'])
             kwargs['{0}__{1}'.format(str(tissue), 'lte')] = float(filter_range['upper'])
-        return self.model.objects.filter(**kwargs)
+        response = []
+        for obj in self.model.objects.filter(**kwargs):
+            response.append({
+                'gene_id': obj.gene_id,
+                'description': obj.description
+            })
+        return response
 
 
 class RatioResultsView(generic.ListView):
@@ -82,8 +88,8 @@ class RatioResultsView(generic.ListView):
         upper_bound = float('inf') if session_filter_dictionary['upper'] is None \
             else float(session_filter_dictionary['upper'])
 
-        all_objs = self.model.objects.all()
-        exclude_objs = []
+        all_objs = set(self.model.objects.all())
+        exclude_objs = set()
         ratios = {}
         for obj in all_objs:
             numerator = 0
@@ -94,67 +100,78 @@ class RatioResultsView(generic.ListView):
             for den_tissue in denominator_tissues:
                 denominator += getattr(obj, den_tissue)
             if numerator == 0:
-                exclude_objs.append(obj)
+                exclude_objs.add(obj)
                 continue
             if denominator == 0:
-                exclude_objs.append(obj)
+                exclude_objs.add(obj)
                 continue
             ratio = numerator / denominator
             ratios[obj.gene_id] = ratio
             if not (lower_bound <= ratio <= upper_bound):
-                exclude_objs.append(obj.gene_id)
+                exclude_objs.add(obj)
 
-        all_objs = all_objs.exclude(gene_id__in=exclude_objs)
-        for obj in all_objs:
-            obj.ratio = ratios[obj.gene_id]
-        return all_objs
+        excluded_objs = all_objs - exclude_objs
+        response = []
+        for obj in excluded_objs:
+            ratio = ratios[obj.gene_id]
+            gene_id = obj.gene_id
+            description = obj.description
+            response.append({
+                'ratio': ratio,
+                'gene_id': gene_id,
+                'description': description,
+            })
+        return response
 
 
 class ExomeView(generic.TemplateView):
     template_name = 'exome.html'
     gnomad_data = ''
 
-    def post(self, request):
-        gene_id = request.POST.get("geneID")
+    def get_context_data(self, **kwargs):
+        context = super(ExomeView, self).get_context_data(**kwargs)
+        context['gnomad_data'] = self.make_request_to_gnomad()
+        context['exome_columns'] = ExomeColumns.Get
+        return context
 
+    def make_request_to_gnomad(self):
+        gene_id = self.request.GET['gene_id']
         query = """query {
-  gene(gene_id: "%s", reference_genome: GRCh37) {
-    variants(dataset: gnomad_r2_1) {
-      variantId
-      exome {
-        ac
-        ac_hemi
-        ac_hom
-        an
-        af
-        filters
-        populations {
-          id
-          ac
-          an
-        }
-      }
-      flags
-      chrom
-      pos
-      alt
-      consequence
-      consequence_in_canonical_transcript
-      hgvs
-      hgvsc
-      hgvsp
-      lof
-      lof_filter
-      lof_flags
-      rsid
-      }      
-    }
-  }
-"""
-
+          gene(gene_id: "%s", reference_genome: GRCh37) {
+            variants(dataset: gnomad_r2_1) {
+              variantId
+              exome {
+                ac
+                ac_hemi
+                ac_hom
+                an
+                af
+                filters
+                populations {
+                  id
+                  ac
+                  an
+                }
+              }
+              flags
+              chrom
+              pos
+              alt
+              consequence
+              consequence_in_canonical_transcript
+              hgvs
+              hgvsc
+              hgvsp
+              lof
+              lof_filter
+              lof_flags
+              rsid
+              }      
+            }
+          }
+        """
         query = query % gene_id
 
-        if request.method == 'POST':
-            url = 'https://gnomad.broadinstitute.org/api/'
-            self.gnomad_data = requests.post(url, json={'query': query}).json()
-            return JsonResponse(self.gnomad_data, safe=False)
+        url = 'https://gnomad.broadinstitute.org/api/'
+        response = json.dumps(requests.post(url, json={'query': query}).json())
+        return response
