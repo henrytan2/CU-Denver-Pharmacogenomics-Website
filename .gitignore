@@ -1,5 +1,6 @@
 pharmacogenomics_venv
 .DS_Store
+pyveng.cfg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
