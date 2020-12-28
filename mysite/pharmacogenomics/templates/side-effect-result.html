@@ -6,16 +6,16 @@
     <script id="index-template"
             type="x-html-template">
         <div id="table-wrapper">
-            <table id="sider-results"
-                   class="table table-hover table-striped d-none"
-                   ref="datatable">
-            </table>
             <div style="text-align: right; margin-top: 10px">
                 <button class="btn btn-primary"
                         onclick="location.href='{% url 'pharmacogenomics:side-effect-ranked-drugs' %}'">
                     View Drugs Ranked
                 </button>
             </div>
+            <table id="sider-results"
+                   class="table table-hover table-striped d-none"
+                   ref="datatable">
+            </table>
         </div>
     </script>
 
