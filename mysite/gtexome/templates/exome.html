@@ -259,6 +259,7 @@
                     ],
                     order: [[this.exomeColumns["AlleleFrequency"], "desc"]]
                 });
+                this.dtTable.columns().header().to$().removeClass("text-center");
             }
         });
     </script>
@@ -268,6 +269,7 @@
                 {
                     defaultContent: vueComponent.geneID,
                     title: "GeneID",
+                    className: "text-center",
                     render: function () {
                         return vueComponent.geneID;
                     }
@@ -275,41 +277,49 @@
                 {
                     data: "variantId",
                     title: "VariantID",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "exome.af",
                     title: "AlleleFrequency",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "exome.an",
                     title: "AlleleNumber",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "exome.ac",
                     title: "AlleleCount",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "exome.ac_hemi",
                     title: "AlleleCountHemi",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "exome.ac_hom",
                     title: "AlleleCountHomozygote",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "exome.filters",
                     title: "Filters",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "exome",
                     title: "AfricanAlleleCount",
+                    className: "text-center",
                     render:
                         function (data, type) {
                             if (type === "display") {
@@ -323,6 +333,7 @@
                 {
                     data: "exome.populations",
                     title: "AfricanAlleleNumber",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -334,6 +345,7 @@
                 {
                     data: "exome.populations",
                     title: "AfricanAlleleFreq",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -345,6 +357,7 @@
                 {
                     data: 'exome.populations',
                     title: "AmericanAlleleCount",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -356,6 +369,7 @@
                 {
                     data: "exome.populations",
                     title: "AmericanAlleleNumber",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -367,6 +381,7 @@
                 {
                     data: "exome.populations",
                     title: "AmericanAlleleFreq",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -378,6 +393,7 @@
                 {
                     data: 'exome.populations',
                     title: "AshkenaziJewishAlleleCount",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -389,6 +405,7 @@
                 {
                     data: "exome.populations",
                     title: "AshkenaziJewishAlleleNumber",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -400,6 +417,7 @@
                 {
                     data: "exome.populations",
                     title: "AshkenaziJewishAlleleFreq",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -411,6 +429,7 @@
                 {
                     data: 'exome.populations',
                     title: "EastAsianAlleleCount",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -422,6 +441,7 @@
                 {
                     data: "exome.populations",
                     title: "EastAsianAlleleNumber",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -433,6 +453,7 @@
                 {
                     data: "exome.populations",
                     title: "EastAsianAlleleFreq",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -444,6 +465,7 @@
                 {
                     data: 'exome.populations',
                     title: "FinnishAlleleCount",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -455,6 +477,7 @@
                 {
                     data: "exome.populations",
                     title: "FinnishAlleleNumber",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -466,6 +489,7 @@
                 {
                     data: "exome.populations",
                     title: "FinnishAlleleFreq",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -477,6 +501,7 @@
                 {
                     data: 'exome.populations',
                     title: "EuropeanAlleleCount",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -488,6 +513,7 @@
                 {
                     data: "exome.populations",
                     title: "EuropeanAlleleNumber",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -499,6 +525,7 @@
                 {
                     data: "exome.populations",
                     title: "EuropeanAlleleFreq",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -510,6 +537,7 @@
                 {
                     data: 'exome.populations',
                     title: "OtherAlleleCount",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -521,6 +549,7 @@
                 {
                     data: "exome.populations",
                     title: "OtherAlleleNumber",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -532,6 +561,7 @@
                 {
                     data: "exome.populations",
                     title: "OtherAlleleFreq",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -543,6 +573,7 @@
                 {
                     data: 'exome.populations',
                     title: "SouthAsianAlleleCount",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -554,6 +585,7 @@
                 {
                     data: "exome.populations",
                     title: "SouthAsianAlleleNumber",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -565,6 +597,7 @@
                 {
                     data: "exome.populations",
                     title: "SouthAsianAlleleFreq",
+                    className: "text-center",
                     render:
                         function (data) {
                             if (data !== null) {
@@ -576,66 +609,79 @@
                 {
                     data: "flags",
                     title: "Flags",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "chrom",
                     title: "Chrom",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "pos",
                     title: "Pos",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "alt",
                     title: "Alt",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "consequence",
                     title: "Consequence",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "consequence_in_canonical_transcript",
                     title: "ConsequenceInCanonicalTranscript",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "hgvs",
                     title: "HGVS",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "hgvsc",
                     title: "HGVSc",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "hgvsp",
                     title: "HGVSp",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "lof",
                     title: "lof",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "lof_filter",
                     title: "lof_filter",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "lof_flags",
                     title: "lof_flags",
+                    className: "text-center",
                     defaultContent: "",
                 },
                 {
                     data: "rsid",
                     title: "rsid",
+                    className: "text-center",
                     defaultContent: "",
                 },
             ];
