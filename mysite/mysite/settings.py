@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
     'pharmacogenomics.apps.PharmacogenomicsConfig',
     'gtexome.apps.GtexomeConfig',
+    'metabolites.apps.MetabolitesConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

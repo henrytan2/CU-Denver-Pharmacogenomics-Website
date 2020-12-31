@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+<!DOCTYPE html>
+{% block content %}
+    <head>
+        <meta charset="UTF-8">
+        <title>Metabolites</title>
+    </head>
+    <body>
+    <table class="table">
+        <tr>
+            <th>Blah</th>
+        </tr>
+        {% for object in object_list %}
+            <tr>
+                <td>{{ object }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    </body>
+    <script type="application/javascript">
+        console.log("here");
+    </script>
+{% endblock content %}

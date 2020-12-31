@@ -25,4 +25,5 @@ urlpatterns = [
     path('pharmacogenomics/', views.IndexView.as_view(), name='index2'),
     path('pharmacogenomics/', include('pharmacogenomics.urls')),
     path('gtexome/', include('gtexome.urls')),
+    path('metabolites/', include('metabolites.urls'))
 ]
