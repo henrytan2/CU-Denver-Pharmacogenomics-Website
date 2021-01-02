@@ -257,7 +257,20 @@
                             targets: _this.hiddenColumns,
                         }
                     ],
-                    order: [[this.exomeColumns["AlleleFrequency"], "desc"]]
+                    order: [[this.exomeColumns["AlleleFrequency"], "desc"]],
+                    stateSave: true,
+                    stateSaveParams: function(settings, data) {
+                        data.stateVariables = {
+                            hiddenColumns: _this.hiddenColumns,
+                            filters: _this.filters,
+                        };
+                    },
+                    stateLoadParams: function(settings, data) {
+                        if (data && data.stateVariables) {
+                            _this.hiddenColumns = (data.stateVariables.hiddenColumns || _this.hiddenColumns);
+                            _this.filters = (data.stateVariables.filters || _this.filters);
+                        }
+                    },
                 });
                 this.dtTable.columns().header().to$().removeClass("text-center");
             }
