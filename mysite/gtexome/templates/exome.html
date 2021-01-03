@@ -34,7 +34,8 @@
                             <div class="card-body">
                                 <ul style="list-style: none"
                                     class="multi-column">
-                                    <li v-for="(index, column) in exomeColumns"
+                                    <li v-if="exomeColumns"
+                                        v-for="(index, column) in exomeColumns"
                                         style="width:20em;"
                                         :key="column.column_name">
                                         <label class="form-check-label">
@@ -78,7 +79,8 @@
                                                     v-on:change="doFilter"
                                                     v-model="filter.columnIndex"
                                                     class="form-control-sm">
-                                                <option v-for="(index, column) in exomeColumns"
+                                                <option v-if="exomeColumns"
+                                                        v-for="(index, column) in exomeColumns"
                                                         :value="index"
                                                         :key="column.column_name">
                                                     {% verbatim %}{{ column }}{% endverbatim %}
