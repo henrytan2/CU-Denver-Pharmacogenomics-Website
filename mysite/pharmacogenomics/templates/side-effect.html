@@ -52,7 +52,7 @@
                 };
             },
             computed: {
-                submitButtonDisabled: function() {
+                submitButtonDisabled: function () {
                     return this.sideEffectList.length <= 0;
                 }
             },
@@ -63,27 +63,29 @@
                     columns: RenderColumns(this),
                     initComplete: function () {
                         this.removeClass("d-none");
+                        $("#table tbody").on("click", "td button", function () {
+                            console.log(this);
+                            var $tr = $(this).closest('tr');
+                            var sideEffect = _this.dtTable.row($tr).data()['side_effect'];
+                            if (_this.sideEffectList.includes(sideEffect)) {
+                                $(this).find("svg").removeClass("fa-times").addClass("fa-plus");
+                                _this.removeSideEffect(sideEffect);
+                            } else {
+                                $(this).find("svg").removeClass("fa-plus").addClass("fa-times");
+                                _this.addSideEffect(sideEffect);
+                            }
+                            $.ajax({
+                                type: 'POST',
+                                url: '{% url 'pharmacogenomics:side-effect' %}',
+                                data: {'sideEffectList': _this.sideEffectList}
+                            });
+                        });
                     }
-                });
-                $(".list-add-btn").on('click', function () {
-                    var $tr = $(this).closest('tr');
-                    var sideEffect = _this.dtTable.row($tr).data()['side_effect'];
-                    if (_this.sideEffectList.includes(sideEffect)) {
-                        $(this).find("svg").removeClass("fa-times").addClass("fa-plus");
-                        _this.removeSideEffect(sideEffect);
-                    } else {
-                        $(this).find("svg").removeClass("fa-plus").addClass("fa-times");
-                        _this.addSideEffect(sideEffect);
-                    }
-                    $.ajax({
-                        type: 'POST',
-                        url: '{% url 'pharmacogenomics:side-effect' %}',
-                        data: {'sideEffectList': _this.sideEffectList}
-                    });
                 });
             },
             methods: {
                 addSideEffect: function (sideEffect) {
+                    debugger;
                     this.sideEffectList.push(sideEffect);
                 },
                 removeSideEffect: function (sideEffect) {
