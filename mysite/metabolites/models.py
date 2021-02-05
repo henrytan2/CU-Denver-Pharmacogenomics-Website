@@ -19,3 +19,8 @@ class Metabolite(models.Model):
     precursor_smiles = models.CharField("PrecursorSmiles", max_length=250)
     precursor_InChi = models.CharField("PrecursorInchi", max_length=400, unique=True)
     precursor_InChiKey = models.CharField("PrecursorInchiKey", max_length=27)
+    logp = models.DecimalField("logp", max_digits=22, decimal_places=20, default=None)
+    max_rmsd = models.DecimalField("max_rmsd", max_digits=22, decimal_places=20, default=None)
+    biotrans_origin = models.CharField("biotrans_origin", max_length=20, default=None)
+
+
