@@ -1,23 +1,81 @@
 {% extends 'base.html' %}
 <!DOCTYPE html>
 {% block content %}
-    <head>
-        <meta charset="UTF-8">
-        <title>Metabolites</title>
-    </head>
-    <body>
-    <table class="table">
-        <tr>
-            <th>Blah</th>
-        </tr>
-        {% for object in object_list %}
-            <tr>
-                <td>{{ object }}</td>
-            </tr>
-        {% endfor %}
-    </table>
+    <body style="background-image: none">
+    <index></index>
     </body>
-    <script type="application/javascript">
-        console.log("here");
+    <script id="index-template"
+            type="text-html-template">
+        <div id="table-wrapper">
+            <h1>Metabolites</h1>
+            <table id="metabolites"
+                   ref="datatable"
+                   class="table table-hover table-striped d-none">
+            </table>
+        </div>
+    </script>
+    <script>
+        var metabolites = {{ precursors_to_metabolites | safe }};
+        Vue.component("index", {
+            template: "#index-template",
+            data: function () {
+                return {
+                    dtTable: null,
+                    metabolites: metabolites,
+                }
+            },
+            mounted: function () {
+                this.dtTable = $(this.$refs.datatable).DataTable({
+                    autoWidth: false,
+                    dom: 'lBfrtip',
+                    buttons: [{
+                        extend: "csv",
+                        exportOptions: {
+                            columns: ":visible",
+                            rows: ":visible",
+                        }
+                    }],
+                    data: this.metabolites,
+                    columns: RenderColumns(this),
+                    initComplete: function() {
+                        this.removeClass("d-none");
+                    },
+                })
+            }
+        })
+    </script>
+    <script>
+        function RenderColumns(vueComponent) {
+            return [
+                {
+                    data: 'drug_name',
+                    title: 'Drug Name',
+                },
+                {
+                    data: 'precursor_InChiKey',
+                    title: 'Precursor InChiKey',
+                },
+                {
+                    data: "metabolite_InChiKey",
+                    title: "Metabolite InChiKey",
+                },
+                {
+                    data: "biosystem",
+                    title: "Biosystem",
+                },
+                {
+                    data: "logp",
+                    title: "logp",
+                },
+                {
+                    data: "enzyme",
+                    title: "Enzyme",
+                },
+                {
+                    data: "reaction",
+                    title: "Reaction",
+                },
+            ]
+        }
     </script>
 {% endblock content %}
