@@ -1,20 +1,25 @@
+from django.http import HttpResponse
 from django.views import generic
 from .models import Metabolite
 from precursor_metabolite_map.models import PrecursorMetaboliteMap
 from precursors.models import Precursors
+import sys
+import json
 
 # Create your views here.
-class MultiplePrecursorView(generic.ListView):
+class MetaboliteView(generic.ListView):
     model = Metabolite
-    template_name = 'multi-precursor.html'
+    template_name = 'metabolite.html'
+    precursor_UUIDs = []
     precursors_to_metabolites = {}
 
     def get_context_data(self, **kwargs):
-        context = super(MultiplePrecursorView, self).get_context_data(**kwargs)
-        precursors = self.get_list_of_precursors()
+        self.precursors_to_metabolites.clear()
+        context = super(MetaboliteView, self).get_context_data(**kwargs)
+        precursors = self.request.session.get('precursor_UUIDs')
         for precursor_UUID in precursors:
-            drug_name, inchi_key = Precursors.objects.filter(UUID=precursor_UUID).values_list('DrugName', 'InChiKey').first()
-            precursor = PrecursorForMetaboliteView(drug_name, inchi_key)
+            drug_name, logp = Precursors.objects.filter(UUID=precursor_UUID).values_list('DrugName', 'logp').first()
+            precursor = PrecursorForMetaboliteView(drug_name, logp)
             self.precursors_to_metabolites[precursor] = []
             metabolite_UUIDs = get_metabolite_UUIDs(precursor_UUID, [])
             if metabolite_UUIDs is not None:
@@ -31,30 +36,36 @@ class MultiplePrecursorView(generic.ListView):
                     self.precursors_to_metabolites[precursor].append(metabolite)
         response = []
         for precursor, metabolites in self.precursors_to_metabolites.items():
+            if precursor.logp == None:
+                precursor.logp = -1 * sys.float_info.max
             for metabolite in metabolites:
                 if metabolite.logp == None:
-                    metabolite.logp = 0
+                    metabolite.logp = -1 * sys.float_info.max
+
+
                 response.append({
                     'drug_name': precursor.drug_name,
-                    'precursor_InChiKey': precursor.inchi_key,
+                    'precursor_logp': float(precursor.logp),
                     'metabolite_InChiKey': metabolite.inchi_key,
                     'biosystem': metabolite.biosystem,
-                    'logp': float(metabolite.logp),
+                    'metabolite_logp': float(metabolite.logp),
                     'enzyme': metabolite.enzyme,
                     'reaction': metabolite.reaction,
                 })
         context['precursors_to_metabolites'] = response
         return context
 
-    def get_list_of_precursors(self):
-        # precursors = self.request.GET['precursors']
-        precursors = ['47626af9-0953-49e1-bbd0-6ef9e5a03a6e']
-        return precursors
+    def post(self, request):
+        post_response = self.request.POST.get('precursor_UUIDs')
+        request.session['precursor_UUIDs'] = json.loads(post_response)
+        return HttpResponse()
+
 
 class PrecursorForMetaboliteView:
-    def __init__(self, drug_name, inchi_key):
+    def __init__(self, drug_name, logp):
         self.drug_name = drug_name
-        self.inchi_key = inchi_key
+        self.logp = logp
+
 
 class MetaboliteForMetaboliteView:
     def __init__(self, inchi_key, biosystem, logp, enzyme, reaction):
@@ -64,9 +75,6 @@ class MetaboliteForMetaboliteView:
         self.enzyme = enzyme
         self.reaction = reaction
 
-# class SinglePrecursorView():
-#     model = Metabolite
-#     template_name = ''
 
 def get_metabolite_UUIDs(precursor_UUID, previous_level_response):
     response = previous_level_response

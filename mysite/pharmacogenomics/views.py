@@ -2,8 +2,10 @@ from django.db.models import Count
 from django.http import HttpResponse, JsonResponse
 from django.views import generic
 from .models import SideEffect
+from precursors.models import Precursors
+from drug_name_precursor_map.models import DrugNamePrecursorMap
 import requests
-import json
+import re
 
 
 class SideEffectView(generic.ListView):
@@ -37,11 +39,28 @@ class SideEffectRankedDrugsView(generic.ListView):
     model = SideEffect
     template_name = 'side-effect-drugs-ranked.html'
 
-    def get_queryset(self):
+    def get_context_data(self,  **kwargs):
+        context = super(SideEffectRankedDrugsView, self).get_context_data(**kwargs)
         session_side_effect_list = self.request.session.get('side_effect_list')
-        response = JsonResponse(list(self.model.objects.filter(side_effect__in=session_side_effect_list)\
-            .values('drug_name', 'drug_id').annotate(dcount=Count('drug_name'))), safe=False)
-        return response.content.decode('utf-8')
+        drugs = self.model.objects.filter(side_effect__in=session_side_effect_list)\
+            .values('drug_name', 'drug_id').annotate(dcount=Count('drug_name'))
+        drug_ids = []
+        for drug in drugs:
+            drug_ids.append(drug['drug_id'])
+        precursors = DrugNamePrecursorMap.objects.filter(precursor_DrugID__in=drug_ids)
+        precursor_dict = {}
+        for precursor in precursors:
+            precursor_dict[precursor.precursor_DrugID] = precursor
+        response = []
+        for drug in drugs:
+            response.append({
+                'UUID': precursor_dict[drug['drug_id']].precursor_UUID,
+                'drug_name': drug['drug_name'],
+                'drug_id': drug['drug_id'],
+                'dcount': drug['dcount'],
+            })
+        context['drugs_ranked'] = response
+        return context
 
 
 class FDAInfoView(generic.TemplateView):

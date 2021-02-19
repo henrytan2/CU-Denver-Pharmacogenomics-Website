@@ -14,6 +14,12 @@
                     href="https://zinc15.docking.org/substances/home/">ZINC15</a>
                 if the link below does not download the 3D structure.
             </p>
+            <div style="text-align: right; margin-top: 10px">
+                <button class="btn btn-primary"
+                        v-on:click="viewAllMetabolites">
+                    View All Metabolites
+                </button>
+            </div>
             <table id="drugs-ranked"
                    ref="datatable"
                    class="table table-hover table-striped d-none">
@@ -21,13 +27,14 @@
         </div>
     </script>
     <script type="application/javascript">
-        var sideEffects = {{ object_list | safe }};
+        var drugsRanked = {{ drugs_ranked | safe }};
+
         Vue.component("index", {
             template: "#index-template",
             data: function () {
                 return {
                     dtTable: null,
-                    sideEffects: sideEffects,
+                    drugsRanked: drugsRanked,
                 }
             },
             mounted: function () {
@@ -41,14 +48,30 @@
                             rows: ":visible",
                         }
                     }],
-                    data: this.sideEffects,
+                    data: this.drugsRanked,
                     columns: RenderColumns(this),
-                    initComplete: function() {
+                    initComplete: function () {
                         this.removeClass("d-none");
                     },
                     order: [[2, "desc"]],
                 });
             },
+            methods: {
+                viewAllMetabolites: function() {
+                    var precursor_UUIDs = [];
+                    this.drugsRanked.forEach(function(drug) {
+                        precursor_UUIDs.push(drug.UUID);
+                    })
+                    $.ajax({
+                        type:'POST',
+                        url: '{% url 'metabolite:metabolite_index' %}',
+                        data: {'precursor_UUIDs': JSON.stringify(precursor_UUIDs)},
+                        success: function () {
+                            window.location = "{% url 'metabolite:metabolite_index' %}"
+                        }
+                    });
+                }
+            }
         });
     </script>
 
