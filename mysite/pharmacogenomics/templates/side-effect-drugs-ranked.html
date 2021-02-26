@@ -38,6 +38,7 @@
                 }
             },
             mounted: function () {
+                var _this = this;
                 this.dtTable = $(this.$refs.datatable).DataTable({
                     autoWidth: false,
                     dom: 'lBfrtip',
@@ -45,30 +46,38 @@
                         extend: "csv",
                         exportOptions: {
                             columns: ":visible",
-                            rows: ":visible",
                         }
                     }],
                     data: this.drugsRanked,
                     columns: RenderColumns(this),
                     initComplete: function () {
                         this.removeClass("d-none");
+                        $("#drugs-ranked tbody").on("click", "td .view-metabolite-link", function () {
+                            var $tr = $(this).closest('tr');
+                            var precursorUUID = _this.dtTable.row($tr).data()['UUID'];
+                            $.ajax({
+                                type: 'POST',
+                                url: '{% url 'pharmacogenomics:side-effect-ranked-drugs' %}',
+                                data: {'precursor_UUIDs': JSON.stringify([precursorUUID])},
+                                success: function () {
+                                    window.location = "{% url 'metabolite:metabolite_index' %}"
+                                },
+                            });
+                        });
                     },
                     order: [[2, "desc"]],
                 });
             },
             methods: {
-                viewAllMetabolites: function() {
+                viewAllMetabolites: function () {
                     var precursor_UUIDs = [];
-                    this.drugsRanked.forEach(function(drug) {
+                    this.drugsRanked.forEach(function (drug) {
                         precursor_UUIDs.push(drug.UUID);
                     })
                     $.ajax({
-                        type:'POST',
-                        url: '{% url 'metabolite:metabolite_index' %}',
+                        type: 'POST',
+                        url: '{% url 'pharmacogenomics:side-effect-ranked-drugs' %}',
                         data: {'precursor_UUIDs': JSON.stringify(precursor_UUIDs)},
-                        success: function () {
-                            window.location = "{% url 'metabolite:metabolite_index' %}"
-                        }
                     });
                 }
             }
@@ -102,9 +111,32 @@
                     data: "dcount",
                     title: "Count",
                     defaultContent: 0,
+                },
+                {
+                    data: null,
+                    title: "Metabolites",
+                    defaultContent: "",
+                    render: function (data, type) {
+                        var response = "";
+                        var precursor_UUID = data['UUID'];
+                        if (type === "display") {
+                            response = document.createElement("div");
+                            var vueInstance = new Vue({
+                                template: "#view-metabolite-col",
+                            }).$mount();
+                            response.append(vueInstance.$el);
+                        }
+                        return response.innerHTML;
+                    }
                 }
             ]
         }
     </script>
-
+    <script type="text-html-template"
+            id="view-metabolite-col">
+        <a href="javascript:void(0)"
+           class="view-metabolite-link">
+            View Metabolites
+        </a>
+    </script>
 {% endblock content %}

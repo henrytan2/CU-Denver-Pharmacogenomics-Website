@@ -14,7 +14,7 @@
             </table>
         </div>
     </script>
-    <script>
+    <script type="application/javascript">
         var metabolites = {{ precursors_to_metabolites | safe }};
         Vue.component("index", {
             template: "#index-template",
@@ -44,7 +44,7 @@
             }
         })
     </script>
-    <script>
+    <script type="application/javascript">
         function RenderColumns(vueComponent) {
             return [
                 {

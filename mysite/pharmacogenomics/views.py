@@ -5,7 +5,7 @@ from .models import SideEffect
 from precursors.models import Precursors
 from drug_name_precursor_map.models import DrugNamePrecursorMap
 import requests
-import re
+import json
 
 
 class SideEffectView(generic.ListView):
@@ -61,6 +61,12 @@ class SideEffectRankedDrugsView(generic.ListView):
             })
         context['drugs_ranked'] = response
         return context
+
+    def post(self, request):
+        self.request.session['precursor_UUIDs'] = None
+        post_response = self.request.POST.get('precursor_UUIDs')
+        self.request.session['precursor_UUIDs'] = json.loads(post_response)
+        return HttpResponse('metabolites:metabolite_index', {'precursor_UUIDs': self.request.session['precursor_UUIDs']})
 
 
 class FDAInfoView(generic.TemplateView):

@@ -16,7 +16,7 @@ class MetaboliteView(generic.ListView):
     def get_context_data(self, **kwargs):
         self.precursors_to_metabolites.clear()
         context = super(MetaboliteView, self).get_context_data(**kwargs)
-        precursors = self.request.session.get('precursor_UUIDs')
+        precursors = self.get_precursors()
         for precursor_UUID in precursors:
             drug_name, logp = Precursors.objects.filter(UUID=precursor_UUID).values_list('DrugName', 'logp').first()
             precursor = PrecursorForMetaboliteView(drug_name, logp)
@@ -36,13 +36,11 @@ class MetaboliteView(generic.ListView):
                     self.precursors_to_metabolites[precursor].append(metabolite)
         response = []
         for precursor, metabolites in self.precursors_to_metabolites.items():
-            if precursor.logp == None:
+            if precursor.logp is None:
                 precursor.logp = -1 * sys.float_info.max
             for metabolite in metabolites:
-                if metabolite.logp == None:
+                if metabolite.logp is None:
                     metabolite.logp = -1 * sys.float_info.max
-
-
                 response.append({
                     'drug_name': precursor.drug_name,
                     'precursor_logp': float(precursor.logp),
@@ -55,10 +53,15 @@ class MetaboliteView(generic.ListView):
         context['precursors_to_metabolites'] = response
         return context
 
-    def post(self, request):
-        post_response = self.request.POST.get('precursor_UUIDs')
-        request.session['precursor_UUIDs'] = json.loads(post_response)
-        return HttpResponse()
+    def get_precursors(self):
+        precursors = self.request.session.get('precursor_UUIDs')
+        return precursors
+
+    # def post(self, request):
+    #     self.request.session['precursor_UUIDs'] = None
+    #     post_response = self.request.POST.get('precursor_UUIDs')
+    #     self.request.session['precursor_UUIDs'] = json.loads(post_response)
+    #     return HttpResponse()
 
 
 class PrecursorForMetaboliteView:

@@ -64,7 +64,6 @@
                     initComplete: function () {
                         this.removeClass("d-none");
                         $("#table tbody").on("click", "td button", function () {
-                            console.log(this);
                             var $tr = $(this).closest('tr');
                             var sideEffect = _this.dtTable.row($tr).data()['side_effect'];
                             if (_this.sideEffectList.includes(sideEffect)) {
