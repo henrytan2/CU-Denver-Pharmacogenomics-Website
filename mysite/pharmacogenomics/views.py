@@ -29,10 +29,21 @@ class SideEffectResultsView(generic.ListView):
     model = SideEffect
     template_name = 'side-effect-result.html'
 
-    def get_queryset(self):
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(SideEffectResultsView, self).get_context_data(**kwargs)
         session_side_effect_list = self.request.session.get('side_effect_list')
-        response = JsonResponse(list(self.model.objects.filter(side_effect__in=session_side_effect_list).values()), safe=False)
-        return response.content.decode('utf-8')
+        drugs = self.model.objects.filter(side_effect__in=session_side_effect_list).values()
+        drug_ids = []
+        for drug in drugs:
+            drug_ids.append(drug['drug_id'])
+        precursors = DrugNamePrecursorMap.objects.filter(precursor_DrugID__in=drug_ids)
+        precursor_dict = {}
+        for precursor in precursors:
+            precursor_dict[precursor.precursor_DrugID] = precursor
+        for drug in drugs:
+            drug['UUID'] = precursor_dict[drug['drug_id']].precursor_UUID
+        context['side_effect_results'] = list(drugs)
+        return context
 
 
 class SideEffectRankedDrugsView(generic.ListView):
@@ -62,12 +73,6 @@ class SideEffectRankedDrugsView(generic.ListView):
         context['drugs_ranked'] = response
         return context
 
-    def post(self, request):
-        self.request.session['precursor_UUIDs'] = None
-        post_response = self.request.POST.get('precursor_UUIDs')
-        self.request.session['precursor_UUIDs'] = json.loads(post_response)
-        return HttpResponse('metabolites:metabolite_index', {'precursor_UUIDs': self.request.session['precursor_UUIDs']})
-
 
 class FDAInfoView(generic.TemplateView):
     template_name = 'fda.html'
@@ -79,11 +84,3 @@ class FDAInfoView(generic.TemplateView):
         response = requests.get(fda_api_url).json()
         context['fda_data'] = response
         return context
-
-    # def post(self, request):
-    #     drug_name = request.POST.get("drugName")
-    #
-    #     if request.method == 'POST':
-    #         fda_api_url = f'https://api.fda.gov/drug/event.json?search=patient.drug.openfda.generic_name:"{drug_name}"&count=patient.reaction.reactionmeddrapt.exact '
-    #         response = requests.get(fda_api_url).json()
-    #         return JsonResponse(response, safe=False)

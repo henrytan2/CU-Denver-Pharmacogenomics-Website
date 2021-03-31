@@ -57,10 +57,14 @@
                             var precursorUUID = _this.dtTable.row($tr).data()['UUID'];
                             $.ajax({
                                 type: 'POST',
-                                url: '{% url 'pharmacogenomics:side-effect-ranked-drugs' %}',
-                                data: {'precursor_UUIDs': JSON.stringify([precursorUUID])},
+                                url: '{% url 'metabolite:metabolite_index' %}',
+                                data: {
+                                    'precursor_UUIDs': null,
+                                    'fill': false,
+                                    'singlePrecursorUUID': precursorUUID,
+                                },
                                 success: function () {
-                                    window.location = "{% url 'metabolite:metabolite_index' %}"
+                                    window.location = "{% url 'metabolite:metabolite_index' %}";
                                 },
                             });
                         });
@@ -70,15 +74,7 @@
             },
             methods: {
                 viewAllMetabolites: function () {
-                    var precursor_UUIDs = [];
-                    this.drugsRanked.forEach(function (drug) {
-                        precursor_UUIDs.push(drug.UUID);
-                    })
-                    $.ajax({
-                        type: 'POST',
-                        url: '{% url 'pharmacogenomics:side-effect-ranked-drugs' %}',
-                        data: {'precursor_UUIDs': JSON.stringify(precursor_UUIDs)},
-                    });
+                    window.location = "{% url 'metabolite:metabolite_index' %}";
                 }
             }
         });

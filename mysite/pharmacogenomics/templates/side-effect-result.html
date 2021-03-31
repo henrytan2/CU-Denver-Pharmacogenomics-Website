@@ -21,7 +21,7 @@
 
     </body>
     <script type="application/javascript">
-        var sideEffects = {{ object_list | safe }};
+        var sideEffects = {{ side_effect_results | safe }};
     </script>
     <script type="application/javascript">
         Vue.component("index", {
@@ -33,6 +33,22 @@
                 }
             },
             mounted: function () {
+                var precursor_UUIDs = [];
+                this.sideEffects.forEach(function(o) {
+                    var precursor_UUID = o.UUID;
+                    if (!precursor_UUIDs.includes(precursor_UUID)) {
+                        precursor_UUIDs.push(precursor_UUID);
+                    }
+                })
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url 'metabolite:metabolite_index' %}',
+                    data: {
+                        'precursor_UUIDs': JSON.stringify(precursor_UUIDs),
+                        'fill': true,
+                        'singlePrecursorUUID': null,
+                    },
+                });
                 this.dtTable = $(this.$refs.datatable).DataTable({
                     autoWidth: false,
                     data: this.sideEffects,
