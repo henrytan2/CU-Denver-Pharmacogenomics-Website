@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+<!DOCTYPE html>
+{% block content %}
+    <body style="background-image: none">
+    <index></index>
+    </body>
+    <script id="index-template"
+            type="text-html-template">
+        <div id="table-wrapper">
+            <button id="toggle-filters"
+                    class="btn btn-secondary"
+                    v-on:click="toggleFilters">
+                Show Filters
+            </button>
+            <div id="filters"
+                 class="col"
+                 style="display:none;">
+                <div class="card"
+                     style="width:50rem">
+                    <div class="card-header">
+                        <h4>Filters:</h4>
+                    </div>
+                    <div class=card-body>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Column</th>
+                                <th>Value</th>
+                            </tr>
+                            <tr>
+                                <td>Metabolite logp</td>
+                                <td>
+                                    <div class="form-horizontal row">
+                                        <input class="form-control form-control-sm w-25"
+                                               type="number"
+                                               v-model="metaboliteLogPLower"
+                                               v-on:keyup="filter"> &nbsp;≤&nbsp;
+                                        <input class="form-control form-control-sm w-25"
+                                               type="number"
+                                               v-model="metaboliteLogPUpper"
+                                               v-on:keyup="filter">
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Precursor logp</td>
+                                <td>
+                                    <div class="form-horizontal row">
+                                        <input class="form-control form-control-sm w-25"
+                                               type="number"
+                                               v-model="precursorLogPLower"
+                                               v-on:keyup="filter"> &nbsp;≤&nbsp;
+                                        <input class="form-control form-control-sm w-25"
+                                               type="number"
+                                               v-model="precursorLogPUpper"
+                                               v-on:keyup="filter">
+                                    </div>
+                                </td>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <h1>Metabolites</h1>
+            <table id="metabolites"
+                   ref="datatable"
+                   class="table table-hover table-striped d-none">
+            </table>
+        </div>
+    </script>
+    <script type="application/javascript">
+        var metabolites = {{ precursors_to_metabolites | safe }};
+        Vue.component("index", {
+            template: "#index-template",
+            data: function () {
+                return {
+                    dtTable: null,
+                    metabolites: metabolites,
+                    metaboliteLogPLower: null,
+                    metaboliteLogPUpper: null,
+                    precursorLogPLower: null,
+                    precursorLogPUpper: null,
+                }
+            },
+            mounted: function () {
+                this.wireUpDataTableSearchExtension();
+                this.dtTable = $(this.$refs.datatable).DataTable({
+                    autoWidth: false,
+                    dom: 'lBfrtip',
+                    buttons: [{
+                        extend: "csv",
+                        exportOptions: {
+                            columns: ":visible",
+                        }
+                    }],
+                    data: this.metabolites,
+                    columns: RenderColumns(this),
+                    initComplete: function () {
+                        this.removeClass("d-none");
+                    },
+                })
+            },
+            methods: {
+                filter: function () {
+                    this.dtTable.search("").draw();
+                },
+                toggleFilters: function () {
+                    $("#filters").toggle("slow");
+                },
+                wireUpDataTableSearchExtension: function () {
+                    var _this = this;
+                    $.fn.dataTable.ext.search.push(function (settings, searchData, dataIndex, rowData) {
+                        var metaboliteLogPLower = _this.metaboliteLogPLower;
+                        var metaboliteLogPUpper = _this.metaboliteLogPUpper;
+                        var precursorLogPLower = _this.precursorLogPLower;
+                        var precursorLogPUpper = _this.precursorLogPUpper;
+
+                        var result = true;
+                        var metaboliteLogP = rowData["metabolite_logp"];
+                        var precursorLogP = rowData["precursor_logp"];
+                        if (metaboliteLogPLower) {
+                            result = result && metaboliteLogPLower <= metaboliteLogP;
+                        }
+
+                        if (metaboliteLogPUpper) {
+                            result = result && metaboliteLogP <= metaboliteLogPUpper;
+                        }
+
+                        if (precursorLogPLower) {
+                            result = result && precursorLogPLower <= precursorLogP;
+                        }
+
+                        if (precursorLogPUpper) {
+                            result = result && precursorLogP <= precursorLogPUpper;
+                        }
+                        return result;
+                    });
+                }
+            }
+        })
+    </script>
+    <script type="application/javascript">
+        function RenderColumns(vueComponent) {
+            return [
+                {
+                    data: 'drug_name',
+                    title: 'Drug Name',
+                },
+                {
+                    data: 'precursor_logp',
+                    title: 'Precursor logp',
+                },
+                {
+                    data: "metabolite_InChiKey",
+                    title: "Metabolite InChiKey",
+                },
+                {
+                    data: "biosystem",
+                    title: "Biosystem",
+                },
+                {
+                    data: "metabolite_logp",
+                    title: "Metabolite logp",
+                },
+                {
+                    data: "enzyme",
+                    title: "Enzyme",
+                },
+                {
+                    data: "reaction",
+                    title: "Reaction",
+                },
+            ]
+        }
+    </script>
+{% endblock content %}

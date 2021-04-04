@@ -14,6 +14,13 @@
                     href="https://zinc15.docking.org/substances/home/">ZINC15</a>
                 if the link below does not download the 3D structure.
             </p>
+            <div style="text-align: right; margin-top: 10px">
+                <p style="color:red;">Viewing all metabolites for the list below can take a long period if the list is long</p>
+                <button class="btn btn-primary"
+                        v-on:click="viewAllMetabolites">
+                    View All Metabolites
+                </button>
+            </div>
             <table id="drugs-ranked"
                    ref="datatable"
                    class="table table-hover table-striped d-none">
@@ -21,16 +28,18 @@
         </div>
     </script>
     <script type="application/javascript">
-        var sideEffects = {{ object_list | safe }};
+        var drugsRanked = {{ drugs_ranked | safe }};
+
         Vue.component("index", {
             template: "#index-template",
             data: function () {
                 return {
                     dtTable: null,
-                    sideEffects: sideEffects,
+                    drugsRanked: drugsRanked,
                 }
             },
             mounted: function () {
+                var _this = this;
                 this.dtTable = $(this.$refs.datatable).DataTable({
                     autoWidth: false,
                     dom: 'lBfrtip',
@@ -40,14 +49,35 @@
                             columns: ":visible",
                         }
                     }],
-                    data: this.sideEffects,
+                    data: this.drugsRanked,
                     columns: RenderColumns(this),
-                    initComplete: function() {
+                    initComplete: function () {
                         this.removeClass("d-none");
+                        $("#drugs-ranked tbody").on("click", "td .view-metabolite-link", function () {
+                            var $tr = $(this).closest('tr');
+                            var precursorUUID = _this.dtTable.row($tr).data()['UUID'];
+                            $.ajax({
+                                type: 'POST',
+                                url: '{% url 'metabolite:metabolite_index' %}',
+                                data: {
+                                    'precursor_UUIDs': null,
+                                    'fill': false,
+                                    'singlePrecursorUUID': precursorUUID,
+                                },
+                                success: function () {
+                                    window.location = "{% url 'metabolite:metabolite_index' %}";
+                                },
+                            });
+                        });
                     },
                     order: [[2, "desc"]],
                 });
             },
+            methods: {
+                viewAllMetabolites: function () {
+                    window.location = "{% url 'metabolite:metabolite_index' %}";
+                }
+            }
         });
     </script>
 
@@ -78,9 +108,32 @@
                     data: "dcount",
                     title: "Count",
                     defaultContent: 0,
+                },
+                {
+                    data: null,
+                    title: "Metabolites",
+                    defaultContent: "",
+                    render: function (data, type) {
+                        var response = "";
+                        var precursor_UUID = data['UUID'];
+                        if (type === "display") {
+                            response = document.createElement("div");
+                            var vueInstance = new Vue({
+                                template: "#view-metabolite-col",
+                            }).$mount();
+                            response.append(vueInstance.$el);
+                        }
+                        return response.innerHTML;
+                    }
                 }
             ]
         }
     </script>
-
+    <script type="text-html-template"
+            id="view-metabolite-col">
+        <a href="javascript:void(0)"
+           class="view-metabolite-link">
+            View Metabolites
+        </a>
+    </script>
 {% endblock content %}

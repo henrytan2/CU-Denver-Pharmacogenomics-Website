@@ -11,9 +11,13 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+env_path = os.path.join(BASE_DIR, 'pharmacogenomics.env')
+load_dotenv(env_path)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -34,6 +38,9 @@ INSTALLED_APPS = [
     'pharmacogenomics.apps.PharmacogenomicsConfig',
     'gtexome.apps.GtexomeConfig',
     'metabolites.apps.MetabolitesConfig',
+    'precursors.apps.PrecursorsConfig',
+    'precursor_metabolite_map.apps.PrecursorMetaboliteMapConfig',
+    'drug_name_precursor_map.apps.DrugNamePrecursorMapConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -53,7 +60,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'mysite.urls'
+ROOT_URLCONF = 'pharmacogenomics_website.urls'
 
 TEMPLATES = [
     {
@@ -74,7 +81,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'mysite.wsgi.application'
+WSGI_APPLICATION = 'pharmacogenomics_website.wsgi.application'
 
 BOOTSTRAP3 = {'include_jquery': True}
 
@@ -82,10 +89,20 @@ BOOTSTRAP3 = {'include_jquery': True}
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+NAME = os.getenv('NAME')
+USER = os.getenv('DB_USER')
+PASSWORD = os.getenv('PASSWORD')
+HOST = os.getenv('HOST')
+PORT = os.getenv('PORT')
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': NAME,
+        'USER': USER,
+        'PASSWORD': PASSWORD,
+        'HOST': HOST,
+        'PORT': PORT,
     }
 }
 

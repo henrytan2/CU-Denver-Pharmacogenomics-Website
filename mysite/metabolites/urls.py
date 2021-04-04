@@ -4,5 +4,5 @@ from . import views
 
 app_name = 'metabolite'
 urlpatterns = [
-    path(r'', views.IndexView.as_view(), name='metabolites'),
+    path(r'', views.MetaboliteView.as_view(), name='metabolite_index'),
 ]
