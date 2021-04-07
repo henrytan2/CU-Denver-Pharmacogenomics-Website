@@ -45,8 +45,6 @@
                     url: '{% url 'metabolite:metabolite_index' %}',
                     data: {
                         'precursor_UUIDs': JSON.stringify(precursor_UUIDs),
-                        'fill': true,
-                        'singlePrecursorUUID': null,
                     },
                 });
                 this.dtTable = $(this.$refs.datatable).DataTable({
