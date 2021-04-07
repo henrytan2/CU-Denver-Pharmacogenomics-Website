@@ -42,6 +42,7 @@
                     dtTable: null,
                     drugsRanked: drugsRanked,
                     metabolitesFilled: false,
+                    metaboliteChecker: null,
                 }
             },
             mounted: function () {
@@ -91,9 +92,15 @@
                         url: '{% url 'metabolite:check' %}',
                         success: function(response) {
                             _this.metabolitesFilled = response;
+                            if (response === true) {
+                                _this.stopMetaboliteChecker();
+                            }
                         }
                     });
-                    setTimeout(_this.startMetaboliteChecker, 2000);
+                    _this.metaboliteChecker = setTimeout(_this.startMetaboliteChecker, 2000);
+                },
+                stopMetaboliteChecker: function() {
+                    this.metaboliteChecker = clearTimeout(this.metaboliteChecker);
                 }
             }
         });
