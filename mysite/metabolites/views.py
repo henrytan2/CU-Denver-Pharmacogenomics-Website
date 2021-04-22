@@ -34,6 +34,7 @@ class MetaboliteView(generic.ListView):
     def map_precursors_to_metabolites(self, precursors, precursor_metabolite_map):
         precursor_metabolite_map.clear()
         cache.set('precursors_to_metabolites_filled', False)
+        precursors_processed = 0
         for precursor_UUID in precursors:
             drug_name, logp = Precursors.objects.filter(UUID=precursor_UUID).values_list('DrugName', 'logp').first()
             precursor = PrecursorForMetaboliteView(precursor_UUID, drug_name, logp)
@@ -44,6 +45,9 @@ class MetaboliteView(generic.ListView):
                     .filter(UUID__in=metabolite_UUIDs) \
                     .values_list('metabolite_InChiKey', 'biosystem', 'logp', 'enzyme', 'reaction')
                 precursor_metabolite_map[precursor] = build_metabolite_for_template(metabolites)
+            precursors_processed += 1
+            percentage = int((precursors_processed / len(precursors)) * 100)
+            cache.set('percentage_of_metabolites_filled', percentage)
         cache.set('precursors_to_metabolites_filled', True)
 
     def post(self, request):
@@ -57,7 +61,10 @@ class MetaboliteView(generic.ListView):
 
 class CheckMetabolites(APIView):
     def get(self, request):
-        response = cache.get('precursors_to_metabolites_filled')
+        response = {
+            'metabolites_filled': cache.get('precursors_to_metabolites_filled'),
+            'percentage': cache.get('percentage_of_metabolites_filled'),
+        }
         return Response(response)
 
 
