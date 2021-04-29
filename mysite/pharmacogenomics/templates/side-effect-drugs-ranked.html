@@ -14,9 +14,14 @@
                     href="https://zinc15.docking.org/substances/home/">ZINC15</a>
                 if the link below does not download the 3D structure.
             </p>
+
             <div style="text-align: right; margin-top: 10px">
-                <p style="color:red;">Viewing all metabolites for the list below can take a long period if the list is long</p>
+                <p style="color:red;">Viewing all metabolites for the list below can take a long period if the list is
+                    long</p>
+                <div v-if="!metabolitesFilled" class="spinner-border spinner-border-sm">
+                </div>
                 <button class="btn btn-primary"
+                        v-bind:disabled="!metabolitesFilled"
                         v-on:click="viewAllMetabolites">
                     View All Metabolites
                 </button>
@@ -36,6 +41,8 @@
                 return {
                     dtTable: null,
                     drugsRanked: drugsRanked,
+                    metabolitesFilled: false,
+                    metaboliteChecker: null,
                 }
             },
             mounted: function () {
@@ -58,24 +65,42 @@
                             var precursorUUID = _this.dtTable.row($tr).data()['UUID'];
                             $.ajax({
                                 type: 'POST',
-                                url: '{% url 'metabolite:metabolite_index' %}',
+                                url: '{% url 'metabolite:metabolite_single' %}',
                                 data: {
                                     'precursor_UUIDs': null,
                                     'fill': false,
                                     'singlePrecursorUUID': precursorUUID,
                                 },
                                 success: function () {
-                                    window.location = "{% url 'metabolite:metabolite_index' %}";
+                                    window.location = "{% url 'metabolite:metabolite_single' %}";
                                 },
                             });
                         });
                     },
                     order: [[2, "desc"]],
                 });
+                _this.startMetaboliteChecker();
             },
             methods: {
                 viewAllMetabolites: function () {
                     window.location = "{% url 'metabolite:metabolite_index' %}";
+                },
+                startMetaboliteChecker: function() {
+                    var _this = this;
+                    $.ajax({
+                        type: 'GET',
+                        url: '{% url 'metabolite:check' %}',
+                        success: function(response) {
+                            _this.metabolitesFilled = response;
+                            if (response === true) {
+                                _this.stopMetaboliteChecker();
+                            }
+                        }
+                    });
+                    _this.metaboliteChecker = setTimeout(_this.startMetaboliteChecker, 2000);
+                },
+                stopMetaboliteChecker: function() {
+                    this.metaboliteChecker = clearTimeout(this.metaboliteChecker);
                 }
             }
         });
