@@ -39,6 +39,7 @@ class MetaboliteView(generic.ListView):
                         'metabolite_logp': float(metabolite.logp),
                         'enzyme': metabolite.enzyme,
                         'reaction': metabolite.reaction,
+                        'metabolite_smile_string': metabolite.smile_string
                     })
             context['precursors_to_metabolites'] = response
         else:
@@ -61,6 +62,7 @@ class MetaboliteView(generic.ListView):
                     'metabolite_logp': float(metabolite.logp),
                     'enzyme': metabolite.enzyme,
                     'reaction': metabolite.reaction,
+                    'metabolite_smile_string': metabolite.smile_string
                 })
             context['precursors_to_metabolites'] = response
             self.request.session['single_precursor_UUID'] = None
@@ -77,14 +79,15 @@ class MetaboliteView(generic.ListView):
             if metabolite_UUIDs is not None:
                 metabolites = self.model.objects \
                     .filter(UUID__in=metabolite_UUIDs) \
-                    .values_list('metabolite_InChiKey', 'biosystem', 'logp', 'enzyme', 'reaction')
+                    .values_list('metabolite_InChiKey', 'biosystem', 'logp', 'enzyme', 'reaction','metabolite_smile_string')
                 for item in metabolites:
                     inchi_key = item[0]
                     biosystem = item[1]
                     logp = item[2]
                     enzyme = item[3]
                     reaction = item[4]
-                    metabolite = MetaboliteForMetaboliteView(inchi_key, biosystem, logp, enzyme, reaction)
+                    smile_string = item[5]
+                    metabolite = MetaboliteForMetaboliteView(inchi_key, biosystem, logp, enzyme, reaction, smile_string)
                     precursor_metabolite_map[precursor].append(metabolite)
         cache.set('precursors_to_metabolites_filled', True)
 
@@ -119,12 +122,13 @@ class PrecursorForMetaboliteView:
 
 
 class MetaboliteForMetaboliteView:
-    def __init__(self, inchi_key, biosystem, logp, enzyme, reaction):
+    def __init__(self, inchi_key, biosystem, logp, enzyme, reaction, smile_string):
         self.inchi_key = inchi_key
         self.biosystem = biosystem
         self.logp = logp
         self.enzyme = enzyme
         self.reaction = reaction
+        self.smile_string = smile_string
 
 
 def get_metabolite_UUIDs(precursor_UUID, previous_level_response):
