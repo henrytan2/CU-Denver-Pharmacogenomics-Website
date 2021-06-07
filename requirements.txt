@@ -44,7 +44,7 @@ prometheus-client==0.9.0
 prompt-toolkit==3.0.10
 ptyprocess==0.7.0
 pycparser==2.20
-Pygments==2.7.3
+Pygments==2.7.4
 PyMySQL==1.0.2
 pyparsing==2.4.7
 pyrsistent==0.17.3
