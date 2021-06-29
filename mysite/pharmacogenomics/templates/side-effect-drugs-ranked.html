@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
@@ -7,7 +8,7 @@
     <script id="index-template"
             type="text-html-template">
         <div id="table-wrapper">
-            <h1>Metabolovigilance - Drugs Ranked</h1>
+            <h1>Sider Searcher - Drugs Ranked</h1>
             <p>
                 Each Drug ID below downloads a 3D structure from <a href="https://pubchem.ncbi.nlm.nih.gov/">PubChem</a>.
                 PubChem may not have a 3D structure of every substance below, look on <a
@@ -18,13 +19,28 @@
             <div style="text-align: right; margin-top: 10px">
                 <p style="color:red;">Viewing all metabolites for the list below can take a long period if the list is
                     long</p>
-                <div v-if="!metabolitesFilled" class="spinner-border spinner-border-sm">
+                <div class="row justify-content-end">
+                    <div class="col-2">
+                        <div class="progress"
+                             v-if="!metabolitesFilled">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                 role="progressbar"
+                                 aria-valuenow="75"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100"
+                                 v-bind:style="{width:metabolitesPercentage + '%'}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-2">
+
+                        <button class="btn btn-primary"
+                                v-bind:disabled="!metabolitesFilled"
+                                v-on:click="viewAllMetabolites">
+                            View All Metabolites
+                        </button>
+                    </div>
                 </div>
-                <button class="btn btn-primary"
-                        v-bind:disabled="!metabolitesFilled"
-                        v-on:click="viewAllMetabolites">
-                    View All Metabolites
-                </button>
             </div>
             <table id="drugs-ranked"
                    ref="datatable"
@@ -43,6 +59,7 @@
                     drugsRanked: drugsRanked,
                     metabolitesFilled: false,
                     metaboliteChecker: null,
+                    metabolitesPercentage: 0,
                 }
             },
             mounted: function () {
@@ -85,21 +102,22 @@
                 viewAllMetabolites: function () {
                     window.location = "{% url 'metabolite:metabolite_index' %}";
                 },
-                startMetaboliteChecker: function() {
+                startMetaboliteChecker: function () {
                     var _this = this;
                     $.ajax({
                         type: 'GET',
                         url: '{% url 'metabolite:check' %}',
-                        success: function(response) {
-                            _this.metabolitesFilled = response;
-                            if (response === true) {
+                        success: function (response) {
+                            _this.metabolitesFilled = response['metabolites_filled'];
+                            _this.metabolitesPercentage = response['percentage'];
+                            if (_this.metabolitesFilled === true) {
                                 _this.stopMetaboliteChecker();
                             }
                         }
                     });
                     _this.metaboliteChecker = setTimeout(_this.startMetaboliteChecker, 2000);
                 },
-                stopMetaboliteChecker: function() {
+                stopMetaboliteChecker: function () {
                     this.metaboliteChecker = clearTimeout(this.metaboliteChecker);
                 }
             }
