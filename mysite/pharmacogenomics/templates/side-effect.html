@@ -30,6 +30,18 @@
                    ref="datatable"
                    class="table table-hover table-striped hidden">
             </table>
+            <div class="row justify-content-end mt-1">
+                <div class="col-sm-1 text-right">
+                    <span v-text="'Go to'">
+                    </span>
+                </div>
+                <div class="col-sm-1">
+                    <input type="number"
+                           v-model="pageNumber"
+                           v-on:input="changePage"
+                           class="form-control form-control-sm"/>
+                </div>
+            </div>
             <div style="text-align: right; margin-top: 10px">
                 <button type="submit"
                         id="side-effect-list-submit"
@@ -51,6 +63,7 @@
                 return {
                     dtTable: null,
                     sideEffectList: [],
+                    pageNumber: 1,
                 };
             },
             computed: {
@@ -94,6 +107,11 @@
                 },
                 viewResults: function () {
                     window.location = '{% url 'pharmacogenomics:side-effect-results' %}';
+                },
+                changePage: function() {
+                    if (this.pageNumber !== "") {
+                        this.dtTable.page(parseInt(this.pageNumber) - 1).draw(false);
+                    }
                 }
             }
         });
