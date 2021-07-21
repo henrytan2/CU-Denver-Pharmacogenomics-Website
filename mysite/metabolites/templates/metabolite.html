@@ -84,6 +84,7 @@
                 }
             },
             mounted: function () {
+                var _this = this;
                 this.wireUpDataTableSearchExtension();
                 this.dtTable = $(this.$refs.datatable).DataTable({
                     autoWidth: false,
@@ -96,14 +97,46 @@
                     }],
                     data: this.metabolites,
                     columns: RenderColumns(this),
+                    order: [[1, 'desc']],
                     initComplete: function () {
                         this.removeClass("d-none");
+                        $("#metabolites tbody").on("click", "td button", function () {
+                            var $tr = $(this).closest('tr');
+                            var row = _this.dtTable.row($tr);
+                            var smileString = row.data()['metabolite_smile_string'];
+                            if (row.child.isShown()) {
+                                row.child.hide();
+                                $(this).find("svg").removeClass("fa-times").addClass("fa-plus");
+                                $tr.removeClass("shown");
+                            } else {
+                                var childRowHTML = $(_this.getChildRow());
+                                var cleanedSmileString = smileString.replace('#', '%23');
+                                var url = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/' + cleanedSmileString + '/PNG';
+                                var imgEl = document.createElement("img");
+                                imgEl.style.width = "200px";
+                                imgEl.style.height = "200px";
+                                imgEl.src = url;
+                                childRowHTML.append(imgEl);
+                                row.child(childRowHTML).show();
+                                $tr.addClass("shown");
+                                $(this).find("svg").removeClass("fa-plus").addClass("fa-times");
+                            }
+                        });
                     },
-                })
+                });
             },
             methods: {
                 filter: function () {
                     this.dtTable.search("").draw();
+                },
+                getChildRow() {
+                    var response = "";
+                    response = document.createElement("div");
+                    var vueInstance = new Vue({
+                        template: "#structure-child-row",
+                    }).$mount();
+                    response.appendChild(vueInstance.$el);
+                    return response.innerHTML;
                 },
                 toggleFilters: function () {
                     $("#filters").toggle("slow");
@@ -144,6 +177,23 @@
         function RenderColumns(vueComponent) {
             return [
                 {
+                    data: null,
+                    defaultContent: "",
+                    width: '5%',
+                    orderable: false,
+                    render: function (data, type) {
+                        var response = "";
+                        if (type === "display") {
+                            response = document.createElement("div");
+                            var vueInstance = new Vue({
+                                template: "#show-structure-column-template",
+                            }).$mount();
+                            response.appendChild(vueInstance.$el);
+                        }
+                        return response.innerHTML;
+                    },
+                },
+                {
                     data: 'drug_name',
                     title: 'Drug Name',
                 },
@@ -177,5 +227,23 @@
                 }
             ]
         }
+    </script>
+    <script type="text/template"
+            id="show-structure-column-template">
+        <div>
+            <button class="btn btn-outline-secondary show-structure-btn"
+                    title="Show structure">
+                <span class="fa fa-plus"></span>
+            </button>
+        </div>
+    </script>
+
+    <script type="text/template"
+            id="structure-child-row">
+        <div class="card">
+            <div class="card-body">
+                <label>Structure:</label>
+            </div>
+        </div>
     </script>
 {% endblock content %}
