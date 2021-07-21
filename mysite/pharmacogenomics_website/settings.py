@@ -61,6 +61,18 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+DCS_SESSION_COOKIE_SAMESITE = 'None'
+DCS_SESSION_COOKIE_SAMESITE_FORCE_ALL = True
+
+MIDDLEWARE_CLASSES = [
+    'django_cookies_samesite.middleware.CookiesSameSite',
+]
+
+
+
 ROOT_URLCONF = 'pharmacogenomics_website.urls'
 
 TEMPLATES = [
