@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'precursors.apps.PrecursorsConfig',
     'precursor_metabolite_map.apps.PrecursorMetaboliteMapConfig',
     'drug_name_precursor_map.apps.DrugNamePrecursorMapConfig',
+    'full_metabolite_map.apps.FullMetaboliteMapConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

@@ -3,6 +3,7 @@ from django.views import generic
 from .models import Metabolite
 from precursor_metabolite_map.models import PrecursorMetaboliteMap
 from precursors.models import Precursors
+from full_metabolite_map.models import FullMetaboliteMap
 from rest_framework.views import APIView
 from rest_framework.response import Response
 import sys
@@ -34,11 +35,12 @@ class MetaboliteView(generic.ListView):
     def map_precursors_to_metabolites(self, precursors, precursor_metabolite_map):
         precursor_metabolite_map.clear()
         cache.set('precursors_to_metabolites_filled', False)
+        # TODO optimize this
         for precursor_UUID in precursors:
             drug_name, logp = Precursors.objects.filter(UUID=precursor_UUID).values_list('DrugName', 'logp').first()
             precursor = PrecursorForMetaboliteView(precursor_UUID, drug_name, logp)
             precursor_metabolite_map[precursor] = []
-            metabolite_UUIDs = get_metabolite_UUIDs(precursor_UUID, [])
+            metabolite_UUIDs = get_metabolite_UUIDs([precursor_UUID])
             if metabolite_UUIDs is not None:
                 metabolites = self.model.objects \
                     .filter(UUID__in=metabolite_UUIDs) \
@@ -72,7 +74,7 @@ class MetaboliteSingleView(generic.ListView):
         single_precursor_UUID = self.request.session['single_precursor_UUID']
         drug_name, logp = Precursors.objects.filter(UUID=single_precursor_UUID).values_list('DrugName', 'logp').first()
         precursor = PrecursorForMetaboliteView(single_precursor_UUID, drug_name, logp)
-        metabolites_UUIDs = get_metabolite_UUIDs(single_precursor_UUID, [])
+        metabolites_UUIDs = get_metabolite_UUIDs([single_precursor_UUID])
         if metabolites_UUIDs is not None:
             metabolites = self.model.objects \
                 .filter(UUID__in=metabolites_UUIDs) \
@@ -93,16 +95,24 @@ class MetaboliteSingleView(generic.ListView):
         return HttpResponse('metabolites:metabolite_single', {'single_precursor_UUID': self.request.session['single_precursor_UUID']})
 
 
-def get_metabolite_UUIDs(precursor_UUID, previous_level_response):
-    response = previous_level_response
-    metabolites = PrecursorMetaboliteMap.objects.filter(precursor_UUID=precursor_UUID).all()
-    if len(metabolites) == 0:
-        return
-    else:
-        response.extend(o.metabolite_UUID for o in metabolites)
-        for metabolite in metabolites:
-            get_metabolite_UUIDs(metabolite.metabolite_UUID, response)
+def get_metabolite_UUIDs(precursor_UUIDs):
+    response = []
+    full_metabolite_maps = FullMetaboliteMap.objects.filter(precursor_UUID__in=precursor_UUIDs).all()
+    if full_metabolite_maps is not None:
+        response = (o.metabolite_UUID for o in full_metabolite_maps)
     return response
+
+
+# def get_metabolite_UUIDs(precursor_UUID, previous_level_response):
+#     response = previous_level_response
+#     metabolites = PrecursorMetaboliteMap.objects.filter(precursor_UUID=precursor_UUID).all()
+#     if len(metabolites) == 0:
+#         return
+#     else:
+#         response.extend(o.metabolite_UUID for o in metabolites)
+#         for metabolite in metabolites:
+#             get_metabolite_UUIDs(metabolite.metabolite_UUID, response)
+#     return response
 
 
 def build_metabolite_for_template(metabolites):
