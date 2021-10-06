@@ -32,20 +32,26 @@ class MetaboliteView(generic.ListView):
         precursors = self.request.session.get('precursor_UUIDs')
         return precursors
 
-    def map_precursors_to_metabolites(self, precursors, precursor_metabolite_map):
+    def map_precursors_to_metabolites(self, precursor_UUIDs, precursor_metabolite_map):
         precursor_metabolite_map.clear()
         cache.set('precursors_to_metabolites_filled', False)
         # TODO optimize this
-        for precursor_UUID in precursors:
-            drug_name, logp = Precursors.objects.filter(UUID=precursor_UUID).values_list('DrugName', 'logp').first()
-            precursor = PrecursorForMetaboliteView(precursor_UUID, drug_name, logp)
-            precursor_metabolite_map[precursor] = []
-            metabolite_UUIDs = get_metabolite_UUIDs([precursor_UUID])
-            if metabolite_UUIDs is not None:
-                metabolites = self.model.objects \
-                    .filter(UUID__in=metabolite_UUIDs) \
-                    .values_list('metabolite_InChiKey', 'biosystem', 'logp', 'enzyme', 'reaction','metabolite_smile_string')
-                precursor_metabolite_map[precursor] = build_metabolite_for_template(metabolites)
+        full_metabolite_maps = get_metabolite_Maps(precursor_UUIDs)
+        metabolite_UUIDs = [o.metabolite_UUID for o in full_metabolite_maps]
+        metabolites = self.model.objects \
+            .filter(UUID__in=metabolite_UUIDs)
+        precursors = Precursors.objects.filter(UUID__in=precursor_UUIDs)
+        for precursor_UUID in precursor_UUIDs:
+            precursor = [p for p in precursors if p.UUID == precursor_UUID][0]
+            drug_name = precursor.DrugName
+            logp = precursor.logp
+            precursor_for_view = PrecursorForMetaboliteView(precursor_UUID, drug_name, logp)
+            precursor_metabolite_map[precursor_for_view] = []
+            full_metabolite_maps_for_precursor = [o for o in full_metabolite_maps if o.precursor_UUID == precursor_UUID]
+            metabolite_UUIDs_for_precursor = [o.metabolite_UUID for o in full_metabolite_maps_for_precursor]
+            metabolites_for_precursor = [o for o in metabolites if o.UUID in metabolite_UUIDs_for_precursor]
+            if metabolites_for_precursor is not None:
+                precursor_metabolite_map[precursor_for_view] = build_metabolite_for_template(metabolites_for_precursor)
         cache.set('precursors_to_metabolites_filled', True)
 
     def post(self, request):
@@ -54,7 +60,8 @@ class MetaboliteView(generic.ListView):
         self.request.session['precursor_UUIDs'] = json.loads(post_response)
         precursors = self.get_precursors()
         self.map_precursors_to_metabolites(precursors, self.precursors_to_metabolites)
-        return HttpResponse('metabolites:metabolite_index', {'precursor_UUIDs': self.request.session['precursor_UUIDs']})
+        return HttpResponse('metabolites:metabolite_index',
+                            {'precursor_UUIDs': self.request.session['precursor_UUIDs']})
 
 
 class CheckMetabolites(APIView):
@@ -74,11 +81,11 @@ class MetaboliteSingleView(generic.ListView):
         single_precursor_UUID = self.request.session['single_precursor_UUID']
         drug_name, logp = Precursors.objects.filter(UUID=single_precursor_UUID).values_list('DrugName', 'logp').first()
         precursor = PrecursorForMetaboliteView(single_precursor_UUID, drug_name, logp)
-        metabolites_UUIDs = get_metabolite_UUIDs([single_precursor_UUID])
+        full_metabolite_maps = get_metabolite_Maps([single_precursor_UUID])
+        metabolites_UUIDs = [o.metabolite_UUID for o in full_metabolite_maps]
         if metabolites_UUIDs is not None:
             metabolites = self.model.objects \
-                .filter(UUID__in=metabolites_UUIDs) \
-                .values_list('metabolite_InChiKey', 'biosystem', 'logp', 'enzyme', 'reaction','metabolite_smile_string')
+                .filter(UUID__in=metabolites_UUIDs)
             self.precursors_to_metabolites[precursor] = build_metabolite_for_template(metabolites)
 
         metabolites = map_metabolites_to_precursors(self.precursors_to_metabolites)
@@ -92,38 +99,27 @@ class MetaboliteSingleView(generic.ListView):
         single_precursor_UUID = self.request.POST.get('singlePrecursorUUID')
         self.request.session['single_precursor_UUID'] = single_precursor_UUID
 
-        return HttpResponse('metabolites:metabolite_single', {'single_precursor_UUID': self.request.session['single_precursor_UUID']})
+        return HttpResponse('metabolites:metabolite_single',
+                            {'single_precursor_UUID': self.request.session['single_precursor_UUID']})
 
 
-def get_metabolite_UUIDs(precursor_UUIDs):
+def get_metabolite_Maps(precursor_UUIDs):
     response = []
     full_metabolite_maps = FullMetaboliteMap.objects.filter(precursor_UUID__in=precursor_UUIDs).all()
     if full_metabolite_maps is not None:
-        response = (o.metabolite_UUID for o in full_metabolite_maps)
+        response = full_metabolite_maps
     return response
-
-
-# def get_metabolite_UUIDs(precursor_UUID, previous_level_response):
-#     response = previous_level_response
-#     metabolites = PrecursorMetaboliteMap.objects.filter(precursor_UUID=precursor_UUID).all()
-#     if len(metabolites) == 0:
-#         return
-#     else:
-#         response.extend(o.metabolite_UUID for o in metabolites)
-#         for metabolite in metabolites:
-#             get_metabolite_UUIDs(metabolite.metabolite_UUID, response)
-#     return response
 
 
 def build_metabolite_for_template(metabolites):
     response = []
     for item in metabolites:
-        inchi_key = item[0]
-        biosystem = item[1]
-        logp = item[2]
-        enzyme = item[3]
-        reaction = item[4]
-        metabolite_smile_string = item[5]
+        inchi_key = item.metabolite_InChiKey
+        biosystem = item.biosystem
+        logp = item.logp
+        enzyme = item.enzyme
+        reaction = item.reaction
+        metabolite_smile_string = item.metabolite_smile_string
         metabolite = MetaboliteForMetaboliteView(inchi_key, biosystem, logp, enzyme, reaction, metabolite_smile_string)
         response.append(metabolite)
     return response
