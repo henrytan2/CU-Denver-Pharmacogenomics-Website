@@ -2,6 +2,7 @@ from django.db.models import Count
 from django.http import HttpResponse, JsonResponse
 from django.views import generic
 from .models import SideEffect
+from .models import Drugs_List
 from precursors.models import Precursors
 from drug_name_precursor_map.models import DrugNamePrecursorMap
 import requests
@@ -23,6 +24,22 @@ class SideEffectView(generic.ListView):
             self.side_effect_list = request.POST.getlist('sideEffectList[]')
             request.session['side_effect_list'] = self.side_effect_list
             return HttpResponse('pharmacogenomics:side-effect-results', {'side_effect_list': self.side_effect_list})
+
+class Drugs_List_View(generic.ListView):
+    model = Drugs_List
+    template_name = 'side-effect.html'
+    drug_list_first = []
+
+    def get_queryset(self):
+        drug_list_start = self.model.objects.values('drug_name').distinct()
+        response = list(drug_list_start)
+        return response
+
+    def post(self, request):
+        if request.method == 'POST':
+            self.drug_list_first = request.POST.getlist('drug_list_first[]')
+            request.session['drug_list_first'] = self.drug_list_first
+            return HttpResponse('pharmacogenomics:drug_list_first', {'drug_list_first': self.drug_list_first})
 
 
 class SideEffectResultsView(generic.ListView):
