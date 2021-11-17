@@ -35,7 +35,6 @@ class MetaboliteView(generic.ListView):
     def map_precursors_to_metabolites(self, precursor_UUIDs, precursor_metabolite_map):
         precursor_metabolite_map.clear()
         cache.set('precursors_to_metabolites_filled', False)
-        # TODO optimize this
         full_metabolite_maps = get_metabolite_Maps(precursor_UUIDs)
         metabolite_UUIDs = [o.metabolite_UUID for o in full_metabolite_maps]
         metabolites = self.model.objects \
