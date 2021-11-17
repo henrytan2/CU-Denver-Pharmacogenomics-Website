@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% block content %}
+    <head>
+        <title>Metabolovigilance</title>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-N0N36Q8SHE"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+
+            gtag('js', new Date());
+
+            gtag('config', 'G-N0N36Q8SHE');
+        </script>
+    </head>
+    <body style="background-image: none;">
+    <p>
+        Each Drug ID below downloads a 3D structure from <a href="https://pubchem.ncbi.nlm.nih.gov/">PubChem</a>.
+        PubChem may not have a 3D structure of every substance below, look on <a
+            href="https://zinc15.docking.org/substances/home/">ZINC15</a>
+        if the link below does not download the 3D structure.
+    </p>
+    </body>
+    <precursors-results></precursors-results>
+
+    <script id="precursors-results-template"
+            type="x-html-template">
+        <div id="table-wrapper">
+            <div style="text-align: right; margin-top: 10px">
+                <p style="color:red;">Viewing all metabolites for the list below can take a long period if the list is
+                    long</p>
+                <div v-if="!metabolitesFilled" class="spinner-border spinner-border-sm">
+                </div>
+                <button class="btn btn-primary"
+                        v-bind:disabled="!metabolitesFilled"
+                        v-on:click="viewAllMetabolites">
+                    View All Metabolites
+                </button>
+            </div>
+            <table id="precursors-table"
+                   ref="datatable"
+                   class="table table-hover table-striped d-none">
+            </table>
+        </div>
+    </script>
+
+    <script type="application/javascript">
+        Vue.component("precursors-results", {
+            template: "#precursors-results-template",
+            data: function () {
+                return {
+                    dtTable: null,
+                    precursors: [],
+                    metabolitesFilled: false,
+                    metaboliteChecker: null,
+                }
+            },
+            mounted: function () {
+                var _this = this;
+                $.ajax({
+                    method: "POST",
+                    url: '{% url 'precursors:fetch_for_precursor_results' %}',
+                    success: function (response) {
+                        _this.precursors = response;
+                        _this.fetchAllMetabolites();
+                        _this.setUpDataTable();
+                    }
+                });
+            },
+            methods: {
+                viewAllMetabolites: function () {
+                    window.location = "{% url 'metabolite:metabolite_index' %}";
+                },
+                startMetaboliteChecker: function () {
+                    var _this = this;
+                    $.ajax({
+                        type: 'GET',
+                        url: '{% url 'metabolite:check' %}',
+                        success: function (response) {
+                            _this.metabolitesFilled = response;
+                            if (response === true) {
+                                _this.stopMetaboliteChecker();
+                            }
+                        }
+                    });
+                    _this.metaboliteChecker = setTimeout(_this.startMetaboliteChecker, 2000);
+                },
+                stopMetaboliteChecker: function () {
+                    this.metaboliteChecker = clearTimeout(this.metaboliteChecker);
+                },
+                fetchAllMetabolites: function () {
+                    var precursor_UUIDs = this.precursors.map(o => o.UUID);
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url 'metabolite:metabolite_index' %}',
+                        data: {
+                            'precursor_UUIDs': JSON.stringify(precursor_UUIDs),
+                        },
+                    });
+                },
+                setUpDataTable: function () {
+                    var _this = this;
+                    this.dtTable = $(this.$refs.datatable).DataTable({
+                        autoWidth: false,
+                        dom: 'lBfrtip',
+                        buttons: [{
+                            extend: "csv",
+                            exportOptions: {
+                                columns: ":visible",
+                            }
+                        }],
+                        data: this.precursors,
+                        columns: RenderColumns(_this),
+                        initComplete: function () {
+                            this.removeClass("d-none");
+                            $("#precursors-table tbody").on("click", "td .view-metabolite-link", function () {
+                                var $tr = $(this).closest('tr');
+                                var precursorUUID = _this.dtTable.row($tr).data()['UUID'];
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{% url 'metabolite:metabolite_single' %}',
+                                    data: {
+                                        'precursor_UUIDs': null,
+                                        'fill': false,
+                                        'singlePrecursorUUID': precursorUUID,
+                                    },
+                                    success: function () {
+                                        window.location = "{% url 'metabolite:metabolite_single' %}";
+                                    },
+                                });
+                            });
+                        },
+                    });
+                    _this.startMetaboliteChecker();
+                }
+            }
+        })
+    </script>
+
+    <script type="application/javascript">
+        function RenderColumns(vueComponent) {
+            return [
+                {
+                    data: null,
+                    title: "Drug Name",
+                    render: function (data) {
+                        var drugName = data["DrugName"];
+                        var url = "{% url 'pharmacogenomics:fda' %}" + "?drug_name=" + drugName;
+                        var response = '<a href=' + url + '>' + drugName + '</a>';
+                        return response;
+                    }
+                },
+                {
+                    data: null,
+                    title: "Drug ID",
+                    render: function (data) {
+                        var drugID = data["DrugID"].substring(3);
+                        var url = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/CID/' + drugID + '/record/SDF/?record_type=3d&response_type=save&response_basename=Conformer3D_CID';
+                        var response = '<a href=' + url + '>' + drugID + '</a>';
+                        return response;
+                    }
+                },
+                {
+                    data: null,
+                    title: "Metabolites",
+                    defaultContent: "",
+                    render: function (data, type) {
+                        var response = "";
+                        var precursor_UUID = data['UUID'];
+                        if (type === "display") {
+                            response = document.createElement("div");
+                            var vueInstance = new Vue({
+                                template: "#view-metabolite-col",
+                            }).$mount();
+                            response.append(vueInstance.$el);
+                        }
+                        return response.innerHTML;
+                    }
+                }
+            ]
+        }
+    </script>
+    <script type="text-html-template"
+            id="view-metabolite-col">
+        <a href="javascript:void(0)"
+           class="view-metabolite-link">
+            View Metabolites
+        </a>
+    </script>
+{% endblock content %}

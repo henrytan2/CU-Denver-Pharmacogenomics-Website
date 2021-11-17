@@ -5,11 +5,15 @@
         <!-- Global site tag (gtag.js) - Google Analytics -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-N0N36Q8SHE"></script>
         <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
+            window.dataLayer = window.dataLayer || [];
 
-          gtag('config', 'G-N0N36Q8SHE');
+            function gtag() {
+                dataLayer.push(arguments);
+            }
+
+            gtag('js', new Date());
+
+            gtag('config', 'G-N0N36Q8SHE');
         </script>
     </head>
     <body style="background-image:none;">
@@ -20,7 +24,7 @@
         Note: Placebo side effects have been removed. Drug names in the following tables are links to get updated side
         effects from the <a href="https://www.fda.gov">FDA</a>.<br>
         <b>Instructions:</b><br>
-        1. Add the side effects you are interested in by clicking the plus button in the add column. <br>
+        1. Add the Side Effects or Drugs you are interested in by clicking the plus button in the add column. <br>
         2. Hit Submit <br>
         3. You will be redirected to a page with a filtered list of the side effects you chose <br>
         4. From that page you can view the drugs ranked by count by clicking on the 'View Drugs Ranked' button<br>
@@ -35,20 +39,59 @@
     <script id="index-template"
             type="x-html-template">
         <div id="table-wrapper">
-            <table id="table"
-                   ref="datatable"
-                   class="table table-hover table-striped hidden">
-            </table>
-            <div class="row justify-content-end mt-1">
-                <div class="col-sm-1 text-right">
+            <ul class="nav nav-tabs"
+                v-on:click="changeTabs">
+                <li class="nav-item">
+                    <a class="nav-link"
+                       v-bind:class="{active: sideEffectsTabIsActive}"
+                       ref="sideEffectsTab"
+                       href="#">
+                        Side Effects
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link"
+                       v-bind:class="{active: drugsTabIsActive}"
+                       ref="drugsTab"
+                       href="#">
+                        Drugs
+                    </a>
+                </li>
+            </ul>
+            <div v-show="sideEffectsTabIsActive">
+                <table id="table"
+                       ref="datatable"
+                       class="table table-hover table-striped hidden">
+                </table>
+                <div class="row justify-content-end mt-1">
+                    <div class="col-sm-1 text-right">
                     <span v-text="'Go to'">
                     </span>
+                    </div>
+                    <div class="col-sm-1">
+                        <input type="number"
+                               v-model="sideEffectsPageNumber"
+                               v-on:input="changePage"
+                               class="form-control form-control-sm"/>
+                    </div>
                 </div>
-                <div class="col-sm-1">
-                    <input type="number"
-                           v-model="pageNumber"
-                           v-on:input="changePage"
-                           class="form-control form-control-sm"/>
+            </div>
+            <div v-show="drugsTabIsActive">
+                <table id="drugs-table"
+                       ref="drugs_table"
+                       class="table table-hover table-striped hidden">
+                </table>
+                <div class="row justify-content-end mt-1">
+                    <div class="col-sm-1 text-right">
+                    <span v-text="'Go to'">
+                    </span>
+                    </div>
+                    <div class="col-sm-1">
+                        <input type="number"
+                               v-model="drugsPageNumber"
+                               v-on:input="changeDrugsPage"
+                               class="form-control form-control-sm"/>
+                    </div>
                 </div>
             </div>
             <div style="text-align: right; margin-top: 10px">
@@ -72,16 +115,48 @@
                 return {
                     dtTable: null,
                     sideEffectList: [],
-                    pageNumber: 1,
+                    sideEffectsPageNumber: 1,
+                    drugsPageNumber: 1,
+                    sideEffectsTabIsActive: true,
+                    drugsTabIsActive: false,
+                    drugsDtTable: null,
+                    drugsList: [],
+                    drugsSelectedList: [],
                 };
             },
             computed: {
                 submitButtonDisabled: function () {
-                    return this.sideEffectList.length <= 0;
+                    return this.sideEffectList.length <= 0 && this.drugsSelectedList.length <= 0;
                 }
             },
             mounted: function () {
                 var _this = this;
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url 'precursors:fetch_all_precursors' %}',
+                    success: function (response) {
+                        _this.drugsList = response;
+                        _this.drugsDtTable = $(_this.$refs.drugs_table).DataTable({
+                            data: _this.drugsList,
+                            columns: RenderDrugColumns(_this),
+                            autoWidth: false,
+                            initComplete: function () {
+                                this.removeClass("d-none");
+                                $("#drugs-table tbody").on("click", "td button", function () {
+                                    var $tr = $(this).closest('tr');
+                                    var drug = _this.drugsDtTable.row($tr).data()['UUID'];
+                                    if (_this.drugsSelectedList.includes(drug)) {
+                                        $(this).find("svg").removeClass("fa-times").addClass("fa-plus");
+                                        _this.removeDrug(drug);
+                                    } else {
+                                        $(this).find("svg").removeClass("fa-plus").addClass("fa-times");
+                                        _this.addDrug(drug);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                })
                 this.dtTable = $(this.$refs.datatable).DataTable({
                     data: side_effects,
                     columns: RenderColumns(this),
@@ -91,17 +166,17 @@
                             var $tr = $(this).closest('tr');
                             var sideEffect = _this.dtTable.row($tr).data()['side_effect'];
                             if (_this.sideEffectList.includes(sideEffect)) {
-                                $(this).find("svg").removeClass("fa-times").addClass("fa-plus");
-                                _this.removeSideEffect(sideEffect);
-                            } else {
-                                $(this).find("svg").removeClass("fa-plus").addClass("fa-times");
-                                _this.addSideEffect(sideEffect);
-                            }
-                            $.ajax({
-                                type: 'POST',
-                                url: '{% url 'pharmacogenomics:side-effect' %}',
-                                data: {'sideEffectList': _this.sideEffectList}
-                            });
+                                        $(this).find("svg").removeClass("fa-times").addClass("fa-plus");
+                                        _this.removeSideEffect(sideEffect);
+                                } else {
+                                    $(this).find("svg").removeClass("fa-plus").addClass("fa-times");
+                                    _this.addSideEffect(sideEffect);
+                                }
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{% url 'pharmacogenomics:side-effect' %}',
+                                    data: {'sideEffectList': _this.sideEffectList}
+                                });
                         });
                     }
                 });
@@ -110,14 +185,50 @@
                 addSideEffect: function (sideEffect) {
                     this.sideEffectList.push(sideEffect);
                 },
+                changeTabs: function () {
+                    if (this.sideEffectsTabIsActive) {
+                        this.sideEffectsTabIsActive = false;
+                        this.drugsTabIsActive = true;
+                    } else {
+                        this.sideEffectsTabIsActive = true;
+                        this.drugsTabIsActive = false;
+                    }
+                },
+                changeDrugsPage: function () {
+                    if (this.drugsPageNumber !== "") {
+                        this.drugsDtTable.page(parseInt(this.drugsPageNumber) - 1).draw(false);
+                    }
+                },
+                addDrug: function (drug) {
+                    this.drugsSelectedList.push(drug);
+                },
+                removeDrug: function (drug) {
+                    var index = this.drugsSelectedList.indexOf(drug);
+                    this.drugsSelectedList.splice(index, 1);
+                },
                 removeSideEffect: function (sideEffect) {
                     var index = this.sideEffectList.indexOf(sideEffect);
                     this.sideEffectList.splice(index, 1);
                 },
                 viewResults: function () {
-                    window.location = '{% url 'pharmacogenomics:side-effect-results' %}';
+                    if (this.sideEffectsTabIsActive) {
+                        window.location = '{% url 'pharmacogenomics:side-effect-results' %}';
+                    }
+                    else {
+                        var _this = this;
+                        $.ajax({
+                            type: "POST",
+                            data: {
+                                'precursor_UUIDs': _this.drugsSelectedList,
+                            },
+                            url: '{% url 'precursors:receive_precursors_selected' %}',
+                            success: function(response) {
+                                window.location = '{% url 'precursors:precursor_results' %}';
+                            }
+                        })
+                    }
                 },
-                changePage: function() {
+                changePage: function () {
                     if (this.pageNumber !== "") {
                         this.dtTable.page(parseInt(this.pageNumber) - 1).draw(false);
                     }
@@ -158,6 +269,48 @@
                 }
             ]
         }
+
+        function RenderDrugColumns(vueComponent) {
+            return [
+                {
+                    data: 'UUID',
+                    visible: false,
+                },
+                {
+                    data: 'DrugID',
+                    title: 'DrugID',
+                    name: 'DrugID',
+                },
+                {
+                    data: 'DrugName',
+                    title: 'DrugName',
+                    name: 'DrugName',
+                },
+                {
+                    data: null,
+                    defaultContent: "",
+                    orderable: false,
+                    title: 'Actions',
+                    name: 'Actions',
+                    render: function (data, type) {
+                        var response = "";
+                        if (type === "display") {
+                            response = document.createElement("div");
+                            var vueInstance = new Vue({
+                                template: "#actions-col-for-drugs-template",
+                                methods: {
+                                    handleButtonClick: function () {
+                                        vueComponent.addSideEffect();
+                                    },
+                                },
+                            }).$mount();
+                            response.appendChild(vueInstance.$el);
+                        }
+                        return response.innerHTML;
+                    }
+                }
+            ]
+        }
     </script>
 
     <script id="actions-col-template"
@@ -170,4 +323,14 @@
         </button>
     </script>
 
+
+    <script id="actions-col-for-drugs-template"
+            type="x-html-template">
+        <button type="submit"
+                class="btn btn-outline-secondary drugs-list-add-btn"
+                style="min-width: 40px"
+                title="Add Drug">
+            <span><i class="fa fa-plus"></i></span>
+        </button>
+    </script>
 {% endblock content %}
