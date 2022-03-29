@@ -72,8 +72,6 @@ MIDDLEWARE_CLASSES = [
     'django_cookies_samesite.middleware.CookiesSameSite',
 ]
 
-
-
 ROOT_URLCONF = 'pharmacogenomics_website.urls'
 
 TEMPLATES = [
@@ -94,6 +92,35 @@ TEMPLATES = [
         },
     },
 ]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'error': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': 'error.log',
+        },
+        'info': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'info.log',
+        }
+    },
+    'loggers': {
+        'django.error': {
+            'handlers': ['error'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'django.info': {
+            'handlers': ['info'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
 
 WSGI_APPLICATION = 'pharmacogenomics_website.wsgi.application'
 

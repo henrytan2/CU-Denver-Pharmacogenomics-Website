@@ -1,0 +1,27 @@
+import paramiko
+import os
+import logging
+
+error_logger = logging.getLogger('django.error')
+info_logger = logging.getLogger('django.info')
+
+
+class Alderaan:
+    client = None
+
+    def __init__(self):
+        host = os.getenv('ALDERAAN_IP')
+        username = os.getenv('ALDERAAN_USER')
+        password = os.getenv('ALDERAAN_PASSWORD')
+        self.client = paramiko.client.SSHClient()
+        self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        self.client.connect(host, username=username, password=password)
+
+    def run_command(self, command):
+        _stdin, _stdout, _stderr = self.client.exec_command(command)
+        stdout = _stdout.read().decode()
+        stderr = _stderr.read().decode()
+        if len(stderr) > 0:
+            error_logger.error(stderr)
+        if len(stdout) > 0:
+            info_logger.info(stdout)
