@@ -19,6 +19,7 @@ from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),
     path('', views.IndexView.as_view(), name='index'),
     path('people/', views.PeopleView.as_view(), name='people'),
     path('contact/', views.ContactView.as_view(), name='contact'),
@@ -26,5 +27,5 @@ urlpatterns = [
     path('pharmacogenomics/', include('pharmacogenomics.urls')),
     path('gtexome/', include('gtexome.urls')),
     path('metabolites/', include('metabolites.urls')),
-    path('precursors/', include('precursors.urls'))
+    path('precursors/', include('precursors.urls')),
 ]
