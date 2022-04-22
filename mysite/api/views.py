@@ -5,6 +5,6 @@ from mysite.business.faspr_prep import FasprPrep
 class FasprPrepAPI(APIView):
     def post(self, request):
         ccid = request.data['CCID']
-        gidd = request.data['GIDD']
-        faspr_prep = FasprPrep(ccid, gidd)
+        gene_ID = request.data['gene_ID']
+        faspr_prep = FasprPrep(ccid, gene_ID)
         return Response(True)

@@ -21,7 +21,9 @@ class Alderaan:
         _stdin, _stdout, _stderr = self.client.exec_command(command)
         stdout = _stdout.read().decode()
         stderr = _stderr.read().decode()
+        success = True
         if len(stderr) > 0:
+            success = False
             error_logger.error(stderr)
-        if len(stdout) > 0:
-            info_logger.info(stdout)
+
+        return stdout, success
