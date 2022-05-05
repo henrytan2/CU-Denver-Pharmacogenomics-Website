@@ -11,7 +11,7 @@ class FasprPrep:
     mutation_position = 0
     CCID = ''
     gene_ID = ''
-    unzip_target_pdb_file = 'tmp.pdb'
+    unzip_target_pdb_file = 'pdb_tmp.txt'
     sur_aa_low = ''
     sur_aa_high = ''
     unmutated_seq = ''
@@ -24,11 +24,13 @@ class FasprPrep:
     alpha_folder = os.path.join(scratch_folder, 'alphafold')
     temp_folder = os.path.join(scratch_folder, 'tmp')
     singularity_folder = os.path.join('..','..','..','storage','singularity')
+    FASPR_folder = os.path.join('/','home','reedsc','FASPR')
 
-    def __init__(self, CCID, gene_ID):
+    def __init__(self, CCID, gene_ID, neighbors):
         self.alderaan = Alderaan()
         self.CCID = CCID
         self.gene_ID = gene_ID
+        self.neighbors = int(neighbors)
         self.get_Pnum()
         self.unmutated_seq = self.get_sequence_unmut()
         self.mut_pos = self.get_mutation_position(CCID)
@@ -52,22 +54,20 @@ class FasprPrep:
                 pdb_file, success = self.alderaan.run_command(protein_filename)
                 _ , protein_short_name = os.path.split(pdb_file[:-4])
                 mkdir_command = f'mkdir {self.temp_folder}/{protein_short_name[:-4]}'
-                try:
-                    self.alderaan.run_command(mkdir_command)
-                except:
-                    print('directory exists')
+                self.alderaan.run_command(mkdir_command)
                 gunzip_command = f'gunzip -c {pdb_file[:-1]} > {self.temp_folder}/{protein_short_name[:-4]}/{protein_short_name}'
                 self.alderaan.run_command(gunzip_command)
                 open_command = f"cat {self.temp_folder}/{protein_short_name[:-4]}/{protein_short_name}"
-                outfile, success = self.alderaan.run_command(open_command)
+                pdb_text, success = self.alderaan.run_command(open_command)
                 print(success)
-                print(outfile)
-                f = open("pdb_tmp.txt", "wt+")
-                f.write(outfile)
-                print(f)
+                print(pdb_text)
+                save_command = f'echo \" {pdb_text} \" > {self.temp_folder}/pdb_tmp2.txt'
+                save_command = f'echo \" line1\nline2 \" > {self.temp_folder}/pdb_tmp2.txt'
+                print(save_command)
+                self.alderaan.run_command(save_command)
                 p = PDBParser(PERMISSIVE=1)
                 structure = p.get_structure(id = '_', file = 'pdb_tmp.txt')
-                f.close()
+
                 ppb = PPBuilder()
                 peptides = ppb.build_peptides(structure)
                 print(len(peptides))
@@ -113,6 +113,9 @@ class FasprPrep:
                                 self.single_nucleotide_variation) + self.sur_aa_high + \
                                 self.unmutated_seq[position_mutation + (self.neighbors-1):]
         print(self.mutated_protein_code)
+        if len(self.mutated_protein_code) - self.position_mutation < self.neighbors:
+            self.neighbors = len(self.mutated_protein_code) - self.position_mutation # test this
+        # print(len(self.mutated_protein_code))
         return self.mutated_protein_code
 
     def make_mutatedseq_file(self, mutatseq):
@@ -126,12 +129,11 @@ class FasprPrep:
             mutated_protein_code = self.get_mutated_sequence(self.unmutated_seq)
             self.make_mutatedseq_file(mutated_protein_code)
 
-        pwd, success = self.alderaan.run_command(f"pwd")
+        FASPR_command = f"FASPR/FASPR -i /{self.scratch_folder}/{self.unzip_target_pdb_file} -s /{self.scratch_folder}/repack_{self.P_num}_{self.CCID[2:]}.txt  -o /{self.scratch_folder}/test_FASPR.pdb"
+        # FASPR_command = f"/FASPR/FASPR -i /{self.scratch_folder}/{self.unzip_target_pdb_file} -s /{self.scratch_folder}/repack_{self.P_num}_{self.CCID[2:]}.txt  -o /{self.scratch_folder}/proteinmutations/{self.P_num}_{self.possible_mutation_ext}_FASPR.pdb"
+        print(FASPR_command)
+        FASPR_out, success = self.alderaan.run_command(FASPR_command)
         print(success)
-        print(pwd)
-        singularity, success = self.alderaan.run_command(f"ls {self.singularity_folder}")
-        print (success)
-        singularity, success = self.alderaan.run_command(f"singularity shell {self.singularity_folder}/qvina.sif")
-        print (success)
+        print(FASPR_out)
         # self.alderaan.run_command(
         #     f"/FASPR/FASPR -i /{self.scratch_folder}{self.unzip_target_pdb_file} -s /{self.scratch_folder}/repack_lines/repack_{self.P_num}_{possible_mutation_ext[2:]}.txt  -o /{self.scratch_folder}/proteinmutations/{self.P_num}_{self.possible_mutation_ext}_FASPR.pdb")
