@@ -36,6 +36,7 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     'pharmacogenomics.apps.PharmacogenomicsConfig',
+    'pdbgen.apps.PdbgenConfig',
     'gtexome.apps.GtexomeConfig',
     'metabolites.apps.MetabolitesConfig',
     'precursors.apps.PrecursorsConfig',

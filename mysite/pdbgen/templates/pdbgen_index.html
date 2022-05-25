@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+<!DOCTYPE html>
+{% block content %}
+    <p class="lead">
+    Enter the number of neighboring amino acids to repack and submit
+    </p>
+    <index></index>
+    <script id="index-template"
+            type="text-html-template">
+        <div>
+            <h2>
+                PDB Generator
+            </h2>
+            <div class="row justify-content-center">
+                <div class="col-1">
+
+                </div>
+                <div class="col">
+                    <form>
+
+                        <div class="form-group row">
+                            <label class="col-2">
+                                GeneID
+                            </label>
+                            <input class="form-control col-2"
+                                   v-model="geneID"
+                                   type="text"/>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-2">
+                                CCID
+                            </label>
+                            <input class="form-control col-2"
+                                   v-model="CCID"
+                                   type="text"/>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-2">
+                                neighbors
+                            </label>
+                            <input class="form-control col-2"
+                                   v-model.number="neighbors"
+                                   type="number"/>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-4">
+                                <button class="btn btn-primary float-right"
+                                        v-on:click="submit"
+                                        v-bind:disabled="submitButtonDisabled">
+                                    Submit
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+    </script>
+    <script type="application/javascript">
+        Vue.component('index', {
+            template: "#index-template",
+            data: function () {
+                return {
+                    geneID: "",
+                    CCID: "",
+                    neighbors: 0,
+                }
+            },
+            beforeMount:
+                function () {
+                    this.prefillForm();
+                },
+            computed: {
+                submitButtonDisabled: function () {
+                    var ccid = this.CCID;
+                    var geneid = this.geneID;
+                    var neighbors = this.neighbors;
+                    var maxNeighbors = ccid.replace(/\D/g, "");
+                    var response = true;
+                    if (ccid != '' &&
+                        geneid != '' &&
+                        neighbors != null &&
+                        (maxNeighbors - neighbors > 1)
+                    ) {
+                        response = false
+                    }
+                    return response;
+                }
+            },
+
+            methods: {
+                submit: function () {
+                    var request = {
+                        CCID: this.CCID,
+                        gene_ID: this.geneID,
+                        neighbors: this.neighbors,
+                    }
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url 'api:faspr_prep' %}',
+                        data: request,
+                        success: function (response) {
+                        }
+                    })
+                },
+                prefillForm: function () {
+                    var currentURLString = window.location.href;
+                    var currentURL = new URL(currentURLString);
+                    this.geneID = currentURL.searchParams.get("gene_ID");
+                    this.CCID = currentURL.searchParams.get("CCID");
+                    this.neighbors = currentURL.searchParams.get("neighbors");
+                }
+            }
+
+        })
+    </script>
+{% endblock content %}

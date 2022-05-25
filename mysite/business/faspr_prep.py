@@ -57,14 +57,9 @@ class FasprPrep:
                 self.alderaan.run_command(mkdir_command)
                 gunzip_command = f'gunzip -c {pdb_file[:-1]} > {self.temp_folder}/{protein_short_name[:-4]}/{protein_short_name}'
                 self.alderaan.run_command(gunzip_command)
-                open_command = f"cat {self.temp_folder}/{protein_short_name[:-4]}/{protein_short_name}"
+                open_command = f"cat {self.temp_folder}/{protein_short_name[:-4]}/{protein_short_name} | tee {self.temp_folder}/pdb_tmp2.txt"
                 pdb_text, success = self.alderaan.run_command(open_command)
-                print(success)
-                print(pdb_text)
-                save_command = f'echo \" {pdb_text} \" > {self.temp_folder}/pdb_tmp2.txt'
-                save_command = f'echo \" line1\nline2 \" > {self.temp_folder}/pdb_tmp2.txt'
-                print(save_command)
-                self.alderaan.run_command(save_command)
+
                 p = PDBParser(PERMISSIVE=1)
                 structure = p.get_structure(id = '_', file = 'pdb_tmp.txt')
 
@@ -86,7 +81,9 @@ class FasprPrep:
                 and len(poss_mutation) < 12:
             act_mutation = poss_mutation.split(' ')
             for mutation in act_mutation:
-                mutation_position = int(mutation[5:-3])
+                # mutation_position = int(mutation[5:-3])
+                getVals = list([val for val in mutation if val.isnumeric()])
+                mutation_position = int("".join(getVals))
                 return mutation_position
 
     def get_mutated_sequence(self, seq):
