@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
     <p class="lead">
-    Select the <b class="text-primary">HGVSp</b> link to create a pdb file for that mutation
+        Select the <b class="text-primary">HGVSp</b> link to create a pdb file for that mutation
     </p>
     <body style="background-image:none;">
     <index></index>
@@ -233,12 +233,12 @@
                     var _this = this;
                     var d = _this.dtTable
                     _this.filters.push({
-                        columnIndex: 40,
-                        searchText: "m" + '\n',
+                        columnIndex: 36,
+                        searchText: "missense",
                         useRegex: false,
                         useSmartSearch: false,
                     });
-                    d.draw();
+                    this.doFilter();
                 },
                 removeFilter: function (filterIndex) {
                     var columnIndex = this.filters[filterIndex].columnIndex;
