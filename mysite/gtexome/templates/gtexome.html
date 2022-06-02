@@ -26,9 +26,12 @@
                     <b>Directions:</b><br>
                     1. Select 'Filter By TPM Ratio' or 'Filter By TPM Range'.<br>
                     2. Add tissue types from the left list by clicking the plus button.<br>
-                    &emsp;a. If 'Filter By TPM Ratio' is selected. Choose a ratio range to filter by or leave blank for unbounded lower/upper range.<br>
-                    &emsp;Ratio calculated by summing the TPM of selected tissues as the numerator and the sum of non-selected tissues as the denominator.<br>
-                    &emsp;b. If 'Filter By TPM Range' is selected. For each selected tissue, enter a range for median TPM.<br>
+                    &emsp;a. If 'Filter By TPM Ratio' is selected. Choose a ratio range to filter by or leave blank for
+                    unbounded lower/upper range.<br>
+                    &emsp;Ratio calculated by summing the TPM of selected tissues as the numerator and the sum of
+                    non-selected tissues as the denominator.<br>
+                    &emsp;b. If 'Filter By TPM Range' is selected. For each selected tissue, enter a range for median
+                    TPM.<br>
                     4. Hit the Submit button once you are done.<br>
                     5. You will be redirected to a results page with a list of genes available in csv format.<br>
                     6. Each Gene ID is a link to exome data available in csv format.<br>
@@ -59,44 +62,90 @@
             </label>
         </div>
     </div>
+    <script id="index-template"
+            type="x-html-template">
+        <div id="table-wrapper">
+            <ul class="nav nav-tabs"
+                v-on:click="changeTabs">
+                <li class="nav-item">
+                    <a class="nav-link"
+                       v-bind:class="{active: gtexTabIsActive}"
+                       ref="gtexTab"
+                       href="#">
+                        gtex
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link"
+                       v-bind:class="{active: exacTabIsActive}"
+                       ref="exacTab"
+                       href="#">
+                        exac
+                    </a>
+                </li>
+            </ul>
+            <div v-show="gtexTabIsActive">
+                <div class="row">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body" style="height:100vh; overflow-y: auto;">
+                                <h3>Tissue types:</h3>
+                                <ul id="tissue-list" class="list-group" style="overflow-y: scroll">
+                                    {% for field in object_list %}
+                                        <li class="list-group-item">
+                                            {{ field }}
+                                            <button class="btn btn-outline-secondary tissue-buttons float-right"
+                                                    style="min-width: 40px;">
+                                                <span class="fa fa-plus"></span>
+                                            </button>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body" style="height:100vh; overflow-y: auto;">
+                                <h3>Selected Tissues: </h3>
+                                <ul id="filter-list" class="list-group" style="overflow-y: scroll">
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <div v-show="exacTabIsActive">
+                <div class="row">
+                    <div class="col">
+                        <div class="card">
+                            <p>
+                                test
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div style="text-align: right; margin-top: 10px">
+                    <button type="submit"
+                            id="side-effect-list-submit"
+                            v-bind:disabled="submitButtonDisabled"
+                            v-on:click="viewResults"
+                            class="btn btn-primary submit-btn">
+                        Submit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </script>
 
-    <div class="row">
-        <div class="col">
-            <div class="card">
-                <div class="card-body" style="height:100vh; overflow-y: auto;">
-                    <h3>Tissue types:</h3>
-                    <ul id="tissue-list" class="list-group" style="overflow-y: scroll">
-                        {% for field in object_list %}
-                            <li class="list-group-item">
-                                {{ field }}
-                                <button class="btn btn-outline-secondary tissue-buttons float-right"
-                                        style="min-width: 40px;">
-                                    <span class="fa fa-plus"></span>
-                                </button>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <div class="card">
-                <div class="card-body" style="height:100vh; overflow-y: auto;">
-                    <h3>Selected Tissues: </h3>
-                    <ul id="filter-list" class="list-group" style="overflow-y: scroll">
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
     <div style="text-align: right; margin:12px">
         <button id="submit-button" class="btn btn-primary" onclick="GetAllFilters()" disabled>
             Submit
         </button>
     </div>
     </body>
-    <script>
-        let filterByRatio;
+    <script type="application/javascript">
+        {#let filterByRatio;#}
 
         $(document).ready(function () {
             filterByRatio = $("#filter-by-ratio:checked").val();
@@ -130,8 +179,7 @@
                 }
                 if ($("#filter-list li").length > 0) {
                     $("#submit-button").prop("disabled", false);
-                }
-                else {
+                } else {
                     $("#submit-button").prop("disabled", true);
                 }
             });
@@ -189,7 +237,7 @@
                     type: 'POST',
                     url: "{% url 'gtexome:gtexome' %}",
                     data: {'filterRatio': JSON.stringify(filterRatioDict)},
-                    success: function() {
+                    success: function () {
                         window.location = "{% url 'gtexome:ratio_results' %}"
                     }
                 });
@@ -218,5 +266,22 @@
                 });
             }
         }
+    </script>
+    <script type="application/javascript">
+        Vue.component("index", {
+                template: "#index-template",
+                methods: {
+                    changeTabs: function () {
+                        if (this.gtexTabIsActive) {
+                            this.gtexTabIsActive = false;
+                            this.exacTabIsActive = true;
+                        } else {
+                            this.gtexTabIsActive = true;
+                            this.exacTabIsActive = false;
+                        }
+                    },
+                },
+            }
+        )
     </script>
 {% endblock content %}
