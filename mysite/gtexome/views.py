@@ -11,13 +11,15 @@ class IndexView(generic.ListView):
     template_name = 'gtexome.html'
     filter_dictionary = []
 
-    def get_queryset(self):
+    def get_context_data(self, **kwargs):
+        context = super(IndexView, self).get_context_data(**kwargs)
         all_fields = self.model._meta.get_fields()
         do_not_include = ['ID', 'Gene ID', 'Description']
         all_field_names = [f.verbose_name for f in all_fields]
         for item in do_not_include:
             all_field_names.remove(item)
-        return all_field_names
+        context['all_field_names'] = all_field_names
+        return context
 
     def post(self, request):
         if request.method == 'POST':

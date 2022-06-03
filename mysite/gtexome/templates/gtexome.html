@@ -43,25 +43,7 @@
         </div>
     </div>
 
-    <div class="form-inline" style="margin-bottom: 10px; margin-left: 10px;">
-        <div id="filter-toggle" class="btn-group btn-group-toggle" data-toggle="buttons">
-            <label class="btn btn-info active">
-                <input type="radio" name="options" id="filter-by-ratio" autocomplete="off" checked> Filter By TPM Ratio
-            </label>
-            <label class="btn btn-info">
-                <input type="radio" name="options" id="filter-by-range" autocomplete="off"> Filter By TPM Range
-            </label>
-        </div>
-        <div class="form-inline" id="filter-ratio-input" style="margin-left: 10px;">
-            Ratio Range (Leave blank for unbounded lower/upper):
-            <label>
-                <input id="lower-ratio" type="number" style="margin-right: 10px"> ≤
-            </label>
-            <label>
-                <input id="upper-ratio" type="number" style="margin-left:10px">
-            </label>
-        </div>
-    </div>
+    <index></index>
     <script id="index-template"
             type="x-html-template">
         <div id="table-wrapper">
@@ -89,17 +71,46 @@
                     <div class="col">
                         <div class="card">
                             <div class="card-body" style="height:100vh; overflow-y: auto;">
+                                <div class="form-inline" style="margin-bottom: 10px; margin-left: 10px;">
+                                    <div id="filter-toggle" class="btn-group btn-group-toggle" data-toggle="buttons">
+                                        <label class="btn btn-info active">
+                                            <input type="radio" name="options" id="filter-by-ratio" autocomplete="off"
+                                                   checked> Filter By
+                                            TPM Ratio
+                                        </label>
+                                        <label class="btn btn-info">
+                                            <input type="radio" name="options" id="filter-by-range" autocomplete="off">
+                                            Filter By TPM Range
+                                        </label>
+                                    </div>
+                                    <div class="form-inline" id="filter-ratio-input" style="margin-left: 10px;">
+                                        Ratio Range (Leave blank for unbounded lower/upper):
+                                        <label>
+                                            <input type="number"
+                                                   v-model.number="lowerRatio"
+                                                   style="margin-right: 10px"> ≤
+                                        </label>
+                                        <label>
+                                            <input type="number"
+                                                   v-model.number="upperRatio"
+                                                   style="margin-left:10px">
+                                        </label>
+                                    </div>
+                                </div>
                                 <h3>Tissue types:</h3>
                                 <ul id="tissue-list" class="list-group" style="overflow-y: scroll">
-                                    {% for field in object_list %}
-                                        <li class="list-group-item">
-                                            {{ field }}
+                                        <li class="list-group-item"
+                                            v-for="field in allFieldNames">
+                                            <span v-text="field"></span>
                                             <button class="btn btn-outline-secondary tissue-buttons float-right"
-                                                    style="min-width: 40px;">
-                                                <span class="fa fa-plus"></span>
+                                                    style="min-width: 40px;"
+                                                    v-on:click="addOrRemoveTissue">
+                                                <span v-if="selectedTissues.includes(field)"
+                                                      class="fa fa-times"></span>
+                                                <span v-else
+                                                      class="fa fa-plus"></span>
                                             </button>
                                         </li>
-                                    {% endfor %}
                                 </ul>
                             </div>
                         </div>
@@ -114,6 +125,12 @@
                         </div>
                     </div>
                 </div>
+                <div style="text-align: right; margin:12px">
+                    <button id="submit-button" class="btn btn-primary" onclick="GetAllFilters()" disabled>
+                        Submit
+                    </button>
+                </div>
+            </div>
             <div v-show="exacTabIsActive">
                 <div class="row">
                     <div class="col">
@@ -124,7 +141,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
                 <div style="text-align: right; margin-top: 10px">
                     <button type="submit"
                             id="side-effect-list-submit"
@@ -138,14 +154,8 @@
         </div>
     </script>
 
-    <div style="text-align: right; margin:12px">
-        <button id="submit-button" class="btn btn-primary" onclick="GetAllFilters()" disabled>
-            Submit
-        </button>
-    </div>
     </body>
     <script type="application/javascript">
-        {#let filterByRatio;#}
 
         $(document).ready(function () {
             filterByRatio = $("#filter-by-ratio:checked").val();
@@ -209,68 +219,31 @@
             });
         }
 
-        function GetAllFilters() {
-            if (filterByRatio) {
-                let filterRatioDict = {};
-                let lowerFilterRatio = $("#lower-ratio").val();
-                let upperFilterRatio = $("#upper-ratio").val();
-                let tissues = [];
-
-                if (lowerFilterRatio === "") {
-                    lowerFilterRatio = Number.NEGATIVE_INFINITY;
-                }
-                if (upperFilterRatio === "") {
-                    upperFilterRatio = Infinity
-                }
-
-                filterRatioDict["lower"] = lowerFilterRatio;
-                filterRatioDict["upper"] = upperFilterRatio;
-
-                $("#filter-list li").each(function () {
-                    let tissueText = $(this).text();
-                    tissues.push(tissueText);
-                });
-
-                filterRatioDict["tissues"] = tissues;
-
-                $.ajax({
-                    type: 'POST',
-                    url: "{% url 'gtexome:gtexome' %}",
-                    data: {'filterRatio': JSON.stringify(filterRatioDict)},
-                    success: function () {
-                        window.location = "{% url 'gtexome:ratio_results' %}"
-                    }
-                });
-            } else {
-                var filterDictionary = [];
-                $("#filter-list li").each(function () {
-                    var tissueText = $(this).text();
-                    var tissue = tissueText.substring(0, tissueText.length - 2);
-                    var lower = $(this).find(".lower").val();
-                    var upper = $(this).find(".upper").val();
-                    filterDictionary.push({
-                        tissue: tissue,
-                        range: {
-                            lower: lower,
-                            upper: upper,
-                        }
-                    });
-                });
-                $.ajax({
-                    type: 'POST',
-                    url: '{% url 'gtexome:gtexome' %}',
-                    data: {'filterDictionary': JSON.stringify(filterDictionary)},
-                    success: function () {
-                        window.location = "{% url 'gtexome:range_results' %}";
-                    }
-                });
-            }
-        }
     </script>
     <script type="application/javascript">
         Vue.component("index", {
+                data: function () {
+                    let allFieldNames = {{ all_field_names | safe }};
+                    return {
+                        gtexTabIsActive: true,
+                        exacTabIsActive: false,
+                        lowerRatio: null,
+                        upperRatio: null,
+                        filterList: [],
+                        allFieldNames: allFieldNames,
+                        selectedTissues: [],
+                    }
+                },
                 template: "#index-template",
+                computed: {
+                    submitButtonDisabled: function () {
+
+                    }
+                },
                 methods: {
+                    addOrRemoveTissue: function() {
+
+                    },
                     changeTabs: function () {
                         if (this.gtexTabIsActive) {
                             this.gtexTabIsActive = false;
@@ -280,7 +253,67 @@
                             this.exacTabIsActive = false;
                         }
                     },
-                },
+                    viewResults: function () {
+
+                    },
+                    GetAllFilters: function () {
+                        if (filterByRatio) {
+                            let filterRatioDict = {};
+                            let lowerFilterRatio = this.lowerRatio;
+                            let upperFilterRatio = this.upperRatio;
+                            let tissues = [];
+
+                            if (lowerFilterRatio === "") {
+                                lowerFilterRatio = Number.NEGATIVE_INFINITY;
+                            }
+                            if (upperFilterRatio === "") {
+                                upperFilterRatio = Infinity
+                            }
+
+                            filterRatioDict["lower"] = lowerFilterRatio;
+                            filterRatioDict["upper"] = upperFilterRatio;
+
+                            $("#filter-list li").each(function () {
+                                let tissueText = $(this).text();
+                                tissues.push(tissueText);
+                            });
+
+                            filterRatioDict["tissues"] = tissues;
+
+                            $.ajax({
+                                type: 'POST',
+                                url: "{% url 'gtexome:gtexome' %}",
+                                data: {'filterRatio': JSON.stringify(filterRatioDict)},
+                                success: function () {
+                                    window.location = "{% url 'gtexome:ratio_results' %}"
+                                }
+                            });
+                        } else {
+                            var filterDictionary = [];
+                            $("#filter-list li").each(function () {
+                                var tissueText = $(this).text();
+                                var tissue = tissueText.substring(0, tissueText.length - 2);
+                                var lower = $(this).find(".lower").val();
+                                var upper = $(this).find(".upper").val();
+                                filterDictionary.push({
+                                    tissue: tissue,
+                                    range: {
+                                        lower: lower,
+                                        upper: upper,
+                                    }
+                                });
+                            });
+                            $.ajax({
+                                type: 'POST',
+                                url: '{% url 'gtexome:gtexome' %}',
+                                data: {'filterDictionary': JSON.stringify(filterDictionary)},
+                                success: function () {
+                                    window.location = "{% url 'gtexome:range_results' %}";
+                                }
+                            });
+                        }
+                    },
+                }
             }
         )
     </script>
