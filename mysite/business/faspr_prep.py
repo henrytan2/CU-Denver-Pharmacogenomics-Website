@@ -5,7 +5,6 @@ from Bio.PDB import PPBuilder
 from Bio.PDB.PDBParser import PDBParser
 import os
 
-
 class FasprPrep:
     P_num = ''
     mutation_position = 0
@@ -35,7 +34,7 @@ class FasprPrep:
         self.unmutated_seq = self.get_sequence_unmut()
         self.mut_pos = self.get_mutation_position(CCID)
         self.get_mut_seq = self.get_mutated_sequence(self.unmutated_seq)
-        self.make_mutatedseq_file(self.mut_pos)
+        self.make_mutatedseq_file(self.get_mut_seq)
         self.get_specific_mutation()
 
     def get_Pnum(self):
@@ -57,7 +56,7 @@ class FasprPrep:
                 self.alderaan.run_command(mkdir_command)
                 gunzip_command = f'gunzip -c {pdb_file[:-1]} > {self.temp_folder}/{protein_short_name[:-4]}/{protein_short_name}'
                 self.alderaan.run_command(gunzip_command)
-                open_command = f"cat {self.temp_folder}/{protein_short_name[:-4]}/{protein_short_name} | tee {self.temp_folder}/pdb_tmp2.txt"
+                open_command = f"cat {self.temp_folder}/{protein_short_name[:-4]}/{protein_short_name} | tee {self.temp_folder}/pdb_tmp3.txt"
                 pdb_text, success = self.alderaan.run_command(open_command)
 
                 p = PDBParser(PERMISSIVE=1)
@@ -116,9 +115,14 @@ class FasprPrep:
         return self.mutated_protein_code
 
     def make_mutatedseq_file(self, mutatseq):
-        mutated_seq_file = open(f"repack_{self.P_num}_{self.CCID[2:]}.txt", "w+")
-        mutated_seq_file.write(f"{self.mutated_protein_code}")
-        mutated_seq_file.close()
+        # echo_command = f'printf {mutatseq} > repack_{self.P_num}_{self.CCID[2:]}3.txt'
+        mutatseq = str(f'"{mutatseq}"')
+        mutatseq += f' | tee {self.temp_folder}/missing_repack.txt'
+        echo_command = f'echo {mutatseq}'
+        print('echo_command is ', mutatseq)
+        output, success = self.alderaan.run_command(echo_command)
+        print('success',success)
+
 
     def get_specific_mutation(self):
 
