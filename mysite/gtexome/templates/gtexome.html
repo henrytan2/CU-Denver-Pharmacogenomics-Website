@@ -104,11 +104,9 @@
                                             <span v-text="field"></span>
                                             <button class="btn btn-outline-secondary tissue-buttons float-right"
                                                     style="min-width: 40px;"
-                                                    v-on:click="addOrRemoveTissue">
-                                                <span v-if="selectedTissues.includes(field)"
-                                                      class="fa fa-times"></span>
-                                                <span v-else
-                                                      class="fa fa-plus"></span>
+                                                    v-on:click="addOrRemoveTissue(field, $event)">
+                                                <span class="fas fa-plus"></span>
+{#                                                <span v-bind:class="{'fas fa-plus' : !selectedTissues.includes(field), 'fas fa-times' : selectedTissues.includes(field)}"></span>#}
                                             </button>
                                         </li>
                                 </ul>
@@ -159,7 +157,6 @@
 
         $(document).ready(function () {
             filterByRatio = $("#filter-by-ratio:checked").val();
-            tissueTypeButtonHandler();
             FilterToggleHandler();
         });
 
@@ -241,8 +238,20 @@
                     }
                 },
                 methods: {
-                    addOrRemoveTissue: function() {
-
+                    addOrRemoveTissue: function(tissue, event) {
+                        debugger;
+                        var _this = this;
+                        if (false === _this.selectedTissues.includes(tissue)) {
+                            _this.selectedTissues.push(tissue);
+                            var button = $(event.target.children[0]);
+                            button.removeClass("fa-plus").addClass("fa-times");
+                        }
+                        else {
+                            debugger;
+                            const index = _this.selectedTissues.indexOf(tissue);
+                            _this.selectedTissues.splice(index, 1);
+                            $(event.target).removeClass("fa-times").addClass("fa-plus");
+                        }
                     },
                     changeTabs: function () {
                         if (this.gtexTabIsActive) {
