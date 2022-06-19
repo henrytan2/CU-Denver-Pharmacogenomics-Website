@@ -72,18 +72,31 @@
                         <div class="card">
                             <div class="card-body" style="height:100vh; overflow-y: auto;">
                                 <div class="form-inline" style="margin-bottom: 10px; margin-left: 10px;">
-                                    <div id="filter-toggle" class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <div id="filter-toggle"
+                                         class="btn-group btn-group-toggle"
+                                         data-toggle="buttons">
                                         <label class="btn btn-info active">
-                                            <input type="radio" name="options" id="filter-by-ratio" autocomplete="off"
-                                                   checked> Filter By
-                                            TPM Ratio
+                                            <input type="radio"
+                                                   name="options"
+                                                   v-on:click="toggleFilter"
+                                                   id="filter-by-ratio"
+                                                   autocomplete="off"
+                                                   checked>
+                                            Filter By TPM Ratio
                                         </label>
                                         <label class="btn btn-info">
-                                            <input type="radio" name="options" id="filter-by-range" autocomplete="off">
+                                            <input type="radio"
+                                                   v-on:click="toggleFilter"
+                                                   name="options"
+                                                   id="filter-by-range"
+                                                   autocomplete="off">
                                             Filter By TPM Range
                                         </label>
                                     </div>
-                                    <div class="form-inline" id="filter-ratio-input" style="margin-left: 10px;">
+                                    <div v-if="filterByRatio"
+                                         class="form-inline"
+                                         id="filter-ratio-input"
+                                         style="margin-left: 10px;">
                                         Ratio Range (Leave blank for unbounded lower/upper):
                                         <label>
                                             <input type="number"
@@ -99,16 +112,21 @@
                                 </div>
                                 <h3>Tissue types:</h3>
                                 <ul id="tissue-list" class="list-group" style="overflow-y: scroll">
-                                        <li class="list-group-item"
-                                            v-for="field in allFieldNames">
-                                            <span v-text="field"></span>
-                                            <button class="btn btn-outline-secondary tissue-buttons float-right"
-                                                    style="min-width: 40px;"
-                                                    v-on:click="addOrRemoveTissue(field, $event)">
-                                                <span class="fas fa-plus"></span>
-{#                                                <span v-bind:class="{'fas fa-plus' : !selectedTissues.includes(field), 'fas fa-times' : selectedTissues.includes(field)}"></span>#}
-                                            </button>
-                                        </li>
+                                    <li class="list-group-item"
+                                        v-for="field in allFieldNames">
+                                        <span v-text="field"></span>
+                                        <button class="btn btn-outline-secondary tissue-buttons float-right"
+                                                style="min-width: 40px;"
+                                                v-on:click="addOrRemoveTissue(field, $event)">
+                                                <span v-if="!selectedTissues.includes(field)"
+                                                      key="doesNotIncludeTissue">
+                                                    <i class="fas fa-plus"></i>
+                                                </span>
+                                            <span v-else key="includesTissue">
+                                                    <i class="fas fa-times"></i>
+                                                </span>
+                                        </button>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -118,6 +136,20 @@
                             <div class="card-body" style="height:100vh; overflow-y: auto;">
                                 <h3>Selected Tissues: </h3>
                                 <ul id="filter-list" class="list-group" style="overflow-y: scroll">
+                                    <li v-for="tissue in selectedTissues">
+                                        <span v-if="filterByRatio"
+                                              class="list-group-item">
+                                            <span v-text="tissue"></span>
+                                        </span>
+                                        <span v-else
+                                              class="list-group-item">
+                                            <span v-text="tissue"></span>
+                                            <form class="float-right form-inline">
+                                            <input class="lower" type="number"> to
+                                            <input class="upper" type="number">
+                                        </form>
+                                        </span>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -156,8 +188,8 @@
     <script type="application/javascript">
 
         $(document).ready(function () {
-            filterByRatio = $("#filter-by-ratio:checked").val();
-            FilterToggleHandler();
+            {#filterByRatio = $("#filter-by-ratio:checked").val();#}
+            {#FilterToggleHandler();#}
         });
 
         function tissueTypeButtonHandler() {
@@ -229,28 +261,25 @@
                         filterList: [],
                         allFieldNames: allFieldNames,
                         selectedTissues: [],
+                        filterByRatio: true,
                     }
                 },
                 template: "#index-template",
                 computed: {
                     submitButtonDisabled: function () {
 
-                    }
+                    },
+
                 },
                 methods: {
-                    addOrRemoveTissue: function(tissue, event) {
-                        debugger;
+                    addOrRemoveTissue: function (tissue, event) {
                         var _this = this;
+                        var currIndex = this.selectedTissues.length;
                         if (false === _this.selectedTissues.includes(tissue)) {
                             _this.selectedTissues.push(tissue);
-                            var button = $(event.target.children[0]);
-                            button.removeClass("fa-plus").addClass("fa-times");
-                        }
-                        else {
-                            debugger;
+                        } else {
                             const index = _this.selectedTissues.indexOf(tissue);
                             _this.selectedTissues.splice(index, 1);
-                            $(event.target).removeClass("fa-times").addClass("fa-plus");
                         }
                     },
                     changeTabs: function () {
@@ -260,6 +289,13 @@
                         } else {
                             this.gtexTabIsActive = true;
                             this.exacTabIsActive = false;
+                        }
+                    },
+                    toggleFilter: function () {
+                        if (this.filterByRatio) {
+                            this.filterByRatio = false;
+                        } else {
+                            this.filterByRatio = true;
                         }
                     },
                     viewResults: function () {
