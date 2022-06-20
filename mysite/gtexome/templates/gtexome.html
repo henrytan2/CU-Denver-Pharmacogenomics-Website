@@ -8,6 +8,7 @@
             data-target="#directionsModal" style="margin:10px;text-align: right;">
         Info
     </button>
+
     <div class="modal fade" id="directionsModal" tabindex="-1" role="dialog" aria-labelledby="directionsModal"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -216,9 +217,54 @@
             });
         }
 
+
+        function RenderColumns(vueComponent) {
+            return [
+                {
+                    data: 'ratio',
+                    title: 'Ratio',
+                    name: 'Ratio',
+                },
+                {
+                    data: null,
+                    title: 'Gene ID',
+                    name: 'Gene ID',
+                    defaultContent: "",
+                    render: function (data, type) {
+                        var geneID = data['gene_id'];
+                        var response = '<a href="{% url 'gtexome:exome' %}?gene_id=' + geneID + '">' + geneID + '</a>';
+                        return response;
+                    }
+                },
+                {
+                    data: 'description',
+                    title: 'Description',
+                    name: 'Description',
+                }
+            ]
+        }
     </script>
     <script type="application/javascript">
         Vue.component("index", {
+            mounted: function () {
+                this.dtTable = $(this.$refs.datatable).DataTable({
+                    autoWidth: false,
+                    data: geneRatios,
+                    columns: RenderColumns(this),
+                    paging: true,
+                    initComplete: function () {
+                        this.removeClass("d-none");
+                    },
+                    dom: "lBfrtip",
+                    buttons: [{
+                        extend: "csv",
+                        exportOptions: {
+                            columns: ":visible",
+                        }
+                    }],
+                    order: [[0, "desc"]],
+                });
+            },
                 data: function () {
                     let allFieldNames = {{ all_field_names | safe }};
                     return {
