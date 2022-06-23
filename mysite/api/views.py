@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from mysite.business.faspr_prep import FasprPrep
+from mysite.business.metabolite_gen import MetabPrep
 import json
 
 class FasprPrepAPI(APIView):
@@ -17,3 +18,10 @@ class FasprPrepAPI(APIView):
             ss=f.read()
             pdb_json = json.dumps(ss)
         return Response(pdb_json)
+
+
+class MetabPrepAPI(APIView):
+    def post(self, request):
+        smiles_code = request.data['smiles']
+        MetabPrep(smiles_code)
+        return Response(True)

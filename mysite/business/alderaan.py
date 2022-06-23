@@ -16,6 +16,9 @@ class Alderaan:
         self.client = paramiko.client.SSHClient()
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.client.connect(host, username=username, password=password)
+        self.transport = paramiko.Transport((host, 22))
+        self.transport.connect(username=username, password=password)
+        self.sftp = paramiko.SFTPClient.from_transport(self.transport)
 
     def run_command(self, command):
         _stdin, _stdout, _stderr = self.client.exec_command(command)
@@ -27,3 +30,8 @@ class Alderaan:
             error_logger.error(stderr)
 
         return stdout, success
+
+    def send_batch(self, path, command):
+        f = self.sftp.open(f'{path}', "wb")
+        f.write(f'{command}')
+        f.close()

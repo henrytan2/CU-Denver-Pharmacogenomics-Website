@@ -35,7 +35,7 @@ class FasprPrep:
         self.mut_pos = self.get_mutation_position(CCID)
         self.get_mut_seq = self.get_mutated_sequence(self.unmutated_seq)
         self.make_mutatedseq_file(self.get_mut_seq)
-        self.FASPR_pbd = self.get_specific_mutation()
+        self.FASPR_pdb = self.get_specific_mutation()
 
 
     def get_Pnum(self):
