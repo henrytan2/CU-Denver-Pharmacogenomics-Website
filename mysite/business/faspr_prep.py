@@ -116,6 +116,17 @@ class FasprPrep:
             self.neighbors = len(self.mutated_protein_code) - self.position_mutation # test this
         return self.mutated_protein_code
 
+    def get_mutated_sequence2(self, structure, mutated_sequence, mutation_position, chain_id):
+        chain = structure[0][chain_id]
+        center_residues = [chain[resi] for resi in [mutation_position]]
+        center_atoms = Selection.unfold_entities(center_residues, chain_id)
+        atom_list = [atom for atom in structure.get_atoms() if atom.name == 'CA']
+        ns = NeighborSearch(atom_list)
+        nearby_residues = {res for center_atom in center_atoms for res in ns.search(center_atom.coord, neighbors, 'R')}
+        position = sorted(res.id[1] for res in nearby_residues)
+        self.mutated_protein_code = capitalize(mutated_sequence, position)
+        return self.mutated_protein_code
+
     def make_mutatedseq_file(self, mutatseq):
         mutatseq = str(f'"{mutatseq}"')
         mutatseq += f' | tee {self.temp_folder}/repacked_pdb.txt'
