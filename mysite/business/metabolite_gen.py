@@ -14,7 +14,7 @@ class MetabPrep:
         self.alderaan = Alderaan()
         self.smiles = smiles
         self.metab_generator = self.biotransformer(smiles)
-        self.biotransformer_folder = biotransformer_folder
+        self.biotransformer_folder = self.biotransformer_folder
 
     def biotransformer(self, smiles):
         self.smile_str = str(self.smiles)
