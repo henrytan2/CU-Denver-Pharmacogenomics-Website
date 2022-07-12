@@ -28,5 +28,6 @@ urlpatterns = [
     path('gtexome/', include('gtexome.urls')),
     path('metabolites/', include('metabolites.urls')),
     path('precursors/', include('precursors.urls')),
-    path('pdbgen/', include('pdbgen.urls'))
+    path('pdbgen/', include('pdbgen.urls')),
+    path('django_plotly_dash/', include('django_plotly_dash.urls')),
 ]

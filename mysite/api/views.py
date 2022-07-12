@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from mysite.business.faspr_prep import FasprPrep
 from mysite.business.metabolite_gen import MetabPrep
 import json
+from mysite.business import plotly_trial
 
 class FasprPrepAPI(APIView):
     def post(self, request):

@@ -1,5 +1,5 @@
 from django.views import generic
-from mysite.business.alderaan import Alderaan
+# from mysite.business.alderaan import Alderaan
 import pickle5 as pickle
 
 class IndexView(generic.TemplateView):

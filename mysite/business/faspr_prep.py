@@ -1,5 +1,5 @@
 import pickle5 as pickle
-from mysite.business.alderaan import Alderaan
+# from mysite.business.alderaan import Alderaan
 from Bio import SeqUtils
 from Bio.PDB import PPBuilder
 from Bio.PDB.PDBParser import PDBParser
