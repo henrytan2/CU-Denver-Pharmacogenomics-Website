@@ -1,25 +1,19 @@
-# import dash
 from django_plotly_dash import DjangoDash
-
-from dash_bio.utils import *
-# from dash_bio.utils import PdbParser, create_mol3d_style
-
 from dash.dependencies import Input, Output
 import dash_table
 import dash_bio as dashbio
 from dash_bio.utils import PdbParser, create_mol3d_style
-# import dash_html_components as html
 from dash import html
 import pandas as pd
 
-
 app = DjangoDash('SimpleExample')
 
-parser = PdbParser('https://git.io/4K8X.pdb')
+parser = PdbParser('FASPR_output.txt')
+# parser = PdbParser('https://git.io/4K8X.pdb')
 
 data = parser.mol3d_data()
 styles = create_mol3d_style(
-    data['atoms'], visualization_type='stick', color_element='residue'
+    data['atoms'], visualization_type='stick', color_element='atom'
 )
 
 df = pd.DataFrame(data["atoms"])
@@ -30,11 +24,19 @@ app.layout = html.Div(
     [
         dash_table.DataTable(
             id="zooming-specific-residue-table",
-            columns=[{"name": i, "id": i} for i in df.columns[5:6]],
-            # columns=[{"name": i, "id": i} for i in df.columns],
+            columns=[{"name": i, "id": i} for i in df.columns[5:7]],
             data=df.to_dict("records"),
             row_selectable="single",
+            fill_width=False,
+            cell_selectable=True,
             page_size=1,
+            editable=True,
+            page_current=5,
+            style_cell={'textAlign': 'center'},
+            style_as_list_view=True,
+            row_deletable=True,
+            selected_columns=[],
+            selected_rows=[],
         ),
         dashbio.Molecule3dViewer(
             id="zooming-specific-molecule3d-zoomto",
@@ -43,6 +45,7 @@ app.layout = html.Div(
         ),
     ]
 )
+
 
 @app.callback(
     Output("zooming-specific-molecule3d-zoomto", "zoomTo"),

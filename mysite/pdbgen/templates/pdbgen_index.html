@@ -127,6 +127,13 @@
                         success: function (response) {
                         }
                     })
+                    $.ajax({
+                        type: 'GET',
+                        url: '{% url 'api:faspr_prep' %}',
+                        data: request,
+                        success: function (response) {
+                        }
+                    })
                 },
                 prefillForm: function () {
                     var currentURLString = window.location.href;
