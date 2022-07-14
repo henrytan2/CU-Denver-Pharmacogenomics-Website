@@ -270,31 +270,14 @@
         {#}#}
 
 
-        function RenderColumns(vueComponent) {
-            return [
-                {
-                    data: 'ratio',
-                    title: 'Ratio',
-                    name: 'Ratio',
-                },
-                {
-                    data: null,
-                    title: 'Gene ID',
-                    name: 'Gene ID',
-                    defaultContent: "",
-                    render: function (data, type) {
-                        var geneID = data['gene_id'];
-                        var response = '<a href="{% url 'gtexome:exome' %}?gene_id=' + geneID + '">' + geneID + '</a>';
-                        return response;
-                    }
-                },
-                {
-                    data: 'description',
-                    title: 'Description',
-                    name: 'Description',
+        function DeselectButtons() {
+            $(".tissue-buttons").each(function (i, button) {
+                if ($(button).find("svg").hasClass("fa-times")) {
+                    $(button).find("svg").removeClass("fa-times").addClass("fa-plus");
                 }
-            ]
+            });
         }
+
     </script>
     <script type="application/javascript">
         Vue.component("index", {
@@ -335,7 +318,7 @@
                 computed: {
                     submitButtonDisabled: function () {
                         var _this = this;
-                        if (_this.selectedTissues.length > 0 &&_this.upperRatio > _this.lowerRatio) {
+                        if (_this.upperRatio > _this.lowerRatio) {
                         {#if (_this.selectedTissues.length > 0 || this.filterByRatio === true ) {#}
                             {#this.gtexTabIsActive = false;#}
                             enabled="submitButtonDisabled";
@@ -374,16 +357,18 @@
                             } else {
                                 this.selectedTissuesRange.splice(tissueIndex, 1);
                             }
-                    addOrRemoveTissue: function (tissue, event) {
-                        var _this = this;
-                        {#var currIndex = this.selectedTissues.length;#}
-                        if (false === _this.selectedTissues.includes(tissue)) {
-                            _this.selectedTissues.push(tissue);
-                        } else {
-                            const index = _this.selectedTissues.indexOf(tissue);
-                            _this.selectedTissues.splice(index, 1);
                         }
                     },
+                    {#addOrRemoveTissue: function (tissue, event) {#}
+                    {#    var _this = this;#}
+                        {#var currIndex = this.selectedTissues.length;#}
+                    {#    if (false === _this.selectedTissues.includes(tissue)) {#}
+                    {#        _this.selectedTissues.push(tissue);#}
+                    {#    } else {#}
+                    {#        const index = _this.selectedTissues.indexOf(tissue);#}
+                    {#        _this.selectedTissues.splice(index, 1);#}
+                    {#    }#}
+                    {#    },#}
                     changeTabs: function () {
                         if (this.gtexTabIsActive) {
                             this.gtexTabIsActive = false;
