@@ -8,7 +8,6 @@
             data-target="#directionsModal" style="margin:10px;text-align: right;">
         Info
     </button>
-
     <div class="modal fade" id="directionsModal" tabindex="-1" role="dialog" aria-labelledby="directionsModal"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -118,8 +117,8 @@
                                         <span v-text="field"></span>
                                         <button class="btn btn-outline-secondary tissue-buttons float-right"
                                                 style="min-width: 40px;"
-                                                v-on:click="addOrRemoveTissue(field, $event)">
-                                                <span v-if="!selectedTissues.includes(field)"
+                                                v-on:click="addOrRemoveTissue(field)">
+                                                <span v-if="!selectedTissuesRatio.includes(field) && selectedTissuesRange.findIndex(t => t.tissueName === field) == -1"
                                                       key="doesNotIncludeTissue">
                                                     <i class="fas fa-plus"></i>
                                                 </span>
@@ -137,18 +136,20 @@
                             <div class="card-body" style="height:100vh; overflow-y: auto;">
                                 <h3>Selected Tissues: </h3>
                                 <ul id="filter-list" class="list-group" style="overflow-y: scroll">
-                                    <li v-for="tissue in selectedTissues">
-                                        <span v-if="filterByRatio"
-                                              class="list-group-item">
+                                    <li v-for="(tissue, index) in selectedTissuesRatio">
+                                        <span class="list-group-item">
                                             <span v-text="tissue"></span>
                                         </span>
-                                        <span v-else
-                                              class="list-group-item">
-                                            <span v-text="tissue"></span>
-                                            <form class="float-right form-inline">
-                                            <input class="lower" type="number"> to
-                                            <input class="upper" type="number">
-                                        </form>
+                                    </li>
+                                    <li v-for="(tissue, index) in selectedTissuesRange">
+                                        <span class="list-group-item form-inline row">
+                                            <span v-text="tissue.tissue"></span>
+                                            <span class="float-right">
+                                                <input class="lower" type="number"
+                                                       v-model.number="tissue.range.lower"> to
+                                                <input class="upper" type="number"
+                                                       v-model.number="tissue.range.upper">
+                                            </span>
                                         </span>
                                     </li>
                                 </ul>
@@ -156,8 +157,12 @@
                         </div>
                     </div>
                 </div>
-                <div style="text-align: right; margin:12px">
-                    <button id="submit-button" class="btn btn-primary" onclick="GetAllFilters()" disabled>
+                <div style="text-align: right; margin-top: 10px">
+                    <button type="submit"
+                            id="side-effect-list-submit"
+                            v-bind:disabled="!selectedTissuesRatio.length > 0 && !selectedTissuesRange.length > 0"
+                            v-on:click="viewResults"
+                            class="btn btn-primary submit-btn">
                         Submit
                     </button>
                 </div>
@@ -321,7 +326,8 @@
                         upperRatio: null,
                         filterList: [],
                         allFieldNames: allFieldNames,
-                        selectedTissues: [],
+                        selectedTissuesRatio: [],
+                        selectedTissuesRange: [],
                         filterByRatio: true,
                     }
                 },
@@ -345,6 +351,29 @@
                     }
                 },
                 methods: {
+                    addOrRemoveTissue: function (tissue) {
+                        if (this.filterByRatio) {
+                            if (false === this.selectedTissuesRatio.includes(tissue)) {
+                                this.selectedTissuesRatio.push(tissue);
+                            } else {
+                                const index = this.selectedTissuesRatio.indexOf(tissue);
+                                this.selectedTissuesRatio.splice(index, 1);
+                            }
+                        }
+                        else {
+                            var tissueIndex = this.selectedTissuesRange.findIndex(t => t.tissueName === tissue);
+                            if (tissueIndex === -1) {
+                                var newTissue = {
+                                    tissue: tissue,
+                                    range: {
+                                        lower: null,
+                                        upper: null,
+                                    }
+                                };
+                                this.selectedTissuesRange.push(newTissue);
+                            } else {
+                                this.selectedTissuesRange.splice(tissueIndex, 1);
+                            }
                     addOrRemoveTissue: function (tissue, event) {
                         var _this = this;
                         {#var currIndex = this.selectedTissues.length;#}
@@ -366,8 +395,10 @@
                     },
                     toggleFilter: function () {
                         if (this.filterByRatio) {
+                            this.selectedTissuesRatio = [];
                             this.filterByRatio = false;
                         } else {
+                            this.selectedTissuesRange = [];
                             this.filterByRatio = true;
                         }
                     },
@@ -401,11 +432,6 @@
                             filterRatioDict["lower"] = lowerFilterRatio;
                             filterRatioDict["upper"] = upperFilterRatio;
 
-                            $("#filter-list li").each(function () {
-                                let tissueText = $(this).text();
-                                tissues.push(tissueText);
-                            });
-
                             filterRatioDict["tissues"] = tissues;
 
                             $.ajax({
@@ -417,20 +443,7 @@
                                 }
                             });
                         } else {
-                            var filterDictionary = [];
-                            $("#filter-list li").each(function () {
-                                var tissueText = $(this).text();
-                                var tissue = tissueText.substring(0, tissueText.length - 2);
-                                var lower = $(this).find(".lower").val();
-                                var upper = $(this).find(".upper").val();
-                                filterDictionary.push({
-                                    tissue: tissue,
-                                    range: {
-                                        lower: lower,
-                                        upper: upper,
-                                    }
-                                });
-                            });
+                            var filterDictionary = this.selectedTissuesRange;
                             $.ajax({
                                 type: 'POST',
                                 url: '{% url 'gtexome:gtexome' %}',
