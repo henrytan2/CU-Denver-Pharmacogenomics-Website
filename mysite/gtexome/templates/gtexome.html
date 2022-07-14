@@ -167,7 +167,23 @@
                     <div class="col">
                         <div class="card">
                             <p>
-                                test
+                            <form>
+                                <div class="form-group">
+                                    <label for="exampleGene">Gene</label>
+                                    <input type="text"
+                                           placeholder="Search by gene name"
+                                           id="exacInput">
+                                    <small class="form-text text-muted">must be valid gnomad v2.1 (https://gnomad.broadinstitute.org/) name.
+                                    </small>
+                                </div>
+                        </form>
+                            <button type="submit"
+                                    id="side-effect-list-submit"
+                                    v-bind:disabled="exacSubmitButtonDisabled"
+                                    v-on:click="viewExacResults"
+                                    class="btn btn-primary submit-btn">
+                                Submit to Exac
+                            </button>
                             </p>
                         </div>
                     </div>
@@ -188,66 +204,65 @@
     </body>
     <script type="application/javascript">
 
-        $(document).ready(function () {
+        {#$(document).ready(function () {#}
             {#filterByRatio = $("#filter-by-ratio:checked").val();#}
             {#FilterToggleHandler();#}
-        });
+        {#});#}
 
-        function tissueTypeButtonHandler() {
-            $(".tissue-buttons").click(function () {
-                var tissueText = $(this).parent().text().trim();
-                var tissueID = tissueText.replace("(", "-").replace(")", "");
-                if ($(this).find("svg").hasClass("fa-plus")) {
-                    $(this).find("svg").removeClass("fa-plus").addClass("fa-times");
-                    if (filterByRatio) {
-                        $("#filter-list").append(
-                            '<li id="' + tissueID + '" class="list-group-item"><span>' + tissueText + '</span></li>'
-                        );
-                    } else {
-                        $("#filter-list").append('' +
-                            '<li id="' + tissueID + '" class="list-group-item"><span>' + tissueText + '</span>' +
-                            '<form class="float-right form-inline">' +
-                            '<input class="lower" type="number">' +
-                            'to' +
-                            '<input class="upper" type="number">' +
-                            '</form>' +
-                            '</li>');
-                    }
-                } else if ($(this).find("svg").hasClass("fa-times")) {
-                    $(this).find("svg").removeClass("fa-times").addClass("fa-plus");
-                    $("#" + tissueID).remove();
-                }
-                if ($("#filter-list li").length > 0) {
-                    $("#submit-button").prop("disabled", false);
-                } else {
-                    $("#submit-button").prop("disabled", true);
-                }
-            });
-        }
+        {#function tissueTypeButtonHandler() {#}
+        {#    $(".tissue-buttons").click(function () {#}
+        {#        var tissueText = $(this).parent().text().trim();#}
+        {#        var tissueID = tissueText.replace("(", "-").replace(")", "");#}
+        {#        if ($(this).find("svg").hasClass("fa-plus")) {#}
+        {#            $(this).find("svg").removeClass("fa-plus").addClass("fa-times");#}
+        {#            if (filterByRatio) {#}
+        {#                $("#filter-list").append(#}
+        {#                    '<li id="' + tissueID + '" class="list-group-item"><span>' + tissueText + '</span></li>'#}
+        {#                );#}
+        {#            } else {#}
+        {#                $("#filter-list").append('' +#}
+        {#                    '<li id="' + tissueID + '" class="list-group-item"><span>' + tissueText + '</span>' +#}
+        {#                    '<form class="float-right form-inline">' +#}
+        {#                    '<input class="lower" type="number">' +#}
+        {#                    'to' +#}
+        {#                    '<input class="upper" type="number">' +#}
+        {#                    '</form>' +#}
+        {#                    '</li>');#}
+        {#            }#}
+        {#        } else if ($(this).find("svg").hasClass("fa-times")) {#}
+        {#            $(this).find("svg").removeClass("fa-times").addClass("fa-plus");#}
+        {#            $("#" + tissueID).remove();#}
+        {#        }#}
+        {#        if ($("#filter-list li").length > 0) {#}
+        {#            $("#submit-button").prop("disabled", false);#}
+        {#        } else {#}
+        {#            $("#submit-button").prop("disabled", true);#}
+        {#        }#}
+        {#    });#}
 
-        function FilterToggleHandler() {
-            $("#filter-toggle").change(function () {
-                filterByRatio = $("#filter-by-ratio:checked").val();
-                $("#filter-list").empty();
-                DeselectButtons();
-                let filterRatioInput = $("#filter-ratio-input");
-                if (filterByRatio) {
-                    if (filterRatioInput.hasClass("d-none")) {
-                        filterRatioInput.removeClass("d-none");
-                    }
-                } else {
-                    filterRatioInput.addClass("d-none");
-                }
-            });
-        }
+        {#function FilterToggleHandler() {#}
+        {#    $("#filter-toggle").change(function () {#}
+        {#        filterByRatio = $("#filter-by-ratio:checked").val();#}
+        {#        $("#filter-list").empty();#}
+        {#        DeselectButtons();#}
+        {#        let filterRatioInput = $("#filter-ratio-input");#}
+        {#        if (filterByRatio) {#}
+        {#            if (filterRatioInput.hasClass("d-none")) {#}
+        {#                filterRatioInput.removeClass("d-none");#}
+        {#            }#}
+        {#        } else {#}
+        {#            filterRatioInput.addClass("d-none");#}
+        {#        }#}
+        {#    });#}
 
-        function DeselectButtons() {
-            $(".tissue-buttons").each(function (i, button) {
-                if ($(button).find("svg").hasClass("fa-times")) {
-                    $(button).find("svg").removeClass("fa-times").addClass("fa-plus");
-                }
-            });
-        }
+
+        {#function DeselectButtons() {#}
+        {#    $(".tissue-buttons").each(function (i, button) {#}
+        {#        if ($(button).find("svg").hasClass("fa-times")) {#}
+        {#            $(button).find("svg").removeClass("fa-times").addClass("fa-plus");#}
+        {#        }#}
+        {#    });#}
+        {#}#}
 
 
         function RenderColumns(vueComponent) {
@@ -278,25 +293,25 @@
     </script>
     <script type="application/javascript">
         Vue.component("index", {
-            mounted: function () {
-                this.dtTable = $(this.$refs.datatable).DataTable({
-                    autoWidth: false,
-                    data: geneRatios,
-                    columns: RenderColumns(this),
-                    paging: true,
-                    initComplete: function () {
-                        this.removeClass("d-none");
-                    },
-                    dom: "lBfrtip",
-                    buttons: [{
-                        extend: "csv",
-                        exportOptions: {
-                            columns: ":visible",
-                        }
-                    }],
-                    order: [[0, "desc"]],
-                });
-            },
+                mounted: function () {
+                    this.dtTable = $(this.$refs.datatable).DataTable({
+                        autoWidth: false,
+                        data: geneRatios,
+                        columns: RenderColumns(this),
+                        paging: true,
+                        initComplete: function () {
+                            this.removeClass("d-none");
+                        },
+                        dom: "lBfrtip",
+                        buttons: [{
+                            extend: "csv",
+                            exportOptions: {
+                                columns: ":visible",
+                            }
+                        }],
+                        order: [[0, "desc"]],
+                    });
+                },
                 data: function () {
                     let allFieldNames = {{ all_field_names | safe }};
                     return {
@@ -313,14 +328,26 @@
                 template: "#index-template",
                 computed: {
                     submitButtonDisabled: function () {
+                        var _this = this;
+                        if (_this.selectedTissues.length > 0 &&_this.upperRatio > _this.lowerRatio) {
+                        {#if (_this.selectedTissues.length > 0 || this.filterByRatio === true ) {#}
+                            {#this.gtexTabIsActive = false;#}
+                            enabled="submitButtonDisabled";
+                        }
 
                     },
+                    exacSubmitButtonDisabled: function () {
+                        var input = 'exacInput'
+                        if (input.length > 0) {
+                        enabled="exacSubmitButtonDisabled";
+                        }
 
+                    }
                 },
                 methods: {
                     addOrRemoveTissue: function (tissue, event) {
                         var _this = this;
-                        var currIndex = this.selectedTissues.length;
+                        {#var currIndex = this.selectedTissues.length;#}
                         if (false === _this.selectedTissues.includes(tissue)) {
                             _this.selectedTissues.push(tissue);
                         } else {
@@ -346,6 +373,16 @@
                     },
                     viewResults: function () {
 
+                    },
+                    viewExacResults: function () {
+                        $.ajax({
+                            type: 'POST',
+                            url: "{% url 'gtexome:exac' %}",
+                            data: {'exac_entry':JSON.stringify(exacInput)},
+                            success: function () {
+                                window.location = "{% url 'gtexome:exac_results' %}"
+                            }
+                        });
                     },
                     GetAllFilters: function () {
                         if (filterByRatio) {

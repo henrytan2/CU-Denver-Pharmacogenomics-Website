@@ -177,3 +177,78 @@ class ExomeView(generic.TemplateView):
         url = 'https://gnomad.broadinstitute.org/api/'
         response = json.dumps(requests.post(url, json={'query': query}).json())
         return response
+
+class ExacResultsView(generic.ListView):
+    model = GTEx
+    template_name = 'exac-results.html'
+
+    def get_queryset(self):
+        session_exac_entry = self.request.session.get('exac_entry')
+        response = []
+        response.append({
+                'gene_id': session_exac_entry,
+            })
+        return response
+
+
+class ExacView(generic.TemplateView):
+    template_name = 'exome.html'
+    gnomad_data = ''
+
+    def get_context_data(self, **kwargs):
+        context = super(ExacView, self).get_context_data(**kwargs)
+        context['gnomad_data'] = self.make_request_to_gnomad()
+        context['exome_columns'] = ExomeColumns.Get
+        return context
+
+    def make_request_to_gnomad(self):
+        gene_id = self.request.GET['gene_id']
+        query = """query {
+          gene(gene_id: "%s", reference_genome: GRCh37) {
+            variants(dataset: gnomad_r2_1) {
+              variantId
+              exome {
+                ac
+                ac_hemi
+                ac_hom
+                an
+                af
+                filters
+                populations {
+                  id
+                  ac
+                  an
+                }
+              }
+              flags
+              chrom
+              pos
+              alt
+              consequence
+              consequence_in_canonical_transcript
+              hgvs
+              hgvsc
+              hgvsp
+              lof
+              lof_filter
+              lof_flags
+              rsid
+              }      
+            }
+          }
+        """
+        query = query % gene_id
+
+        url = 'https://gnomad.broadinstitute.org/api/'
+        response = json.dumps(requests.post(url, json={'query': query}).json())
+        return response
+
+    def post(self, request):
+        if request.method == 'POST':
+            if request.POST.get('exac_entry') is not None:
+                exac_entry_dict = request.POST.get('exac_entry')
+                request.session['exac_entry'] = json.loads(exac_entry_dict)
+                response = HttpResponse('gtexome:ratio_results', {'exac_entry': exac_entry_dict})
+                return response
+            else:
+                print('oops')
