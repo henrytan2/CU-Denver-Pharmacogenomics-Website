@@ -155,16 +155,16 @@
                                 </ul>
                             </div>
                         </div>
+                        <div style="text-align: right; margin-top: 10px">
+                            <button type="submit"
+                                    id="side-effect-list-submit"
+                                    v-bind:disabled="submitButtonDisabled"
+                                    v-on:click="viewResults"
+                                    class="btn btn-primary submit-btn">
+                                Submit
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <div style="text-align: right; margin-top: 10px">
-                    <button type="submit"
-                            id="side-effect-list-submit"
-                            v-bind:disabled="!selectedTissuesRatio.length > 0 && !selectedTissuesRange.length > 0"
-                            v-on:click="viewResults"
-                            class="btn btn-primary submit-btn">
-                        Submit
-                    </button>
                 </div>
             </div>
             <div v-show="exacTabIsActive">
@@ -177,129 +177,33 @@
                                     <label for="exampleGene">Gene</label>
                                     <input type="text"
                                            placeholder="Search by gene name"
-                                           id="exacInput">
-                                    <small class="form-text text-muted">must be valid gnomad v2.1 (https://gnomad.broadinstitute.org/) name.
+                                           v-model="exacInput">
+                                    <small class="form-text text-muted">must be valid gnomad v2.1
+                                        (https://gnomad.broadinstitute.org/) name.
                                     </small>
                                 </div>
-                        </form>
-                            <button type="submit"
-                                    id="side-effect-list-submit"
-                                    v-bind:disabled="exacSubmitButtonDisabled"
-                                    v-on:click="viewExacResults"
-                                    class="btn btn-primary submit-btn">
-                                Submit to Exac
-                            </button>
+                            </form>
+                            <div style="text-align: right; margin-top: 10px">
+                                <button type="submit"
+                                        id="side-effect-list-submit"
+                                        v-bind:disabled="exacSubmitButtonDisabled"
+                                        v-on:click="viewExacResults"
+                                        class="btn btn-primary submit-btn">
+                                    Submit to Exac
+                                </button>
+                            </div>
                             </p>
                         </div>
                     </div>
-                </div>
-                <div style="text-align: right; margin-top: 10px">
-                    <button type="submit"
-                            id="side-effect-list-submit"
-                            v-bind:disabled="submitButtonDisabled"
-                            v-on:click="viewResults"
-                            class="btn btn-primary submit-btn">
-                        Submit
-                    </button>
                 </div>
             </div>
         </div>
     </script>
 
     </body>
-    <script type="application/javascript">
 
-        {#$(document).ready(function () {#}
-            {#filterByRatio = $("#filter-by-ratio:checked").val();#}
-            {#FilterToggleHandler();#}
-        {#});#}
-
-        {#function tissueTypeButtonHandler() {#}
-        {#    $(".tissue-buttons").click(function () {#}
-        {#        var tissueText = $(this).parent().text().trim();#}
-        {#        var tissueID = tissueText.replace("(", "-").replace(")", "");#}
-        {#        if ($(this).find("svg").hasClass("fa-plus")) {#}
-        {#            $(this).find("svg").removeClass("fa-plus").addClass("fa-times");#}
-        {#            if (filterByRatio) {#}
-        {#                $("#filter-list").append(#}
-        {#                    '<li id="' + tissueID + '" class="list-group-item"><span>' + tissueText + '</span></li>'#}
-        {#                );#}
-        {#            } else {#}
-        {#                $("#filter-list").append('' +#}
-        {#                    '<li id="' + tissueID + '" class="list-group-item"><span>' + tissueText + '</span>' +#}
-        {#                    '<form class="float-right form-inline">' +#}
-        {#                    '<input class="lower" type="number">' +#}
-        {#                    'to' +#}
-        {#                    '<input class="upper" type="number">' +#}
-        {#                    '</form>' +#}
-        {#                    '</li>');#}
-        {#            }#}
-        {#        } else if ($(this).find("svg").hasClass("fa-times")) {#}
-        {#            $(this).find("svg").removeClass("fa-times").addClass("fa-plus");#}
-        {#            $("#" + tissueID).remove();#}
-        {#        }#}
-        {#        if ($("#filter-list li").length > 0) {#}
-        {#            $("#submit-button").prop("disabled", false);#}
-        {#        } else {#}
-        {#            $("#submit-button").prop("disabled", true);#}
-        {#        }#}
-        {#    });#}
-
-        {#function FilterToggleHandler() {#}
-        {#    $("#filter-toggle").change(function () {#}
-        {#        filterByRatio = $("#filter-by-ratio:checked").val();#}
-        {#        $("#filter-list").empty();#}
-        {#        DeselectButtons();#}
-        {#        let filterRatioInput = $("#filter-ratio-input");#}
-        {#        if (filterByRatio) {#}
-        {#            if (filterRatioInput.hasClass("d-none")) {#}
-        {#                filterRatioInput.removeClass("d-none");#}
-        {#            }#}
-        {#        } else {#}
-        {#            filterRatioInput.addClass("d-none");#}
-        {#        }#}
-        {#    });#}
-
-
-        {#function DeselectButtons() {#}
-        {#    $(".tissue-buttons").each(function (i, button) {#}
-        {#        if ($(button).find("svg").hasClass("fa-times")) {#}
-        {#            $(button).find("svg").removeClass("fa-times").addClass("fa-plus");#}
-        {#        }#}
-        {#    });#}
-        {#}#}
-
-
-        function DeselectButtons() {
-            $(".tissue-buttons").each(function (i, button) {
-                if ($(button).find("svg").hasClass("fa-times")) {
-                    $(button).find("svg").removeClass("fa-times").addClass("fa-plus");
-                }
-            });
-        }
-
-    </script>
     <script type="application/javascript">
         Vue.component("index", {
-                mounted: function () {
-                    this.dtTable = $(this.$refs.datatable).DataTable({
-                        autoWidth: false,
-                        data: geneRatios,
-                        columns: RenderColumns(this),
-                        paging: true,
-                        initComplete: function () {
-                            this.removeClass("d-none");
-                        },
-                        dom: "lBfrtip",
-                        buttons: [{
-                            extend: "csv",
-                            exportOptions: {
-                                columns: ":visible",
-                            }
-                        }],
-                        order: [[0, "desc"]],
-                    });
-                },
                 data: function () {
                     let allFieldNames = {{ all_field_names | safe }};
                     return {
@@ -312,23 +216,32 @@
                         selectedTissuesRatio: [],
                         selectedTissuesRange: [],
                         filterByRatio: true,
+                        exacInput: null,
                     }
                 },
                 template: "#index-template",
                 computed: {
                     submitButtonDisabled: function () {
-                        var _this = this;
-                        if (_this.upperRatio > _this.lowerRatio) {
-                        {#if (_this.selectedTissues.length > 0 || this.filterByRatio === true ) {#}
-                            {#this.gtexTabIsActive = false;#}
-                            enabled="submitButtonDisabled";
+                        var response = true;
+                        var selectedTissuesRatio = this.selectedTissuesRatio;
+                        var selectedTissuesRange = this.selectedTissuesRange;
+                        var selectedRatioLength = selectedTissuesRatio.length;
+                        var selectedRangeLength = selectedTissuesRange.length;
+                        if (!(selectedRatioLength > 0) || !(selectedRangeLength > 0)) {
+                            if (this.filterByRatio) {
+                                if (this.upperRatio > this.lowerRatio) {
+                                    response = false;
+                                }
+                            } else {
+                                response = false;
+                            }
                         }
-
+                        return response;
                     },
                     exacSubmitButtonDisabled: function () {
                         var input = 'exacInput'
                         if (input.length > 0) {
-                        enabled="exacSubmitButtonDisabled";
+                            enabled = "exacSubmitButtonDisabled";
                         }
 
                     }
@@ -342,8 +255,7 @@
                                 const index = this.selectedTissuesRatio.indexOf(tissue);
                                 this.selectedTissuesRatio.splice(index, 1);
                             }
-                        }
-                        else {
+                        } else {
                             var tissueIndex = this.selectedTissuesRange.findIndex(t => t.tissueName === tissue);
                             if (tissueIndex === -1) {
                                 var newTissue = {
@@ -359,16 +271,6 @@
                             }
                         }
                     },
-                    {#addOrRemoveTissue: function (tissue, event) {#}
-                    {#    var _this = this;#}
-                        {#var currIndex = this.selectedTissues.length;#}
-                    {#    if (false === _this.selectedTissues.includes(tissue)) {#}
-                    {#        _this.selectedTissues.push(tissue);#}
-                    {#    } else {#}
-                    {#        const index = _this.selectedTissues.indexOf(tissue);#}
-                    {#        _this.selectedTissues.splice(index, 1);#}
-                    {#    }#}
-                    {#    },#}
                     changeTabs: function () {
                         if (this.gtexTabIsActive) {
                             this.gtexTabIsActive = false;
@@ -388,17 +290,46 @@
                         }
                     },
                     viewResults: function () {
+                        if (this.filterByRatio) {
+                            let filterRatioDict = {};
+                            let lowerFilterRatio = this.lowerRatio;
+                            let upperFilterRatio = this.upperRatio;
+                            let tissues = this.selectedTissuesRatio;
 
+                            if (lowerFilterRatio === "") {
+                                lowerFilterRatio = Number.NEGATIVE_INFINITY;
+                            }
+                            if (upperFilterRatio === "") {
+                                upperFilterRatio = Infinity
+                            }
+
+                            filterRatioDict["lower"] = lowerFilterRatio;
+                            filterRatioDict["upper"] = upperFilterRatio;
+
+                            filterRatioDict["tissues"] = tissues;
+
+                            $.ajax({
+                                type: 'POST',
+                                url: "{% url 'gtexome:gtexome' %}",
+                                data: {'filterRatio': JSON.stringify(filterRatioDict)},
+                                success: function () {
+                                    window.location = "{% url 'gtexome:ratio_results' %}"
+                                }
+                            });
+                        } else {
+                            var filterDictionary = this.selectedTissuesRange;
+                            $.ajax({
+                                type: 'POST',
+                                url: '{% url 'gtexome:gtexome' %}',
+                                data: {'filterDictionary': JSON.stringify(filterDictionary)},
+                                success: function () {
+                                    window.location = "{% url 'gtexome:range_results' %}";
+                                }
+                            });
+                        }
                     },
                     viewExacResults: function () {
-                        $.ajax({
-                            type: 'POST',
-                            url: "{% url 'gtexome:exac' %}",
-                            data: {'exac_entry':JSON.stringify(exacInput)},
-                            success: function () {
-                                window.location = "{% url 'gtexome:exac_results' %}"
-                            }
-                        });
+                        window.location = `{% url 'gtexome:exac_results' %}?gene_symbol=${this.exacInput}`;
                     },
                     GetAllFilters: function () {
                         if (filterByRatio) {

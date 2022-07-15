@@ -9,5 +9,5 @@ urlpatterns = [
     path('ratio-results/', views.RatioResultsView.as_view(), name='ratio_results'),
     path(r'exome/', views.ExomeView.as_view(), name='exome'),
     path(r'exac/', views.ExacView.as_view(), name='exac'),
-    path('exac-results/', views.ExacResultsView.as_view(), name='exac_results'),
+    path('exac-results/', views.ExacView.as_view(), name='exac_results'),
 ]

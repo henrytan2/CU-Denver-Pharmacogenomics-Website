@@ -12,21 +12,20 @@
         </table>
     </script>
     <script type="application/javascript">
-        var genes = {{ object_list | safe }};
-    </script>
-    <script type="application/javascript">
     Vue.component("index", {
             data: function () {
                 return {
                     dtTable: null,
+                    genes: {{ gnomad_data | safe }},
                 }
             },
             template: "#index-template",
             mounted: function () {
                 var _this = this;
+                var data = _this.genes.data.gene.variants;
                 this.dtTable = $(this.$refs.datatable).DataTable({
                     autoWidth: false,
-                    data: genes,
+                    data: data,
                     columns: RenderColumns(this),
                     initComplete: function () {
                         this.removeClass("d-none");
@@ -57,11 +56,6 @@
                         return response;
                     }
                 },
-                {
-                    data: 'description',
-                    title: 'Description',
-                    name: 'Description',
-                }
             ]
         }
     </script>
