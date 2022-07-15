@@ -5,8 +5,14 @@ import dash_bio as dashbio
 from dash_bio.utils import PdbParser, create_mol3d_style
 from dash import html
 import pandas as pd
+from django.core.cache import cache
+import time
 
 app = DjangoDash('SimpleExample')
+
+# ccid = cache.get('CCID')
+# while ccid == None:
+#     time.sleep(.5)
 
 parser = PdbParser('FASPR_output.txt')
 # parser = PdbParser('https://git.io/4K8X.pdb')

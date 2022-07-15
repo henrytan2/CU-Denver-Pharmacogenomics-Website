@@ -2,7 +2,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-{% load plotly_dash %}
+
 
     <p class="lead">
         Enter the number of neighboring amino acids to repack and submit
@@ -10,76 +10,78 @@
     <index></index>
     <script id="index-template"
             type="text-html-template">
-    <div class="container">
+        <div class="container">
 
-        <div>
-            <h2>
-                PDB Generator
-            </h2>
-            <div class="row justify-content-start">
-{#                <div class="col-1">#}
-{##}
-{#                </div>#}
-                <div class="col">
-                    <form>
-
-                        <div class="form-group row">
-                            <label class="col-2">
-                                GeneID
-                            </label>
-                            <input class="form-control col-3"
-                                   v-model="geneID"
-                                   type="text"/>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-2">
-                                CCID
-                            </label>
-                            <input class="form-control col-3"
-                                   v-model="CCID"
-                                   type="text"/>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-2">
-                                neighbors
-                            </label>
-                            <input class="form-control col-3"
-                                   v-model.number="neighbors"
-                                   type="number"/>
-                        </div>
-                        <div class="form-group row">
-                            <div class="col-4">
-                                <button class="btn btn-primary float-right"
-                                        v-on:click="submit"
-                                        v-bind:disabled="submitButtonDisabled">
-                                    Submit
-                                </button>
-                            </div>
-
-                        </div>
-                    </form>
-
-                </div>
-                <div class="col">
-
+            <div>
                 <h2>
-                    Repacked Structure
+                    PDB Generator
                 </h2>
-                    <div class="{% plotly_class name='SimpleExample' %} card"
-                         style="height: 125%; width: 225%; border: 1px solid black"
-                        {% plotly_app name='SimpleExample' ratio=1 %}>
+                <div class="row justify-content-start">
+                    {#                <div class="col-1">#}
+                    {##}
+                    {#                </div>#}
+                    <div class="col">
+                        <form>
+
+                            <div class="form-group row">
+                                <label class="col-2">
+                                    GeneID
+                                </label>
+                                <input class="form-control col-3"
+                                       v-model="geneID"
+                                       type="text"/>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-2">
+                                    CCID
+                                </label>
+                                <input class="form-control col-3"
+                                       v-model="CCID"
+                                       type="text"/>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-2">
+                                    neighbors
+                                </label>
+                                <input class="form-control col-3"
+                                       v-model.number="neighbors"
+                                       type="number"/>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-4">
+                                    <button class="btn btn-primary float-right"
+                                            v-on:click="submit"
+                                            v-bind:disabled="submitButtonDisabled">
+                                        Submit
+                                    </button>
+                                </div>
+
+                            </div>
+                        </form>
+
                     </div>
+                    <div class="col">
 
-                </div>
-                <div class="col">
+                        <h2>
+                            Repacked Structure
+                        </h2>
+                        <div v-if="submitClicked">
+                            {% load plotly_dash %}
+                            <div class="{% plotly_class name='SimpleExample' %} card"
+                                 style="height: 125%; width: 225%; border: 1px solid black"
+                                    {% plotly_app name='SimpleExample' ratio=1 %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
 
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
 
-{#</div>#}
+        {#</div>#}
     </script>
     <script type="application/javascript">
         Vue.component('index', {
@@ -89,6 +91,7 @@
                     geneID: "",
                     CCID: "",
                     neighbors: 0,
+                    submitClicked: false,
                 }
             },
             beforeMount:
@@ -115,6 +118,7 @@
 
             methods: {
                 submit: function () {
+                    this.submitClicked=true;
                     var request = {
                         CCID: this.CCID,
                         gene_ID: this.geneID,
@@ -131,6 +135,13 @@
                         type: 'GET',
                         url: '{% url 'api:faspr_prep' %}',
                         data: request,
+                        success: function (response) {
+                        }
+                    })
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url 'api:cache_CCID' %}',
+                        data: {CCID: this.CCID},
                         success: function (response) {
                         }
                     })
