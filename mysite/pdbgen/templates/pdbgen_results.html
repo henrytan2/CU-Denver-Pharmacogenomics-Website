@@ -17,9 +17,9 @@
                     PDB Generator
                 </h2>
                 <div class="row justify-content-start">
-                    {#                <div class="col-1">#}
-                    {##}
-                    {#                </div>#}
+                                    <div class="col-1">
+
+                                    </div>
                     <div class="col">
                         <form>
 
@@ -62,6 +62,16 @@
                     </div>
                     <div class="col">
 
+                        <h2>
+                            Repacked Structure
+                        </h2>
+
+                            {% load plotly_dash %}
+                            <div class="{% plotly_class name='SimpleExample' %} card"
+                                 style="height: 125%; width: 225%; border: 1px solid black"
+                                    {% plotly_app name='SimpleExample' ratio=1 %}
+                            </div>
+
                     </div>
                     <div class="col">
 
@@ -71,7 +81,7 @@
         </div>
 
 
-        {#</div>#}
+        </div>
     </script>
     <script type="application/javascript">
         Vue.component('index', {
@@ -135,12 +145,6 @@
                         success: function (response) {
                         }
                     })
-                    $.ajax({
-                        success: function (response) {
-                            window.location = '{% url 'pdbgen:pdbgen-results.html' %}';
-                        }
-                    })
-
                 },
                 prefillForm: function () {
                     var currentURLString = window.location.href;
