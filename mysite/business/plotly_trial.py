@@ -7,13 +7,20 @@ from dash import html
 import pandas as pd
 from django.core.cache import cache
 import time
+import re
+from ..api import views
+from .CCID_cache import get_CCID
 
-app = DjangoDash('SimpleExample')
 
-# ccid = cache.get('CCID')
-# while ccid == None:
-#     time.sleep(.5)
 
+
+CCID = get_CCID()
+print(CCID)
+# CCID = views.CacheCCIDAPI.retrieve()
+# print('CCID is', CCID)
+app = DjangoDash('MutationViewer')
+
+# residue_focus = re.findall(r'\d+', CCID)
 parser = PdbParser('FASPR_output.txt')
 # parser = PdbParser('https://git.io/4K8X.pdb')
 
@@ -23,9 +30,11 @@ styles = create_mol3d_style(
 )
 
 df = pd.DataFrame(data["atoms"])
-df = df.drop_duplicates(subset=['residue_name'])
+# df = df.drop_duplicates(subset=['residue_name'])
 df['positions'] = df['positions'].apply(lambda x: ', '.join(map(str, x)))
-# print(df['positions'])
+print(df)
+
+# use df residue_index for inputting CCID
 app.layout = html.Div(
     [
         dash_table.DataTable(
@@ -37,7 +46,7 @@ app.layout = html.Div(
             cell_selectable=True,
             page_size=1,
             editable=True,
-            page_current=5,
+            page_current=22,
             style_cell={'textAlign': 'center'},
             style_as_list_view=True,
             row_deletable=True,

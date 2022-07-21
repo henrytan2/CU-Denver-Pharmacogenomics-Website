@@ -17,9 +17,9 @@
                     PDB Generator
                 </h2>
                 <div class="row justify-content-start">
-                                    <div class="col-1">
+                    <div class="col-1">
 
-                                    </div>
+                    </div>
                     <div class="col">
                         <form>
 
@@ -61,23 +61,25 @@
 
                     </div>
                     <div class="col">
-
-                        <h2>
-                            Repacked Structure
+                        <h2 id="CCID_out">
+                            Loading mutation...
                         </h2>
-
-                            {% load plotly_dash %}
-                            <div class="{% plotly_class name='SimpleExample' %} card"
-                                 style="height: 125%; width: 225%; border: 1px solid black"
-                                    {% plotly_app name='SimpleExample' ratio=1 %}
-                            </div>
-
+                        <button @click="getCCID()">get CCID</button>
+                        <div id="CCID_out">
+                        </div>
+                        {% load plotly_dash %}
+                        {{ "CCID_out" }}
+                        <div class="{% plotly_class name='MutationViewer' %} card"
+                             style="height: 125%; width: 225%; border: 1px solid black"
+                        {% plotly_app name="MutationViewer" initial_arguments='{"mutation": {"value": "CCID_out"}}' ratio=1%}
                     </div>
-                    <div class="col">
 
-                    </div>
+                </div>
+                <div class="col">
+
                 </div>
             </div>
+        </div>
         </div>
 
 
@@ -117,8 +119,19 @@
             },
 
             methods: {
+                getCCID: function () {
+                    $.ajax({
+                        type: 'GET',
+                        url: '{% url 'api:cache_CCID' %}',
+                        data: '',
+                        success:
+                            function (response) {
+                            document.getElementById("CCID_out").innerHTML = (response)
+                            }
+                    })
+                },
                 submit: function () {
-                    this.submitClicked=true;
+                    this.submitClicked = true;
                     var request = {
                         CCID: this.CCID,
                         gene_ID: this.geneID,

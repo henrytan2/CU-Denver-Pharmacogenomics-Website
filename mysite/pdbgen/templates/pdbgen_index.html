@@ -17,9 +17,9 @@
                     PDB Generator
                 </h2>
                 <div class="row justify-content-start">
-                    {#                <div class="col-1">#}
-                    {##}
-                    {#                </div>#}
+                    <div class="col-1">
+
+                    </div>
                     <div class="col">
                         <form>
 
@@ -121,13 +121,7 @@
                         success: function (response) {
                         }
                     })
-                    $.ajax({
-                        type: 'GET',
-                        url: '{% url 'api:faspr_prep' %}',
-                        data: request,
-                        success: function (response) {
-                        }
-                    })
+
                     $.ajax({
                         type: 'POST',
                         url: '{% url 'api:cache_CCID' %}',
@@ -154,3 +148,19 @@
         })
     </script>
 {% endblock %}
+
+                    {#render: function open_results(data, type) {#}
+                    {#    var hgvsp = data['hgvsp'];#}
+                    {#    if (hgvsp == null) {#}
+                    {#        return '';#}
+                    {#    }#}
+                    {#    var response = '<a href="{% url 'pdbgen:pdbgen-results.html' %}?CCID=' + hgvsp + '&neighbors=null">' + '</a>';#}
+                    {#    return response;#}
+
+{#                    $.ajax({#}
+{#                        type: 'GET',#}
+{#                        url: '{% url 'api:faspr_prep' %}',#}
+{#                        data: request,#}
+{#                        success: function (response) {#}
+{#                        }#}
+{#                    })#}

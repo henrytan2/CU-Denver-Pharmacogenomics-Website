@@ -5,12 +5,22 @@ from mysite.business.metabolite_gen import MetabPrep
 import json
 from mysite.business import plotly_trial
 from django.core.cache import cache
-
+from business.CCID_cache import set_CCID
 
 class CacheCCIDAPI(APIView):
     def post(self, request):
         ccid = request.data['CCID']
         cache.set('CCID', ccid)
+        set_CCID(ccid)
+
+    def get(self, request):
+        # ccid = request.data['CCID']
+        returned_CCID = cache.get('CCID')
+        return Response(returned_CCID)
+
+    def retrieve():
+        returned_CCID = cache.get('CCID')
+        return returned_CCID
 
 class FasprPrepAPI(APIView):
     def post(self, request):
