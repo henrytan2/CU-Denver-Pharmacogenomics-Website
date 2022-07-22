@@ -329,7 +329,17 @@
                         }
                     },
                     viewExacResults: function () {
-                        window.location = `{% url 'gtexome:exac_results' %}?gene_symbol=${this.exacInput}`;
+                        axios({
+                            url: "https://gnomad.broadinstitute.org/api/",
+                            method: "post",
+                            data: {
+                                query: `query {
+                                gene(gene_symbol: "${this.exacInput}", reference_genome: GRCh37) {gene_id}}`
+                            }
+                        }).then(function (response) {
+                            var gene_id = response.data.data.gene.gene_id;
+                             window.location = `{% url 'gtexome:exome' %}?gene_id=${gene_id}`;
+                        });
                     },
                     GetAllFilters: function () {
                         if (filterByRatio) {
