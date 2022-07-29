@@ -54,8 +54,28 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_plotly_dash.apps.DjangoPlotlyDashConfig',
     'rest_framework',
+    # 'home.apps.HomeConfig',
+    'channels',
+    'channels_redis',
 ]
 
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379),],
+        },
+    },
+}
+# channel_layer = RedisChannelLayer(
+#     host="redis",
+#     db=4,
+#     channel_capacity={
+#         "http.request": 200,
+#         "http.response*": 10,
+#     }
+# )
 MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -69,7 +89,9 @@ MIDDLEWARE = [
     'django_plotly_dash.middleware.ExternalRedirectionMiddleware',#optional
 ]
 
-X_FRAME_OPTIONS = 'SAMEORIGIN'
+X_FRAME_OPTIONS = 'ALLOWALL'
+
+XS_SHARING_ALLOWED_METHODS = ['POST','GET','OPTIONS', 'PUT', 'DELETE']
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
@@ -131,7 +153,8 @@ LOGGING = {
     },
 }
 
-WSGI_APPLICATION = 'pharmacogenomics_website.wsgi.application'
+# WSGI_APPLICATION = 'pharmacogenomics_website.wsgi.application'
+ASGI_APPLICATION = 'pharmacogenomics_website.asgi.application'
 
 BOOTSTRAP3 = {'include_jquery': True}
 
@@ -212,10 +235,16 @@ PLOTLY_COMPONENTS = [
     # django-plotly-dash components
     'dpd_components',
     # static support if serving local assets
-    # 'dpd_static_support',
+    'dpd_static_support',
 
     # Other components, as needed
     'dash_bootstrap_components',
+
+    'dash.html',
+    # 'dash_renderer',
+    'dash',
+    'dash_bio',
+    # 'dash_bio_utils',
 ]
 
 STATIC_URL = '/static/'
@@ -244,5 +273,18 @@ PLOTLY_DASH = {
     "cache_arguments": True,
 
     # Flag controlling local serving of assets
-    "serve_locally": False,
+    "serve_locally": True,
+}
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
+#         'LOCATION': '127.0.0.1:11211',
+#     }
+# }
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
 }

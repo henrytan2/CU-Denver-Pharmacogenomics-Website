@@ -3,7 +3,6 @@
 {% load static %}
 {% block content %}
 
-
     <p class="lead">
         Enter the number of neighboring amino acids to repack and submit
     </p>
@@ -17,9 +16,9 @@
                     PDB Generator
                 </h2>
                 <div class="row justify-content-start">
-                                    <div class="col-1">
+                    <div class="col-1">
 
-                                    </div>
+                    </div>
                     <div class="col">
                         <form>
 
@@ -61,27 +60,31 @@
 
                     </div>
                     <div class="col">
-
-                        <h2>
-                            Repacked Structure
+                        <h2 id="CCID_out">
+                            Loading mutation...
                         </h2>
+                        <button @click="getCCID()">get CCID</button>
+{#                        <div id="CCID_out">#}
+{#                        </div>#}
+                        {% load plotly_dash %}
+{#                        {{ "CCID_out" }}#}
+{#                        <div class="{% plotly_class name='MutationViewer' %} card"#}
+{#                             style="height: 125%; width: 225%; border: 1px solid black"#}
 
-                            {% load plotly_dash %}
-                            <div class="{% plotly_class name='SimpleExample' %} card"
-                                 style="height: 125%; width: 225%; border: 1px solid black"
-                                    {% plotly_app name='SimpleExample' ratio=1 %}
-                            </div>
-
+{#                        {% plotly_app name="liveOut" ratio=.1 %}#}
+                        {% plotly_app name="LiveInput" ratio=.1 %}
+                        {% plotly_app name="MutationViewer" ratio=.5%}
+{#                        {% plotly_app slug="liveoutput-2" %}#}
+                        {% plotly_message_pipe %}
                     </div>
-                    <div class="col">
 
-                    </div>
+                </div>
+                <div class="col">
+
                 </div>
             </div>
         </div>
 
-
-        </div>
     </script>
     <script type="application/javascript">
         Vue.component('index', {
@@ -117,8 +120,19 @@
             },
 
             methods: {
+                getCCID: function () {
+                    $.ajax({
+                        type: 'GET',
+                        url: '{% url 'api:cache_CCID' %}',
+                        data: '',
+                        success:
+                            function (response) {
+                            document.getElementById("CCID_out").innerHTML = (response)
+                            }
+                    })
+                },
                 submit: function () {
-                    this.submitClicked=true;
+                    this.submitClicked = true;
                     var request = {
                         CCID: this.CCID,
                         gene_ID: this.geneID,
@@ -157,4 +171,6 @@
 
         })
     </script>
+
 {% endblock %}
+{%plotly_message_pipe%}

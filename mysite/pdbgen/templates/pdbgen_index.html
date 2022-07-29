@@ -17,9 +17,9 @@
                     PDB Generator
                 </h2>
                 <div class="row justify-content-start">
-                    {#                <div class="col-1">#}
-                    {##}
-                    {#                </div>#}
+                    <div class="col-1">
+
+                    </div>
                     <div class="col">
                         <form>
 
@@ -108,21 +108,17 @@
 
             methods: {
                 submit: function () {
-                    this.submitClicked=true;
+                    this.submitClicked = true;
                     var request = {
                         CCID: this.CCID,
                         gene_ID: this.geneID,
                         neighbors: this.neighbors,
                     }
+                    var CCID_pass = {
+                        CCID: this.CCID,
+                    }
                     $.ajax({
                         type: 'POST',
-                        url: '{% url 'api:faspr_prep' %}',
-                        data: request,
-                        success: function (response) {
-                        }
-                    })
-                    $.ajax({
-                        type: 'GET',
                         url: '{% url 'api:faspr_prep' %}',
                         data: request,
                         success: function (response) {
@@ -133,11 +129,13 @@
                         url: '{% url 'api:cache_CCID' %}',
                         data: {CCID: this.CCID},
                         success: function (response) {
+                            this.CCID = response;
                         }
                     })
                     $.ajax({
+                        {#CCID: this.CCID,#}
                         success: function (response) {
-                            window.location = '{% url 'pdbgen:pdbgen-results.html' %}';
+                            window.location = '{% url 'pdbgen:pdbgen-results.html' %}'
                         }
                     })
 
