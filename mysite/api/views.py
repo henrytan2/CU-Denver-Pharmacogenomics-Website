@@ -8,6 +8,7 @@ from mysite.business import plotly_trial # keep both
 
 from django.core.cache import cache
 from business.CCID_cache import set_CCID
+from business.CCID_cache import set_CCID
 from django.http import HttpResponse
 
 class CacheCCIDAPI(APIView):

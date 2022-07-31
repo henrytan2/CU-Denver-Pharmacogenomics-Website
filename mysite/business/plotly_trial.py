@@ -12,6 +12,11 @@ import dash_bootstrap_components as dbc
 from dash import dcc
 import dpd_components as dpd
 from django_plotly_dash.consumers import send_to_pipe_channel
+import time
+import re
+from ..api import views
+from .CCID_cache import get_CCID
+
 
 from mysite.api.views import CacheCCIDAPI
 
