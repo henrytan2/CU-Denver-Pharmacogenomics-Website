@@ -60,22 +60,11 @@
 
                     </div>
                     <div class="col">
-                        <h2 id="CCID_out">
-                            Loading mutation...
-                        </h2>
-                        <button @click="getCCID()">get CCID</button>
-{#                        <div id="CCID_out">#}
-{#                        </div>#}
                         {% load plotly_dash %}
-{#                        {{ "CCID_out" }}#}
-{#                        <div class="{% plotly_class name='MutationViewer' %} card"#}
-{#                             style="height: 125%; width: 225%; border: 1px solid black"#}
-
-{#                        {% plotly_app name="liveOut" ratio=.1 %}#}
-                        {% plotly_app name="LiveInput" ratio=.1 %}
-                        {% plotly_app name="MutationViewer" ratio=.5%}
-{#                        {% plotly_app slug="liveoutput-2" %}#}
-                        {% plotly_message_pipe %}
+                        {{ 'Displaying output of:' }}
+                        {{ request.get_full_path|slice:"28:" }}
+{#                        {% plotly_app name="LiveInput" ratio=.15 %}#}
+                        {% plotly_app name="MutationViewer" ratio=.8 %}
                     </div>
 
                 </div>
@@ -86,6 +75,18 @@
         </div>
 
     </script>
+
+    <script type="application/javascript">
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const ccid_stored = urlParams.get('CCID')
+        console.log(ccid_stored);
+    </script>
+
+{#    <script type="application/javascript">#}
+{#        var CCID_dict = {};#}
+{#        CCID_dict[1] = ccid_stored;#}
+{#    </script>#}
     <script type="application/javascript">
         Vue.component('index', {
             template: "#index-template",
@@ -127,8 +128,18 @@
                         data: '',
                         success:
                             function (response) {
-                            document.getElementById("CCID_out").innerHTML = (response)
+                                document.getElementById("CCID_out").innerHTML = (response)
                             }
+                    })
+                },
+                retreiveCCID: function () {
+                    $.ajax({
+                        type: 'GET',
+                        url: '{% url 'api:cache_CCID' %}',
+                        data: '',
+                        success: function (response) {
+                            this.CCID = response;
+                        }
                     })
                 },
                 submit: function () {
@@ -173,4 +184,4 @@
     </script>
 
 {% endblock %}
-{%plotly_message_pipe%}
+{% plotly_message_pipe %}

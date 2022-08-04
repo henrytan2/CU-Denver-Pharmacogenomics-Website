@@ -1,7 +1,8 @@
 import pickle5 as pickle
 from mysite.business.alderaan import Alderaan
 from Bio import SeqUtils
-from Bio.PDB import PPBuilder
+from Bio.PDB import Selection
+from Bio.PDB import PPBuilder, NeighborSearch
 from Bio.PDB.PDBParser import PDBParser
 import os
 
@@ -10,7 +11,6 @@ class FasprPrep:
     mutation_position = 0
     CCID = ''
     gene_ID = ''
-    # unzip_target_pdb_file = 'Xpdb_tmp.txt'
     sur_aa_low = ''
     sur_aa_high = ''
     unmutated_seq = ''
@@ -18,12 +18,17 @@ class FasprPrep:
     single_nucleotide_variation = ''
     mutated_protein_code = ''
     alderaan = None
-    neighbors = 7
-    scratch_folder = os.path.join('/','storage','chemistry','projects','pharmacogenomics')
-    alpha_folder = os.path.join(scratch_folder, 'alphafold')
+    neighbors = 0
+    positions = [0]
+    # base_pharmaco_folder = os.path.join('/')
+    alderaan_pharmaco_folder = os.path.join('/', 'home', 'reedsc')
+    scratch_folder = os.path.join('website_activity')
+    alderaan_scratch_folder = os.path.join('/','storage','chemistry','projects','pharmacogenomics')
+    alderaan_alpha_folder = os.path.join(alderaan_scratch_folder, 'alphafold')
+    alpha_folder = os.path.join('Documents','alphafold')
     temp_folder = os.path.join(scratch_folder, 'tmp')
     singularity_folder = os.path.join('..','..','..','storage','singularity')
-    FASPR_folder = os.path.join('/','home','reedsc','FASPR')
+    FASPR_folder = os.path.join('FASPR')
 
     def __init__(self, CCID, gene_ID, neighbors):
         self.alderaan = Alderaan()
@@ -31,11 +36,18 @@ class FasprPrep:
         self.gene_ID = gene_ID
         self.neighbors = int(neighbors)
         self.get_Pnum()
-        self.unmutated_seq = self.get_sequence_unmut()
+        self.unmutated_seq, self.structure = self.get_sequence_unmut()
         self.mut_pos = self.get_mutation_position(CCID)
-        self.get_mut_seq = self.get_mutated_sequence(self.unmutated_seq)
+        self.unmutated_sequence = str(self.unmutated_seq)
+        self.mutated_sequence = self.unmutated_sequence[:self.mutation_position - 1] + \
+                                self.unmutated_sequence[self.mutation_position - \
+                                1:self.mutation_position].replace(self.single_nucleotide,
+                                self.single_nucleotide_variation) + self.unmutated_sequence[self.mutation_position:]
+        self.positions = self.get_mutated_sequence3d(self.structure, self.mut_pos, 'A', self.neighbors) #DROP A
+        self.get_mut_seq = self.capitalize(self.mutated_sequence, self.positions)
         self.make_mutatedseq_file(self.get_mut_seq)
-        self.FASPR_pdb = self.get_specific_mutation()
+        self.output = self.get_specific_mutation(self.unmutated_seq, self.mut_pos, self.single_nucleotide, self.positions)
+        print('positions mutated will be: ', self.output)
 
 
     def get_Pnum(self):
@@ -67,11 +79,10 @@ class FasprPrep:
 
                 ppb = PPBuilder()
                 peptides = ppb.build_peptides(structure)
-                print(len(peptides))
                 PDB_sequence = peptides[0].get_sequence()
-                print(PDB_sequence)
+                print(PDB_sequence) #send to js?
                 unmutated_sequence = PDB_sequence.lower()
-                return unmutated_sequence
+                return unmutated_sequence, structure
             else:
                 print('protein in multiple files. Skipped.')
 
@@ -88,67 +99,39 @@ class FasprPrep:
                 mutation_position = int("".join(getVals))
                 return mutation_position
 
-    def get_mutated_sequence(self, seq):
-        self.position_mutation = self.get_mutation_position(self.CCID)
-        print('position_mutation',self.position_mutation)
-        if self.position_mutation - self.neighbors < 1:
-            self.neighbors = self.position_mutation
-        possible_mutation_ext = str(self.CCID)
-        position_mutation = self.get_mutation_position(possible_mutation_ext)#drop?
-        self.sur_aa_low = self.unmutated_seq[position_mutation - self.neighbors:position_mutation - 1].upper()
-        print('sur_aa_low',self.sur_aa_low)
-        self.sur_aa_high = self.unmutated_seq[position_mutation:position_mutation + (self.neighbors-1)].upper()
-        print('sur_aa_high',self.sur_aa_high)
-        INV = possible_mutation_ext[2:5]
-        MNV = possible_mutation_ext[-3:]
-        self.single_nucleotide = SeqUtils.IUPACData.protein_letters_3to1[f'{INV}'].lower()
-        print(self.single_nucleotide)
-        self.single_nucleotide_variation = SeqUtils.IUPACData.protein_letters_3to1[f'{MNV}']
-        print(self.single_nucleotide_variation)
-        self.mutated_protein_code = self.unmutated_seq[0:position_mutation - self.neighbors] + \
-                               self.sur_aa_low + \
-                               self.unmutated_seq[position_mutation - 1]\
-                                .replace(self.single_nucleotide,
-                                self.single_nucleotide_variation) + self.sur_aa_high + \
-                                self.unmutated_seq[position_mutation + (self.neighbors-1):]
-        print(self.mutated_protein_code)
-        if len(self.mutated_protein_code) - self.position_mutation < self.neighbors:
-            self.neighbors = len(self.mutated_protein_code) - self.position_mutation # test this
-        return self.mutated_protein_code
-
-    def get_mutated_sequence2(self, structure, mutated_sequence, mutation_position, chain_id):
+    def get_mutated_sequence3d(self, structure, mutation_position, chain_id, neighbors):
         chain = structure[0][chain_id]
         center_residues = [chain[resi] for resi in [mutation_position]]
         center_atoms = Selection.unfold_entities(center_residues, chain_id)
         atom_list = [atom for atom in structure.get_atoms() if atom.name == 'CA']
         ns = NeighborSearch(atom_list)
         nearby_residues = {res for center_atom in center_atoms for res in ns.search(center_atom.coord, neighbors, 'R')}
-        position = sorted(res.id[1] for res in nearby_residues)
-        self.mutated_protein_code = capitalize(mutated_sequence, position)
-        return self.mutated_protein_code
+        positions = sorted(res.id[1] for res in nearby_residues)
+        print('repacked residues are', positions)
+        return positions
+
+    def capitalize(self, mutatedsequence, positions):
+        split_mutatedsequence = list(mutatedsequence)
+        for int in positions:
+            try:
+                split_mutatedsequence[int] = split_mutatedsequence[int].upper()
+            except IndexError:
+                print('Index out of range : ', int)
+        return "".join(split_mutatedsequence)
 
     def make_mutatedseq_file(self, mutatseq):
         mutatseq = str(f'"{mutatseq}"')
         mutatseq += f' | tee {self.temp_folder}/repacked_pdb.txt'
         echo_command = f'echo {mutatseq}'
-        print('echo_command is ', mutatseq)
-        output, success = self.alderaan.run_command(echo_command)
-        print('success',success)
+        save_output, success = self.alderaan.run_command(echo_command)
+        chmod_command = f'{self.temp_folder}/repacked_pdb.txt'
+        self.alderaan.send_chmod(chmod_command)
+        # print('saved this:', mutatseq, success)
 
-
-    def get_specific_mutation(self):
-
-        if self.unmutated_seq[self.position_mutation - 1] == f'{self.single_nucleotide}':
-            mutated_protein_code = self.get_mutated_sequence(self.unmutated_seq)
+    def get_specific_mutation(self, unmutated_seq, position_mutation, single_nucleotide, positions):
+        mutated_protein_code = unmutated_seq
+        if self.unmutated_seq[position_mutation - 1] == f'{single_nucleotide}':
+            mutated_protein_code = self.get_mutated_sequence3d(unmutated_seq)
             self.make_mutatedseq_file(mutated_protein_code)
-        FASPR_command = f"FASPR/FASPR -i pdb_temporary.txt -o /{self.temp_folder}/FASPR_output.pdb -s /{self.temp_folder}/repacked_pdb.txt"
-        print(FASPR_command)
-        FASPR_out, success = self.alderaan.run_command(FASPR_command)
-        print(FASPR_out)
-        cat_command = f"cat {self.temp_folder}/FASPR_output.pdb | tee FASPR_output2.txt"
-        FASPR_pdb_text, success = self.alderaan.run_command(cat_command)
-        # print(FASPR_pdb_text)
-        with open('FASPR_output.txt', 'w+') as f:
-            f.write(FASPR_pdb_text)
-        print('done')
-        return FASPR_pdb_text
+        return positions
+

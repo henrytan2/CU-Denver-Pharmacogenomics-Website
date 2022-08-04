@@ -50,6 +50,16 @@
                             <div class="form-group row">
                                 <div class="col-4">
                                     <button class="btn btn-primary float-right"
+                                            v-on:click="check"
+                                            v-bind:disabled="checkButtonDisabled">
+                                        Check
+                                    </button>
+                                    <p id="residue_output">residues to be repacked:</p>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-4">
+                                    <button class="btn btn-primary float-right"
                                             v-on:click="submit"
                                             v-bind:disabled="submitButtonDisabled">
                                         Submit
@@ -71,7 +81,7 @@
         </div>
 
 
-        {#</div>#}
+        {#        </div>#}
     </script>
     <script type="application/javascript">
         Vue.component('index', {
@@ -81,7 +91,9 @@
                     geneID: "",
                     CCID: "",
                     neighbors: 0,
+                    residues: [123456789],
                     submitClicked: false,
+                    checkClicked: false,
                 }
             },
             beforeMount:
@@ -90,6 +102,23 @@
                 },
             computed: {
                 submitButtonDisabled: function () {
+                    var ccid = this.CCID;
+                    var geneid = this.geneID;
+                    var neighbors = this.neighbors;
+                    var checked = this.checkClicked;
+                    {#var maxNeighbors = ccid.replace(/\D/g, "");#}
+                    var response = true;
+                    if (ccid != '' &&
+                        geneid != '' &&
+                        neighbors != null &&
+                        checked == true
+                        {#(maxNeighbors - neighbors > 1)#}
+                    ) {
+                        response = false
+                    }
+                    return response;
+                },
+                checkButtonDisabled: function () {
                     var ccid = this.CCID;
                     var geneid = this.geneID;
                     var neighbors = this.neighbors;
@@ -107,23 +136,29 @@
             },
 
             methods: {
-                submit: function () {
-                    this.submitClicked = true;
+                update_residues: function (event) {
+                    value = event.target.value;
+                    this.residues = value;
+                    console.log(value)
+                },
+                check: function () {
+                    this.checkClicked = true;
                     var request = {
                         CCID: this.CCID,
                         gene_ID: this.geneID,
                         neighbors: this.neighbors,
-                    }
-                    var CCID_pass = {
-                        CCID: this.CCID,
                     }
                     $.ajax({
                         type: 'POST',
                         url: '{% url 'api:faspr_prep' %}',
                         data: request,
                         success: function (response) {
-                        }
+                            this.residues = response;
+                            console.log(this.residues);
+                            document.getElementById("residue_output").innerHTML += this.residues;
+                        }.bind(this)
                     })
+
                     $.ajax({
                         type: 'POST',
                         url: '{% url 'api:cache_CCID' %}',
@@ -132,13 +167,27 @@
                             this.CCID = response;
                         }
                     })
+                },
+
+
+                submit: function () {
+                    this.submitClicked = true;
+                    var request = {}
+
                     $.ajax({
-                        {#CCID: this.CCID,#}
+                        type: 'POST',
+                        url: '{% url 'api:faspr_run' %}',
+                        data: request,
                         success: function (response) {
-                            window.location = '{% url 'pdbgen:pdbgen-results.html' %}'
                         }
                     })
-
+                    $.ajax({
+                        var: CCID_out = this.CCID,
+                        var: residues_out = this.residues,
+                        success: function (response) {
+                            window.location = '{% url 'pdbgen:pdbgen-results.html' %}?CCID=' + CCID_out + residues_out
+                        }
+                    })
                 },
                 prefillForm: function () {
                     var currentURLString = window.location.href;

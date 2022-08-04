@@ -15,7 +15,7 @@ class Alderaan:
         password = os.getenv('ALDERAAN_PASSWORD')
         self.client = paramiko.client.SSHClient()
         self.client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        self.client.connect(host, username=username, password=password)
+        self.client.connect(host, port=22, username=username, password=password)
         self.transport = paramiko.Transport((host, 22))
         self.transport.connect(username=username, password=password)
         self.sftp = paramiko.SFTPClient.from_transport(self.transport)
@@ -35,3 +35,6 @@ class Alderaan:
         f = self.sftp.open(f'{path}', "wb")
         f.write(f'{command}')
         f.close()
+
+    def send_chmod(self, path):
+        self.sftp.chmod(path, 0o775)
