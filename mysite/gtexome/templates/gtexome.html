@@ -337,6 +337,10 @@
                                 gene(gene_symbol: "${this.exacInput}", reference_genome: GRCh37) {gene_id}}`
                             }
                         }).then(function (response) {
+                            if (response.data.errors) {
+                                window.alert(response.data.errors[0].message);
+                                return;
+                            }
                             var gene_id = response.data.data.gene.gene_id;
                              window.location = `{% url 'gtexome:exome' %}?gene_id=${gene_id}`;
                         });
