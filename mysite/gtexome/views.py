@@ -11,13 +11,15 @@ class IndexView(generic.ListView):
     template_name = 'gtexome.html'
     filter_dictionary = []
 
-    def get_queryset(self):
+    def get_context_data(self, **kwargs):
+        context = super(IndexView, self).get_context_data(**kwargs)
         all_fields = self.model._meta.get_fields()
         do_not_include = ['ID', 'Gene ID', 'Description']
         all_field_names = [f.verbose_name for f in all_fields]
         for item in do_not_include:
             all_field_names.remove(item)
-        return all_field_names
+        context['all_field_names'] = all_field_names
+        return context
 
     def post(self, request):
         if request.method == 'POST':
@@ -139,6 +141,60 @@ class ExomeView(generic.TemplateView):
         query = """query {
           gene(gene_id: "%s", reference_genome: GRCh37) {
             variants(dataset: gnomad_r2_1) {
+              variantId
+              exome {
+                ac
+                ac_hemi
+                ac_hom
+                an
+                af
+                filters
+                populations {
+                  id
+                  ac
+                  an
+                }
+              }
+              flags
+              chrom
+              pos
+              alt
+              consequence
+              consequence_in_canonical_transcript
+              hgvs
+              hgvsc
+              hgvsp
+              lof
+              lof_filter
+              lof_flags
+              rsid
+              }      
+            }
+          }
+        """
+        query = query % gene_id
+
+        url = 'https://gnomad.broadinstitute.org/api/'
+        response = json.dumps(requests.post(url, json={'query': query}).json())
+        return response
+
+
+class ExacView(generic.TemplateView):
+    template_name = 'exac-results.html'
+    gnomad_data = ''
+
+    def get_context_data(self, **kwargs):
+        context = super(ExacView, self).get_context_data(**kwargs)
+        context['gnomad_data'] = self.make_request_to_gnomad()
+        context['exome_columns'] = ExomeColumns.Get
+        return context
+
+    def make_request_to_gnomad(self):
+        gene_id = self.request.GET['gene_symbol']
+        query = """query {
+          gene(gene_symbol: "%s", reference_genome: GRCh37) {
+            variants(dataset: gnomad_r2_1) {
+              gene_id
               variantId
               exome {
                 ac
