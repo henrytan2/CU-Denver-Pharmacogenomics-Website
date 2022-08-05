@@ -14,15 +14,10 @@ from rest_framework import serializers
 
 from django.http import HttpResponse
 
-# class ResidueListSerializer(serializers.ListSerializer):
-#     def create(self, validated_data):
-#         residues = [_ for item in validated_data]
-#         return _.objects.bulk_create(residues)
-
-class AccountSerializer(serializers.ModelSerializer):
-    class Meta:
-        # model = Account
-        fields = ['residue']
+# class AccountSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         # model = Account
+#         fields = ['residue']
 
 class CacheCCIDAPI(APIView):
     def post(self, request):
@@ -66,9 +61,7 @@ class FasprPrepAPI(APIView):
         neighbors = request.data['neighbors']
         residues = FasprPrep(ccid, gene_ID, neighbors)
         print('residues.output is', residues.output)
-        serializer = serializers.Serializer(residues.output)
-        print(serializer.instance)
-        return Response(serializer.instance)
+        return Response({"residue_output": list(residues.output)})
 
     def get(self, request):
         with open('FASPR_output.txt', 'r') as f:
