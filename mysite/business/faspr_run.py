@@ -24,4 +24,5 @@ class FasprRun:
         # print(success, FASPR_pdb_text)
         with open('FASPR_output.txt', 'w+') as f:
             f.write(FASPR_pdb_text)
+        print('FASPR run is done')
         return FASPR_pdb_text

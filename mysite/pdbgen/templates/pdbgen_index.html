@@ -5,7 +5,7 @@
 
 
     <p class="lead">
-        Enter the number of neighboring amino acids to repack and submit
+        Rrepack amino acids surrounding the SNV by entering a diameter (in Angstroms)
     </p>
     <index></index>
     <script id="index-template"
@@ -39,10 +39,10 @@
                         </div>
                         <div class="form-group row">
                             <label class="col-2">
-                                neighbors
+                                Angstroms
                             </label>
                             <input class="form-control col-3"
-                                   v-model.number="neighbors"
+                                   v-model.number="angstroms"
                                    type="number"/>
                         </div>
                         <div class="form-group row">
@@ -55,18 +55,6 @@
 
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-6">
-                                <p>residues to be repacked:</p>
-                            </div>
-                            <div class="col-6">
-                                <ul>
-                                    <li v-for="residue in residues">
-                                        {% verbatim %}{{ residue }}{% endverbatim %}
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
                         <div class="form-group row">
                             <div class="col-4">
                                 <button class="btn btn-primary float-right"
@@ -74,6 +62,19 @@
                                         v-bind:disabled="submitButtonDisabled">
                                     Submit
                                 </button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <p>residues to be repacked:</p>
+                            </div>
+                            <div class="col-3">
+                                {% verbatim %}{{ mut_seq }}{% endverbatim %}
+                                <ul>
+                                    <li v-for="residue in residues">
+                                        {% verbatim %}{{ residue }}{% endverbatim %}
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -93,12 +94,26 @@
     <script type="application/javascript">
         Vue.component('index', {
             template: "#index-template",
+
+            beforeCreate: function () {
+                return {
+                    geneID: "",
+                    CCID: "",
+                    angstroms: 0,
+                    residue: [1],
+                    residues: [],
+                    submitClicked: false,
+                    checkClicked: false,
+                }
+            },
+
             data: function () {
                 return {
                     geneID: "",
                     CCID: "",
-                    neighbors: 0,
-                    residues: [123456789],
+                    angstroms: 0,
+                    residue: [1],
+                    residues: [],
                     submitClicked: false,
                     checkClicked: false,
                 }
@@ -111,15 +126,15 @@
                 submitButtonDisabled: function () {
                     var ccid = this.CCID;
                     var geneid = this.geneID;
-                    var neighbors = this.neighbors;
+                    var angstroms = this.angstroms;
                     var checked = this.checkClicked;
-                    {#var maxNeighbors = ccid.replace(/\D/g, "");#}
+                    {#var maxangstroms = ccid.replace(/\D/g, "");#}
                     var response = true;
                     if (ccid != '' &&
                         geneid != '' &&
-                        neighbors != null &&
+                        angstroms != null &&
                         checked == true
-                        {#(maxNeighbors - neighbors > 1)#}
+                        {#(maxangstroms - angstroms > 1)#}
                     ) {
                         response = false
                     }
@@ -128,13 +143,13 @@
                 checkButtonDisabled: function () {
                     var ccid = this.CCID;
                     var geneid = this.geneID;
-                    var neighbors = this.neighbors;
-                    {#var maxNeighbors = ccid.replace(/\D/g, "");#}
+                    var angstroms = this.angstroms;
+                    {#var maxangstroms = ccid.replace(/\D/g, "");#}
                     var response = true;
                     if (ccid != '' &&
                         geneid != '' &&
-                        neighbors != null
-                        {#(maxNeighbors - neighbors > 1)#}
+                        angstroms != null
+                        {#(maxangstroms - angstroms > 1)#}
                     ) {
                         response = false
                     }
@@ -153,7 +168,7 @@
                     var request = {
                         CCID: this.CCID,
                         gene_ID: this.geneID,
-                        neighbors: this.neighbors,
+                        angstroms: this.angstroms,
                     }
                     $.ajax({
                         type: 'POST',
@@ -161,6 +176,8 @@
                         data: request,
                         success: function (response) {
                             this.residues = response.residue_output;
+                            this.seq_length = response.sequence_length;
+                            this.mut_seq = response.mut_seq;
                         }.bind(this)
                     })
                     $.ajax({
@@ -172,16 +189,33 @@
                         }
                     })
                 },
-
-
                 submit: function () {
                     this.submitClicked = true;
-                    var request = {}
-
+                    this.dataset = this.residues;
+                    this.length = this.seq_length;
+                    console.log('dataset logging:');
+                    console.log(this.dataset);
+                    $.ajax({
+                        var: residues_out = this.dataset,
+                        type: 'POST',
+                        url: '{% url 'api:cache_positions' %}',
+                        data: {positions: this.dataset},
+                        success: function (response) {
+                            this.residues = response;
+                        }.bind(this)
+                    })
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url 'api:cache_length' %}',
+                        data: {sequence_length: this.length},
+                        success: function (response) {
+                            this.seq_length = response;
+                        }.bind(this)
+                    })
                     $.ajax({
                         type: 'POST',
                         url: '{% url 'api:faspr_run' %}',
-                        data: request,
+                        data: 'a',
                         success: function (response) {
                         }
                     })
@@ -189,19 +223,21 @@
                         var: CCID_out = this.CCID,
                         var: residues_out = this.residues,
                         success: function (response) {
-                            window.location = '{% url 'pdbgen:pdbgen-results.html' %}?CCID=' + CCID_out + residues_out
+                            window.location = '{% url 'pdbgen:pdbgen-results.html' %}?CCID=' + CCID_out + '&RES=...' + residues_out
                         }
                     })
+
                 },
                 prefillForm: function () {
                     var currentURLString = window.location.href;
                     var currentURL = new URL(currentURLString);
                     this.geneID = currentURL.searchParams.get("gene_ID");
                     this.CCID = currentURL.searchParams.get("CCID");
-                    this.neighbors = currentURL.searchParams.get("neighbors");
+                    this.angstroms = currentURL.searchParams.get("angstroms");
                 }
             }
 
         })
     </script>
 {% endblock %}
+

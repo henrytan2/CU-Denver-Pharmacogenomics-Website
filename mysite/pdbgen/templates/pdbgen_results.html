@@ -3,9 +3,6 @@
 {% load static %}
 {% block content %}
 
-    <p class="lead">
-        Enter the number of neighboring amino acids to repack and submit
-    </p>
     <index></index>
     <script id="index-template"
             type="text-html-template">
@@ -15,56 +12,28 @@
                 <h2>
                     PDB Generator
                 </h2>
+                <div class="row">
+                    <button class="btn btn-primary float-right margin:50px"
+                            v-on:click="edit">
+                        Edit Data
+                    </button>
+
+                    <button class="btn btn-primary float-right margin:50px"
+                            v-on:click="download">
+                        Download Protein
+                    </button>
+                </div>
                 <div class="row justify-content-start">
                     <div class="col-1">
-
                     </div>
-                    <div class="col">
-                        <form>
 
-                            <div class="form-group row">
-                                <label class="col-2">
-                                    GeneID
-                                </label>
-                                <input class="form-control col-3"
-                                       v-model="geneID"
-                                       type="text"/>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-2">
-                                    CCID
-                                </label>
-                                <input class="form-control col-3"
-                                       v-model="CCID"
-                                       type="text"/>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-2">
-                                    neighbors
-                                </label>
-                                <input class="form-control col-3"
-                                       v-model.number="neighbors"
-                                       type="number"/>
-                            </div>
-                            <div class="form-group row">
-                                <div class="col-4">
-                                    <button class="btn btn-primary float-right"
-                                            v-on:click="submit"
-                                            v-bind:disabled="submitButtonDisabled">
-                                        Submit
-                                    </button>
-                                </div>
-
-                            </div>
-                        </form>
-
-                    </div>
                     <div class="col">
                         {% load plotly_dash %}
-                        {{ 'Displaying output of:' }}
-                        {{ request.get_full_path|slice:"28:" }}
-{#                        {% plotly_app name="LiveInput" ratio=.15 %}#}
-                        {% plotly_app name="MutationViewer" ratio=.8 %}
+                        {{ 'Mutation:' }}
+                        {{ request.get_full_path|slice:"28:38" }}
+                        {{ 'Repacked Residues-sorta:' }}
+                        {{ request.get_full_path|slice:"46:" }}
+                        {% plotly_app name="MutationViewer" ratio=1.5 %}
                     </div>
 
                 </div>
@@ -79,107 +48,22 @@
     <script type="application/javascript">
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
-        const ccid_stored = urlParams.get('CCID')
-        console.log(ccid_stored);
+        const ccid_stored = urlParams.get('CCID');
+        const residues_stored = urlParams.get('RES');
     </script>
 
-{#    <script type="application/javascript">#}
-{#        var CCID_dict = {};#}
-{#        CCID_dict[1] = ccid_stored;#}
-{#    </script>#}
+
     <script type="application/javascript">
         Vue.component('index', {
             template: "#index-template",
-            data: function () {
-                return {
-                    geneID: "",
-                    CCID: "",
-                    neighbors: 0,
-                    submitClicked: false,
-                }
-            },
-            beforeMount:
-                function () {
-                    this.prefillForm();
-                },
-            computed: {
-                submitButtonDisabled: function () {
-                    var ccid = this.CCID;
-                    var geneid = this.geneID;
-                    var neighbors = this.neighbors;
-                    {#var maxNeighbors = ccid.replace(/\D/g, "");#}
-                    var response = true;
-                    if (ccid != '' &&
-                        geneid != '' &&
-                        neighbors != null
-                        {#(maxNeighbors - neighbors > 1)#}
-                    ) {
-                        response = false
-                    }
-                    return response;
-                }
-            },
-
             methods: {
-                getCCID: function () {
-                    $.ajax({
-                        type: 'GET',
-                        url: '{% url 'api:cache_CCID' %}',
-                        data: '',
-                        success:
-                            function (response) {
-                                document.getElementById("CCID_out").innerHTML = (response)
-                            }
-                    })
+                edit: function () {
+                    history.back();
                 },
-                retreiveCCID: function () {
-                    $.ajax({
-                        type: 'GET',
-                        url: '{% url 'api:cache_CCID' %}',
-                        data: '',
-                        success: function (response) {
-                            this.CCID = response;
-                        }
-                    })
-                },
-                submit: function () {
-                    this.submitClicked = true;
-                    var request = {
-                        CCID: this.CCID,
-                        gene_ID: this.geneID,
-                        neighbors: this.neighbors,
-                    }
-                    $.ajax({
-                        type: 'POST',
-                        url: '{% url 'api:faspr_prep' %}',
-                        data: request,
-                        success: function (response) {
-                        }
-                    })
-                    $.ajax({
-                        type: 'GET',
-                        url: '{% url 'api:faspr_prep' %}',
-                        data: request,
-                        success: function (response) {
-                        }
-                    })
-                    $.ajax({
-                        type: 'POST',
-                        url: '{% url 'api:cache_CCID' %}',
-                        data: {CCID: this.CCID},
-                        success: function (response) {
-                        }
-                    })
-                },
-                prefillForm: function () {
-                    var currentURLString = window.location.href;
-                    var currentURL = new URL(currentURLString);
-                    this.geneID = currentURL.searchParams.get("gene_ID");
-                    this.CCID = currentURL.searchParams.get("CCID");
-                    this.neighbors = currentURL.searchParams.get("neighbors");
+                download: function () {
+                    history.back();
                 }
             }
-
         })
     </script>
 

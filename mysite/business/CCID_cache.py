@@ -1,9 +1,7 @@
 CCID = ''
 positions = ''
+sequence_length = ''
 
-def get_CCID():
-    print('cached CCID is', CCID)
-    return CCID
 
 def set_CCID(value):
     CCID = value
@@ -12,9 +10,10 @@ def set_CCID(value):
         success = False
     return success
 
-def get_positions():
-    print('cached positions are', positions)
-    return positions
+def get_CCID():
+    print('cached CCID in CCID_cache is', CCID)
+    return CCID
+
 
 def set_positions(value):
     positions = value
@@ -22,3 +21,19 @@ def set_positions(value):
     if positions == '':
         success = False
     return success
+
+def get_positions():
+    print('cached positions in CCID_cache are', positions)
+    return positions
+
+
+def set_length(value):
+    sequence_length = value
+    success = True
+    if sequence_length == '':
+        success = False
+    return success
+
+def get_length():
+    print('cached sequence_length in CCID_cache is', sequence_length)
+    return sequence_length
