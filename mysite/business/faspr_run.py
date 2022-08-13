@@ -1,5 +1,6 @@
 from mysite.business.alderaan import Alderaan
 import os
+from .CCID_cache import set_PDB
 
 class FasprRun:
     alderaan = None
@@ -16,13 +17,19 @@ class FasprRun:
         # print(self.FASPR_pdb_text)
 
     def run_FASPR(self):
-        FASPR_command = f"FASPR/FASPR -i {self.temp_folder}/pdb_temporary.txt -o {self.temp_folder}/FASPR_output.pdb -s {self.temp_folder}/repacked_pdb.txt"
-        FASPR_out, success = self.alderaan.run_command(FASPR_command)
-        # print(FASPR_out)
-        cat_command = f"cat {self.temp_folder}/FASPR_output.pdb | tee FASPR_output.txt"
-        FASPR_pdb_text, success = self.alderaan.run_command(cat_command)
-        # print(success, FASPR_pdb_text)
-        with open('FASPR_output.txt', 'w+') as f:
-            f.write(FASPR_pdb_text)
+        success = True
+        try:
+            FASPR_command = f"FASPR/FASPR -i {self.temp_folder}/pdb_temporary.txt -o {self.temp_folder}/FASPR_output.pdb -s {self.temp_folder}/repacked_pdb.txt"
+            FASPR_out, success = self.alderaan.run_command(FASPR_command)
+            # print(FASPR_out)
+            cat_command = f"cat {self.temp_folder}/FASPR_output.pdb | tee FASPR_output.txt"
+            FASPR_pdb_text, success = self.alderaan.run_command(cat_command)
+            # print(success, FASPR_pdb_text)
+            with open('FASPR_output.txt', 'w+') as f:
+                f.write(FASPR_pdb_text)
+        except:
+            success = False
+            set_PDB('ERROR')
+
         print('FASPR run is done')
-        return FASPR_pdb_text
+        return FASPR_pdb_text, success

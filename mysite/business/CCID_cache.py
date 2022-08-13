@@ -1,6 +1,14 @@
 CCID = ''
 positions = ''
 sequence_length = ''
+pdb = ''
+
+def set_PDB(value):
+    PDB = value
+    success = True
+    if PDB == '':
+        success = False
+    return success
 
 
 def set_CCID(value):

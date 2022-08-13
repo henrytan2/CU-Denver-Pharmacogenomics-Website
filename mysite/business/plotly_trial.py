@@ -12,8 +12,8 @@ import dpd_components as dpd
 from dash.exceptions import PreventUpdate
 import re
 
-parser = PdbParser('FASPR_output.txt')
-# parser = PdbParser('https://git.io/4K8X.pdb')
+# parser = PdbParser('FASPR_output.txt')
+parser = PdbParser('https://git.io/4K8X.pdb')
 
 data = parser.mol3d_data()
 styles = create_mol3d_style(
@@ -59,15 +59,15 @@ mutation_app.layout = html.Div(
     Output(component_id="molecule3d-zoomto", component_property="labels"),
     Output(component_id="output_text", component_property="children"),
     Output(component_id="mutation_slider", component_property="max"),
-    # Output(component_id="molecule3d-zoomto", component_property='modelData'),
+    Output(component_id="molecule3d-zoomto", component_property='modelData'),
     [Input(component_id="mutation_slider", component_property='value')],
-    prevent_initial_call=False
+    prevent_initial_call=True
 )
 
 
 def residue(value):
-    # parser = PdbParser('FASPR_output.txt')
-    # reloaded_protein = parser.mol3d_data()
+    parser = PdbParser('FASPR_output.txt')
+    reloaded_protein = parser.mol3d_data()
     CCID = cache.get('CCID')
     print('CCID cached is ', CCID)
     length = int(cache.get('sequence_length'))
@@ -105,7 +105,7 @@ def residue(value):
         output_text,
         length,
         # html.Div([output_text]),
-        # reloaded_protein,
+        reloaded_protein,
         # positions
     ]
 
