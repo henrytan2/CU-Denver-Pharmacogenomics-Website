@@ -2,17 +2,63 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-
-    <p class="lead">
-        Repack amino acids surrounding the SNV by entering a diameter (in Angstroms) a
-    </p>
+    <style>
+        .icon-size {
+            font-size: 3em;
+        }
+    </style>
+    <h1 class="lead">
+        Select prefered source of protein data minimum criteria and then
+        repack amino acids surrounding the SNV by entering a diameter (in Angstroms)
+    </h1>
     <index></index>
     <script id="index-template"
             type="text-html-template">
         <div class="container">
             <div>
                 <h2>
-                    PDB Generator
+                    Protein Source
+                </h2>
+                <div class="row justify-content-start">
+                    <div class="col-1">
+                    </div>
+                    <div class="col-2">
+                        <p>
+                            Experimental Structure
+                        </p>
+                    </div>
+                    <div class="col-2">
+                        <div class="row mb-2">
+                            <label class="col-5">
+                                Min Resolution
+                            </label>
+                            <input class="form-control col-5"
+                                   v-model="Resolution"
+                                   type="text"/>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <button type="button" class="btn btn-default navbar-btn">Prefer Exp</button>
+                        <button type="button" class="btn btn-default navbar-btn">Prefer AF</button>
+                    </div>
+                    <div class="col-2">
+                        <p>
+                            AlphaFold2 Structure
+                        </p>
+                    </div>
+                    <div class="col-2">
+                        <div class="row mb-1">
+                            <label class="col-5">
+                                Min pLDDT
+                            </label>
+                            <input class="form-control col-5"
+                                   v-model="minpLDDT"
+                                   type="text"/>
+                        </div>
+                    </div>
+                </div>
+                <h2>
+                    Repacking Parameters
                 </h2>
                 <div class="row justify-content-start">
                     <div class="col-1">
@@ -40,11 +86,12 @@
                             </label>
                             <input class="form-control col-8"
                                    v-model.number="angstroms"
-{#                                   v-bind:disabled=""#}
+                                    {#                                   v-bind:disabled=""#}
                                    type="number"/>
                         </div>
                         <div class="form-group row">
-                            <input type="checkbox"/>
+                            <input type="checkbox"
+                                   v-on:click="select_all"/>
                             <label class="col text-nowrap">
                                 Select all residues
                             </label>
@@ -72,7 +119,7 @@
                     <div class="col-6">
                         <div class="row">
                             <div class="col-6">
-                                <p>residues to be repacked:</p>
+                                <p>Protein sequence with residues to be repacked in CAPS:</p>
                             </div>
                             <div class="col-6">
                                 <div class="row">
@@ -112,11 +159,15 @@
                     angstroms: 0,
                     residue: [1],
                     residues: [],
+                    mut_seq: '',
                     submitClicked: false,
                     checkClicked: false,
+                    selectAllClicked: false,
+                    FASPR_pdb_text: '',
+                    minpLDDT: 90,
+                    Resolution: 5,
                 }
             },
-
             data: function () {
                 return {
                     geneID: "",
@@ -124,8 +175,13 @@
                     angstroms: 0,
                     residue: [1],
                     residues: [],
+                    mut_seq: '',
                     submitClicked: false,
                     checkClicked: false,
+                    selectAllClicked: false,
+                    FASPR_pdb_text: '',
+                    minpLDDT: 90,
+                    Resolution: 5,
                 }
             },
             beforeMount:
@@ -154,6 +210,7 @@
                     var ccid = this.CCID;
                     var geneid = this.geneID;
                     var angstroms = this.angstroms;
+                    {#var selectall = this.selectAllClicked;#}
                     {#var maxangstroms = ccid.replace(/\D/g, "");#}
                     var response = true;
                     if (ccid != '' &&
@@ -171,10 +228,15 @@
                 update_residues: function (event) {
                     value = event.target.value;
                     this.residues = value;
-                    console.log(value)
+                },
+                select_all: function () {
+                    this.selectAllClicked = true;
                 },
                 check: function () {
                     this.checkClicked = true;
+                    if (this.selectAllClicked == true) {
+                        this.angstroms = 1000000000;
+                    }
                     var request = {
                         CCID: this.CCID,
                         gene_ID: this.geneID,
@@ -200,18 +262,18 @@
                     })
                 },
                 submit: function () {
+                    var _this = this;
                     this.submitClicked = true;
                     this.dataset = this.residues;
                     this.length = this.seq_length;
-                    console.log('dataset logging:');
-                    console.log(this.dataset);
+
                     $.ajax({
                         var: residues_out = this.dataset,
                         type: 'POST',
                         url: '{% url 'api:cache_positions' %}',
-                        data: {positions: this.dataset},
+                        data: {positions: _this.dataset},
                         success: function (response) {
-                            this.residues = response;
+                            _this.dataset = response;
                         }.bind(this)
                     })
                     $.ajax({
@@ -225,17 +287,27 @@
                     $.ajax({
                         type: 'POST',
                         url: '{% url 'api:faspr_run' %}',
-                        data: 'a',
+                        data: '',
                         success: function (response) {
-                        }
+                            _this.FASPR_pdb_text = response.protein_structure;
+
+                            $.ajax({
+                                type: 'POST',
+                                url: '{% url 'api:cache_protein_structure' %}',
+                                data: {protein_structure: _this.FASPR_pdb_text},
+                                success: function (response) {
+                                }
+                            })
+                            $.ajax({
+                                var: CCID_out = this.CCID,
+                                var: residues_out = this.residues,
+                                success: function (response) {
+                                    window.location = '{% url 'pdbgen:pdbgen-results.html' %}'
+                                }
+                            })
+                        }.bind(this)
                     })
-                    $.ajax({
-                        var: CCID_out = this.CCID,
-                        var: residues_out = this.residues,
-                        success: function (response) {
-                            window.location = '{% url 'pdbgen:pdbgen-results.html' %}?CCID=' + CCID_out + '&RES=...' + residues_out
-                        }
-                    })
+
 
                 },
                 prefillForm: function () {

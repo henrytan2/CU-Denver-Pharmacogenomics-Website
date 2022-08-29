@@ -2,7 +2,7 @@ pharmacogenomics_venv
 .DS_Store
 pyveng.cfg
 *.env
-
+FASPR_output_cached.txt
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

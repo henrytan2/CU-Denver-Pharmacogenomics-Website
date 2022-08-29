@@ -5,6 +5,7 @@ from .views import MetabPrepAPI
 from .views import CacheCCIDAPI
 from .views import CachePositionsAPI
 from .views import CacheLengthAPI
+from .views import CacheProteinAPI
 app_name = 'api'
 
 urlpatterns = [
@@ -16,4 +17,5 @@ urlpatterns = [
     path(r'cache-ccid', CacheCCIDAPI.as_view(), name='cache_CCID'),
     path(r'cache-positions', CachePositionsAPI.as_view(), name='cache_positions'),
     path(r'cache-length', CacheLengthAPI.as_view(), name='cache_length'),
+    path(r'cache-protein-structure', CacheProteinAPI.as_view(), name='cache_protein_structure'),
 ]

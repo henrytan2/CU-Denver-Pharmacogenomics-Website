@@ -163,6 +163,8 @@ BOOTSTRAP3 = {'include_jquery': True}
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
+
 NAME = os.getenv('NAME')
 USER = os.getenv('DB_USER')
 PASSWORD = os.getenv('PASSWORD')
