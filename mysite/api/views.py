@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from mysite.business.faspr_prep import FasprPrep
 from mysite.business.faspr_run import FasprRun
 from mysite.business.metabolite_gen import MetabPrep
+from mysite.business.best_resolution import FindBestResolution
+
 import json
 from mysite.business import plotly_trial # keep both
 from mysite.business import plotly_trial # keep both
@@ -106,3 +108,10 @@ class MetabPrepAPI(APIView):
         smiles_code = request.data['smiles']
         MetabPrep(smiles_code)
         return Response(True)
+
+class FindResolution(APIView):
+    def post(self, request):
+        gene_ID = request.data['gene_ID']
+        find_best_res = FindBestResolution(gene_ID)
+        resolution = find_best_res.best_resolution
+        return Response({'resolution':resolution})

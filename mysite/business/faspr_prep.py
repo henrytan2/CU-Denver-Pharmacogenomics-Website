@@ -6,7 +6,6 @@ from Bio.PDB import PPBuilder, NeighborSearch
 from Bio.PDB.PDBParser import PDBParser
 import os
 import re
-from itertools import count, groupby
 
 class FasprPrep:
     P_num = ''
@@ -80,6 +79,7 @@ class FasprPrep:
                     self.alderaan.run_command(gunzip_command)
                 open_command = f"cat {self.temp_folder}/{self.protein_short_name[:-4]}/{self.protein_short_name} | tee {self.temp_folder}/pdb_temporary.txt"
                 pdb_text, success = self.alderaan.run_command(open_command)
+                # add uuid tag to verify origin?
                 with open('pdb_temporary.txt', 'w+') as f:
                     f.write(pdb_text)
                 p = PDBParser(PERMISSIVE=1)
