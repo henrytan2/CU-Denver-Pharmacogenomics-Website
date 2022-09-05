@@ -166,4 +166,3 @@ class FindBestResolution:
         #     f.write(best_pdb)
         return best_chain_id, protein_file_path, best_pdb_id, best_resolution
 
-

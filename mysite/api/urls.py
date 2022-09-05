@@ -9,6 +9,7 @@ from .views import CacheProteinAPI
 from .views import FindResolution
 app_name = 'api'
 
+
 urlpatterns = [
     path(r'faspr-prep', FasprPrepAPI.as_view(), name='faspr_prep'),
     path(r'faspr-run', FasprRunAPI.as_view(), name='faspr_run'),
