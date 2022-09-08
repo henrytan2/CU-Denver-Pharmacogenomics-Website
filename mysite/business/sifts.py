@@ -169,11 +169,7 @@ class SIFTS:
             self, pdb_id, pdb_chain, uniprot_id=None, timeout=600
     ):
 
-        # if not os.path.exists(os.path.join(self.xml_dir, pdb_id[1:3])):
-        #     os.mkdir(os.path.join(self.xml_dir, pdb_id[1:3]))
         xml_file = os.path.join(self.xml_dir, pdb_id[1:3], pdb_id + '.xml.gz')
-        # xml_temp_file = os.path.join(self.pdb_path, 'temp')
-        # ALT wget.download( f'https://files.rcsb.org/download/{pdb_id}-assembly1.cif.gz')
 
         if not os.path.exists(xml_file):
             xml_file_ftp = 'ftp://ftp.ebi.ac.uk/pub/databases/msd/sifts/xml/{}.xml.gz'.format(pdb_id)

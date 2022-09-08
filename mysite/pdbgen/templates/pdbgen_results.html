@@ -31,7 +31,6 @@
 
                     <div class="col">
                         {% load plotly_dash %}
-                        {#                        {{ request.get_full_path|slice:"46:" }}#}
                         {% plotly_app name="MutationViewer" ratio=1.5 %}
                     </div>
 
@@ -43,13 +42,6 @@
         </div>
 
     </script>
-
-    {#    <script type="application/javascript">#}
-    {#        const queryString = window.location.search;#}
-    {#        const urlParams = new URLSearchParams(queryString);#}
-    {#        const ccid_stored = urlParams.get('CCID');#}
-    {#        const residues_stored = urlParams.get('RES');#}
-    {#    </script>#}
 
 
     <script type="application/javascript">
@@ -63,21 +55,14 @@
                         type: 'GET',
                         url: '{% url 'api:cache_protein_structure' %}',
                         data: '',
-                        success: function (response) {
-                            debugger;
-                            this.protein_structure = response;
-                            _this.FASPR_pdb_text = response.protein_structure;
-                            this.pdb_blob = new Blob(
-                                [_this.FASPR_pdb_text],
+                        success: function (protein_structure) {
+                            const pdb_blob = new Blob(
+                                [protein_structure],
                                 {
                                     type: "text/plain;charset=utf-8"
                                 }
                             );
-
-                            {#fetch(_this.FASPR_pdb_text)#}
-                            {#.then(response => response.blob())#}
-                            {#.then(blob => {#}
-                            const url = window.URL.createObjectURL(this.pdb_blob);
+                            const url = window.URL.createObjectURL(pdb_blob);
                             const a = document.createElement('a');
                             a.style.display = 'none';
                             a.href = url;
@@ -85,8 +70,7 @@
                             document.body.appendChild(a);
                             a.click();
                             window.URL.revokeObjectURL(url);
-
-                        }.bind(this)
+                        }
                     })
 
                 },
@@ -96,38 +80,6 @@
             }
         })
     </script>
-    {#    <script>#}
-    {#        export default {#}
-    {#            methods: {#}
-    {#                download() {#}
-    {#                    const url = '/users/download';#}
-    {#                    window.location.href = url;#}
-    {#                }#}
-    {#            },#}
-    {##}
-    {#        };#}
-    {#    </script>#}
+
 {% endblock %}
 {% plotly_message_pipe %}
-
-{#                    <a#}
-{#                            :href="item.url"#}
-{#                            v-text="item.label"#}
-{#                            @click.prevent="downloadItem(item)"/>#}
-{#                    <button#}
-{#                            v-on:click="$is_admin"#}
-{#                            class="btn btn-primary float-right margin:50px" @click.prevent="downloadItem(item)">Download Protein#}
-{#                    </button>#}
-
-{#fetch('https://jsonplaceholder.typicode.com/todos/1')#}
-{#                        .then(resp => resp.blob())#}
-{#                        .then(blob => {#}
-{#                            const url = window.URL.createObjectURL(blob);#}
-{#                            const a = document.createElement('a');#}
-{#                            a.style.display = 'none';#}
-{#                            a.href = url;#}
-{#                            a.download = 'repacked_protein.json';#}
-{#                            document.body.appendChild(a);#}
-{#                            a.click();#}
-{#                            window.URL.revokeObjectURL(url);#}
-{#                        })#}

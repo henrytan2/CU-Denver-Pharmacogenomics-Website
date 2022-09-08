@@ -2,14 +2,10 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-    <style>
-        .icon-size {
-            font-size: 3em;
-        }
-    </style>
+
     <h1 class="lead">
-        Select prefered source of protein data minimum criteria and then
-        repack amino acids surrounding the SNV by entering a diameter (in Angstroms)
+        Select preferred source of protein data and then repack amino acids
+        surrounding the SNV by entering a diameter (in Angstroms)
     </h1>
     <index></index>
     <script id="index-template"
@@ -24,23 +20,23 @@
                     </div>
                     <div class="col-2">
                         <p>
-                            Experimental Structure
+                            Experimental Structure Available
                         </p>
                     </div>
                     <div class="col-2">
                         <div class="row mb-2">
                             <label class="col-5">
-                                Min Resolution
+                                 Resolution
                             </label>
                             <input class="form-control col-5"
                                    v-model="Resolution"
                                    type="text"/>
                         </div>
                     </div>
-                    <div class="col-2">
-                        <button type="button" class="btn btn-default navbar-btn">Prefer Exp</button>
-                        <button type="button" class="btn btn-default navbar-btn">Prefer AF</button>
-                    </div>
+{#                    <div class="col-2">#}
+{#                        <button type="button" class="btn btn-default navbar-btn">Prefer Exp</button>#}
+{#                        <button type="button" class="btn btn-default navbar-btn">Prefer AF</button>#}
+{#                    </div>#}
                     <div class="col-2">
                         <p>
                             AlphaFold2 Structure
@@ -49,7 +45,7 @@
                     <div class="col-2">
                         <div class="row mb-1">
                             <label class="col-5">
-                                Min pLDDT
+                                pLDDT at SNV
                             </label>
                             <input class="form-control col-5"
                                    v-model="minpLDDT"
