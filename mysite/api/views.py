@@ -17,6 +17,7 @@ from mysite.business.CCID_cache import set_PDB
 from rest_framework import serializers
 
 from django.http import HttpResponse
+import hashlib
 
 
 class FasprPrepAPI(APIView):
@@ -25,7 +26,8 @@ class FasprPrepAPI(APIView):
         ccid = request.data['CCID']
         gene_ID = request.data['gene_ID']
         angstroms = request.data['angstroms']
-        faspr_prep = FasprPrep(ccid, gene_ID, angstroms)
+        useAlphafold = request.data['useAlphafold']
+        faspr_prep = FasprPrep(ccid, gene_ID, angstroms, useAlphafold)
         sequence_length = faspr_prep.sequence_length
         residues = faspr_prep.positions
         mutatseq = faspr_prep.mutatseq
@@ -94,9 +96,13 @@ class CacheProteinAPI(APIView):
     def post(self, request):
         protein_structure = request.data['protein_structure']
         cache.set('protein_structure', protein_structure)
+        protein_structure = protein_structure.encode('utf-8')
+        hasher = hashlib.sha1()
+        hasher.update(protein_structure)
+        hashed_pdb = hasher.hexdigest()
         success = set_PDB(protein_structure)
         # print('CacheProteinAPI post is', success, protein_structure)
-        return Response({'protein_structure':protein_structure})
+        return Response({'protein_structure':protein_structure},{'hashed_pdb':hashed_pdb})
 
     def get(self, request):
         returned_protein_structure = cache.get('protein_structure')
@@ -109,9 +115,14 @@ class MetabPrepAPI(APIView):
         MetabPrep(smiles_code)
         return Response(True)
 
-class FindResolution(APIView):
+class FindResolutionAPI(APIView):
     def post(self, request):
         gene_ID = request.data['gene_ID']
         find_best_res = FindBestResolution(gene_ID)
         resolution = find_best_res.best_resolution
         return Response({'resolution':resolution})
+
+    def get(self, request):
+        resolution = cache.get('protein_structure')
+        print(resolution, 'is returned resolution from FindResolutionAPI')
+        return Response(resolution)

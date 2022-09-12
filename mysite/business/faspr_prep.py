@@ -32,28 +32,33 @@ class FasprPrep:
     alpha_folder = os.path.join('Documents', 'alphafold')
     temp_folder = os.path.join(scratch_folder, 'tmp')
 
-    def __init__(self, CCID, gene_ID, angstroms):
-        self.alderaan = Alderaan()
-        self.CCID = CCID
-        self.mutant_n = str(re.findall(r'\d+', self.CCID))
-        self.mutation_str = self.mutant_n.strip("['']")
-        self.mutation_position = int(self.mutation_str)
-        self.gene_ID = gene_ID
-        self.get_Pnum()
-        self.unmutated_seq, self.structure, self.sequence_length = self.get_sequence_unmut()
-        self.mut_pos, self.single_nucleotide, self.single_nucleotide_variation = self.get_mutation_position(CCID)
-        self.unmutated_sequence = str(self.unmutated_seq)
-        self.mutated_sequence = self.unmutated_sequence[:self.mutation_position - 1] + \
-                                self.unmutated_sequence[self.mutation_position - \
-                                1:self.mutation_position].replace(self.single_nucleotide,
-                                self.single_nucleotide_variation) + \
-                                self.unmutated_sequence[self.mutation_position:]
+    def __init__(self, CCID, gene_ID, angstroms, useAlphafold):
+        if not useAlphafold:
+            self.sequence_length = 0
+            self.mutatseq = 'error'
+            return
+        else:
+            self.alderaan = Alderaan()
+            self.CCID = CCID
+            self.mutant_n = str(re.findall(r'\d+', self.CCID))
+            self.mutation_str = self.mutant_n.strip("['']")
+            self.mutation_position = int(self.mutation_str)
+            self.gene_ID = gene_ID
+            self.get_Pnum()
+            self.unmutated_seq, self.structure, self.sequence_length = self.get_sequence_unmut()
+            self.mut_pos, self.single_nucleotide, self.single_nucleotide_variation = self.get_mutation_position(CCID)
+            self.unmutated_sequence = str(self.unmutated_seq)
+            self.mutated_sequence = self.unmutated_sequence[:self.mutation_position - 1] + \
+                                    self.unmutated_sequence[self.mutation_position - \
+                                    1:self.mutation_position].replace(self.single_nucleotide,
+                                    self.single_nucleotide_variation) + \
+                                    self.unmutated_sequence[self.mutation_position:]
 
-        self.angstroms = int(angstroms)
-        self.positions = self.get_mutated_sequence3d(self.structure, self.mut_pos, 'A', self.angstroms) #DROP A
-        self.get_mut_seq = self.capitalize(self.mutated_sequence, self.positions)
-        self.mutatseq = self.make_mutatedseq_file(self.get_mut_seq)
-        self.get_specific_mutation(self.unmutated_seq, self.mut_pos, self.single_nucleotide)
+            self.angstroms = int(angstroms)
+            self.positions = self.get_mutated_sequence3d(self.structure, self.mut_pos, 'A', self.angstroms) #DROP A
+            self.get_mut_seq = self.capitalize(self.mutated_sequence, self.positions)
+            self.mutatseq = self.make_mutatedseq_file(self.get_mut_seq)
+            self.get_specific_mutation(self.unmutated_seq, self.mut_pos, self.single_nucleotide)
 
 
     def get_Pnum(self):

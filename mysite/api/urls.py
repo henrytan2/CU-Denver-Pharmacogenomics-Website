@@ -6,7 +6,7 @@ from .views import CacheCCIDAPI
 from .views import CachePositionsAPI
 from .views import CacheLengthAPI
 from .views import CacheProteinAPI
-from .views import FindResolution
+from .views import FindResolutionAPI
 app_name = 'api'
 
 
@@ -20,5 +20,5 @@ urlpatterns = [
     path(r'cache-positions', CachePositionsAPI.as_view(), name='cache_positions'),
     path(r'cache-length', CacheLengthAPI.as_view(), name='cache_length'),
     path(r'cache-protein-structure', CacheProteinAPI.as_view(), name='cache_protein_structure'),
-    path(r'best-resolution', FindResolution.as_view(), name='best_resolution'),
+    path(r'best-resolution', FindResolutionAPI.as_view(), name='best_resolution'),
 ]

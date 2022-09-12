@@ -11,8 +11,8 @@ from dash.exceptions import PreventUpdate
 import re
 import os
 
-# parser = PdbParser('glygly.pdb')
-parser = PdbParser('https://git.io/4K8X.pdb')
+parser = PdbParser('glygly.pdb')
+# parser = PdbParser('https://git.io/4K8X.pdb')
 
 data = parser.mol3d_data()
 styles = create_mol3d_style(

@@ -29,7 +29,7 @@ class FindBestResolution:
         self.mapping_table = self._create_mapping_table(self.sifts_ensembl)
         self.chain_id, self.protein_file_path, self.pdb_id, self.best_resolution = self.enst_to_pdb(self.ENST)
 
-        self.best_pdb = os.path.join(self.protein_file_path, f"{self.pdb_id}.pdb")
+        # self.best_pdb = os.path.join(self.protein_file_path, f"{self.pdb_id}.pdb")
 
 
 
@@ -74,7 +74,7 @@ class FindBestResolution:
         return sifts_table
 
     def get_resolution(self, pdb_id, pdb_path=None):
-
+        res = 0
         pdbl = PDBList()
 
         if pdb_path is None:
@@ -103,7 +103,7 @@ class FindBestResolution:
             return None
 
     def enst_to_pdb(self, enst_id, uniprot_id=None):
-
+        protein_file_path = os.path.join(self.pdb_path)
         enst_id = enst_id.upper()
         query_str = 'enst_id == ' + '"' + enst_id + '"'
 
@@ -126,7 +126,7 @@ class FindBestResolution:
             uniq_pdb_chains.append((k, v[0]))
 
         if not uniq_pdb_chains:
-            return None, None
+            return None, None, None, None
 
         sifts = SIFTS(sifts_uniprot=self.sifts_uniprot, xml_dir = self.sifts_path)
 
