@@ -8,58 +8,44 @@ import os
 import re
 
 class FasprPrep:
-    P_num = ''
-    mutation_position = 0
-    CCID = ''
-    gene_ID = ''
-    sur_aa_low = ''
-    sur_aa_high = ''
-    unmutated_seq = ''
-    mutatseq = ''
-    single_nucleotide = ''
-    single_nucleotide_variation = ''
-    mutated_protein_code = ''
-    alderaan = None
-    angstroms = 0
-    positions = [0]
-    # base_pharmaco_folder = os.path.join('/')
-    # alderaan_pharmaco_folder = os.path.join('/', 'home', 'reedsc')
-    # alderaan_scratch_folder = os.path.join('/','storage','chemistry','projects','pharmacogenomics')
-    # alderaan_alpha_folder = os.path.join(alderaan_scratch_folder, 'alphafold')
-    # singularity_folder = os.path.join('..','..','..','storage','singularity')
-    # FASPR_folder = os.path.join('FASPR')
+
     scratch_folder = os.path.join('website_activity')
     alpha_folder = os.path.join('Documents', 'alphafold')
     temp_folder = os.path.join(scratch_folder, 'tmp')
 
-    def __init__(self, CCID, gene_ID, angstroms, useAlphafold):
-        if not useAlphafold:
-            self.sequence_length = 0
-            self.mutatseq = 'error'
-            return
-        else:
-            self.alderaan = Alderaan()
-            self.CCID = CCID
-            self.mutant_n = str(re.findall(r'\d+', self.CCID))
-            self.mutation_str = self.mutant_n.strip("['']")
-            self.mutation_position = int(self.mutation_str)
-            self.gene_ID = gene_ID
-            self.get_Pnum()
+    def __init__(self, CCID, gene_ID, angstroms, use_alphafold, file_location):
+        self.alderaan = Alderaan()
+        self.CCID = CCID
+        self.mutant_n = str(re.findall(r'\d+', self.CCID))
+        self.mutation_str = self.mutant_n.strip("['']")
+        self.mutation_position = int(self.mutation_str)
+        self.gene_ID = gene_ID
+        self.get_Pnum()
+        self.mut_pos, self.single_nucleotide, self.single_nucleotide_variation = self.get_mutation_position(self.CCID)
+        self.use_alphafold = use_alphafold
+        self.file_location = file_location
+
+        if self.use_alphafold == 'false':
             self.unmutated_seq, self.structure, self.sequence_length = self.get_sequence_unmut()
-            self.mut_pos, self.single_nucleotide, self.single_nucleotide_variation = self.get_mutation_position(CCID)
-            self.unmutated_sequence = str(self.unmutated_seq)
-            self.mutated_sequence = self.unmutated_sequence[:self.mutation_position - 1] + \
-                                    self.unmutated_sequence[self.mutation_position - \
-                                    1:self.mutation_position].replace(self.single_nucleotide,
-                                    self.single_nucleotide_variation) + \
-                                    self.unmutated_sequence[self.mutation_position:]
+            # self.sequence_length = 0
+            # self.mutatseq = 'Error. no experimental structure found.'
+            # return
 
-            self.angstroms = int(angstroms)
-            self.positions = self.get_mutated_sequence3d(self.structure, self.mut_pos, 'A', self.angstroms) #DROP A
-            self.get_mut_seq = self.capitalize(self.mutated_sequence, self.positions)
-            self.mutatseq = self.make_mutatedseq_file(self.get_mut_seq)
-            self.get_specific_mutation(self.unmutated_seq, self.mut_pos, self.single_nucleotide)
+        else:
+            self.unmutated_seq, self.structure, self.sequence_length = self.get_sequence_unmut_AF()
+        self.unmutated_sequence = str(self.unmutated_seq)
+        self.mutated_sequence = self.unmutated_sequence[:self.mutation_position - 1] + \
+                                        self.unmutated_sequence[self.mutation_position - \
+                                        1:self.mutation_position].replace(self.single_nucleotide,
+                                        self.single_nucleotide_variation) + \
+                                        self.unmutated_sequence[self.mutation_position:]
 
+        self.angstroms = int(angstroms)
+        self.positions = self.get_mutated_sequence3d(self.structure, self.mut_pos, 'A', self.angstroms) #DROP A
+        self.positions_short = str(self.positions)
+        self.get_mut_seq = self.capitalize(self.mutated_sequence, self.positions)
+        self.mutatseq = self.make_mutatedseq_file(self.get_mut_seq)
+        self.get_specific_mutation(self.unmutated_seq, self.mut_pos, self.single_nucleotide)
 
     def get_Pnum(self):
         with open('../pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:
@@ -68,6 +54,33 @@ class FasprPrep:
             print('Pnum is: ',self.P_num)
 
     def get_sequence_unmut(self):
+        # protein_count_command = f'ls -dq {self.alpha_folder}/AF-{self.P_num}-F*-model_v* | wc -l'
+        # protein_count, success = self.alderaan.run_command(protein_count_command)
+        # if success:
+        #     protein_number = int(protein_count)
+        #     if protein_number == 2:
+        #         protein_filename = f"find '{self.alpha_folder}' -maxdepth 1 -name 'AF-{self.P_num}-F*-model_v*.pdb.gz'"
+        #         pdb_file, success = self.alderaan.run_command(protein_filename)
+        #         _, self.protein_short_name = os.path.split(pdb_file[:-4])
+        #         mkdir_command = f'mkdir {self.temp_folder}/{self.protein_short_name[:-4]}'
+        #         _, success = self.alderaan.run_command(mkdir_command)
+        #         if success == True:
+        #             gunzip_command = f'gunzip -c {pdb_file[:-1]} > {self.temp_folder}/{self.protein_short_name[:-4]}/{self.protein_short_name}'
+        #             self.alderaan.run_command(gunzip_command)
+        open_command = f"cat {self.file_location} | tee {self.temp_folder}/pdb_temporary.txt"
+        pdb_text, success = self.alderaan.run_command(open_command)
+        with open('pdb_temporary.txt', 'w+') as f:
+            f.write(pdb_text)
+        p = PDBParser(PERMISSIVE=1)
+        structure = p.get_structure(id='_', file='pdb_temporary.txt')
+        ppb = PPBuilder()
+        peptides = ppb.build_peptides(structure)
+        PDB_sequence = peptides[0].get_sequence()
+        unmutated_sequence = PDB_sequence.lower()
+        sequence_length = len(unmutated_sequence)
+        return unmutated_sequence, structure, sequence_length
+
+    def get_sequence_unmut_AF(self):
         p = PDBParser()
         protein_count_command = f'ls -dq {self.alpha_folder}/AF-{self.P_num}-F*-model_v* | wc -l'
         protein_count, success = self.alderaan.run_command(protein_count_command)
@@ -84,7 +97,6 @@ class FasprPrep:
                     self.alderaan.run_command(gunzip_command)
                 open_command = f"cat {self.temp_folder}/{self.protein_short_name[:-4]}/{self.protein_short_name} | tee {self.temp_folder}/pdb_temporary.txt"
                 pdb_text, success = self.alderaan.run_command(open_command)
-                # add uuid tag to verify origin?
                 with open('pdb_temporary.txt', 'w+') as f:
                     f.write(pdb_text)
                 p = PDBParser(PERMISSIVE=1)
@@ -133,12 +145,14 @@ class FasprPrep:
 
     def capitalize(self, mutatedsequence, positions):
         split_mutatedsequence = list(mutatedsequence)
-        for int in positions:
+        for res in positions:
+            res_p = int(res)
             try:
-                split_mutatedsequence[int] = split_mutatedsequence[int].upper()
+                split_mutatedsequence[res_p-1] = split_mutatedsequence[res_p-1].upper()
             except IndexError:
-                print('Index out of range : ', int)
+                print('Index out of range : ', res_p-1)
         return "".join(split_mutatedsequence)
+
 
     def make_mutatedseq_file(self, mutatseq):
         mutatseq_pipe = str(f'"{mutatseq}"')

@@ -7,8 +7,9 @@ from .views import CachePositionsAPI
 from .views import CacheLengthAPI
 from .views import CacheProteinAPI
 from .views import FindResolutionAPI
-app_name = 'api'
+from .views import FindpLDDTAPI
 
+app_name = 'api'
 
 urlpatterns = [
     path(r'faspr-prep', FasprPrepAPI.as_view(), name='faspr_prep'),
@@ -21,4 +22,5 @@ urlpatterns = [
     path(r'cache-length', CacheLengthAPI.as_view(), name='cache_length'),
     path(r'cache-protein-structure', CacheProteinAPI.as_view(), name='cache_protein_structure'),
     path(r'best-resolution', FindResolutionAPI.as_view(), name='best_resolution'),
+    path(r'plddt-score', FindpLDDTAPI.as_view(), name='find_plddt'),
 ]

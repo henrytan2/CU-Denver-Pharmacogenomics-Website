@@ -11,145 +11,147 @@
     <script id="index-template"
             type="text-html-template">
         <div class="container">
-            <div class="overlay" v-if="fetchingResolution" style="background-color: rgba(0, 0, 0, 0.6)"></div>
-            <div>
-                <h2>
-                    Protein Source
-                </h2>
-
-                <div class="btn-group btn-group-toggle"
-                     data-toggle="buttons"
-                     style="padding-left: 10px;padding-bottom: 10px">
-                    <div class="col-1">
+            <h2>
+                Protein Source
+            </h2>
+            <div class="btn-group btn-group-toggle"
+                 data-toggle="buttons"
+                 style="padding-left: 10px;padding-bottom: 10px">
+                <div class="col-1">
+                </div>
+                <ul class="nav nav-tabs"
+                >
+                    <label class="btn btn-info" style="padding-left: 10px;padding-bottom: 10px">
+                        <input type="radio"
+                               name="options"
+                               id="option1"
+                               v-on:click="changeSourceToAlpha"
+                               v-bind:class="{active: toggleAlphaFoldOn}"
+                               autocomplete="off"
+                               checked>
+                        AlphaFold2
+                    </label>
+                    <label class="btn btn-info" style="padding-left: 10px;padding-bottom: 10px">
+                        <input type="radio"
+                               name="options"
+                               id="option2"
+                               v-on:click="changeSourceToExp"
+                               v-bind:class="{active: toggleProteinOn}"
+                               autocomplete="off">
+                        Experimental
+                    </label>
+                </ul>
+            </div>
+            <div class="row justify-content-start">
+                <div class="col-1">
+                </div>
+                <div class="col-4">
+                    <div v-if="fetchingResolution">
+                        Searching for experimental structures
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
                     </div>
-                    <ul class="nav nav-tabs"
-                        v-on:click="changeSource">
-                        <label class="btn btn-info" style="padding-left: 10px;padding-bottom: 10px">
-                            <input type="radio"
-                                   name="options"
-                                   id="option1"
-                                   v-bind:class="{active: toggleAlphaFoldOn}"
-                                   autocomplete="off"
-                                   checked>
-                            AlphaFold2
+                    <div v-else>
+                        Experimental Structure
+                        {% if  bestResolution == "false" %}
+                            {% verbatim %} not available {% endverbatim %}
+                        {% elif bestResolution|add:"2" == '' %}
+                            Available at:
+                            <b style="display:inline"
+                               class="text-primary">{% verbatim %}{{ bestResolution }}{% endverbatim %}</b>
+                            <b class="text" style="display:inline">Angstrom resolution</b>
+                        {% else %}
+                            {% verbatim %}not available{% endverbatim %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-start">
+                <div class="col-1">
+                </div>
+                <div class="col-4">
+                    <div v-if="fetchingpLDDT">
+                        Searching for AlphaFold2 Structure
+                        <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                    <div v-else style="display:inline">
+                        AlphaFold2 Structure Available
+                        with <b class="text-primary"
+                                style="display:inline">{% verbatim %}{{ pLDDTScore }}{% endverbatim %}</b>
+                        pLDDT score at SNV
+                    </div>
+                </div>
+            </div>
+
+            <h2>
+                Repacking Parameters
+            </h2>
+            <div class="row justify-content-start">
+                <div class="col-1">
+                </div>
+                <div class="col-5">
+                    <div class="row mb-1">
+                        <label class="col-4">
+                            GeneID
                         </label>
-                        <label class="btn btn-info" style="padding-left: 10px;padding-bottom: 10px">
-                            <input type="radio"
-                                   name="options"
-                                   id="option2"
-                                   v-bind:class="{active: toggleProteinOn}"
-                                   autocomplete="off">
-                            Experimental
+                        <input class="form-control col-5"
+                               v-model="geneID"
+                               type="text"/>
+                    </div>
+                    <div class="row mb-1">
+                        <label class="col-4">
+                            CCID
                         </label>
-                    </ul>
-                </div>
-                <div class="row justify-content-start">
-                    <div class="col-1">
+                        <input class="form-control col-5"
+                               v-model="CCID"
+                               type="text"/>
                     </div>
-                    <div class="col-4">
-                        <div v-if="fetchingResolution">
-                            Searching for experimental structures
-                            <div class="spinner-border" role="status">
-                                <span class="sr-only">Loading...</span>
-                            </div>
-                        </div>
-                        <div v-else>
-                            Experimental Structure
-                            {% if bestResolution != null %}
-                                Available at:
-                                <b style="display:inline"
-                                   class="text-primary">{% verbatim %}{{ bestResolution }}{% endverbatim %}</b>
-                                <b class="text" style="display:inline">Angstrom resolution</b>
-                            {% else %}
-                                {% verbatim %}not available{% endverbatim %}
-                            {% endif %}
+                    <div class="form-group row">
+                        <label class="col-4">
+                            Angstroms
+                        </label>
+                        <input class="form-control col-5"
+                               v-model.number="angstroms"
+                               v-bind:disabled="!select_all"
+                               type="number"/>
+                    </div>
+                    <div class="form-group row">
+                        <input type="checkbox"
+                               v-on:click="select_all"/>
+                        <label class="col text-nowrap">
+                            Select all residues
+                        </label>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-4">
+                            <button class="btn btn-primary float-right"
+                                    v-on:click="check"
+                                    v-bind:disabled="checkButtonDisabled">
+                                Check
+                            </button>
                         </div>
                     </div>
-                </div>
-                <div class="row justify-content-start">
-                    <div class="col-1">
-                    </div>
-                    <div class="col-4">
-                        <div v-if="fetchingpLDDT">
-                            Searching for AlphaFold2 Structure
-                            <div class="spinner-border" role="status">
-                                <span class="sr-only">Loading...</span>
-                            </div>
-                        </div>
-                        <div v-else style="display:inline">
-                            AlphaFold2 Structure Available
-                            with <b class="text-primary"
-                                    style="display:inline">{% verbatim %}{{ pLDDTScore }}{% endverbatim %}</b>
-                            pLDDT score at SNV
+                    <div class="form-group row">
+                        <div class="col-4">
+                            <button class="btn btn-primary float-right"
+                                    v-on:click="submit"
+                                    v-bind:disabled="submitButtonDisabled">
+                                Submit
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <h2>
-                    Repacking Parameters
-                </h2>
-                <div class="row justify-content-start">
-                    <div class="col-1">
-                    </div>
-                    <div class="col-5">
-                        <div class="row mb-1">
-                            <label class="col-4">
-                                GeneID
-                            </label>
-                            <input class="form-control col-8"
-                                   v-model="geneID"
-                                   type="text"/>
-                        </div>
-                        <div class="row mb-1">
-                            <label class="col-4">
-                                CCID
-                            </label>
-                            <input class="form-control col-8"
-                                   v-model="CCID"
-                                   type="text"/>
-                        </div>
-                        <div class="form-group row">
-                            <label class="col-4">
-                                Angstroms
-                            </label>
-                            <input class="form-control col-8"
-                                   v-model.number="angstroms"
-                                   v-bind:disabled="!select_all"
-                                   type="number"/>
-                        </div>
-                        <div class="form-group row">
-                            <input type="checkbox"
-                                   v-on:click="select_all"/>
-                            <label class="col text-nowrap">
-                                Select all residues
-                            </label>
-                        </div>
-                        <div class="form-group row">
-                            <div class="col-4">
-                                <button class="btn btn-primary float-right"
-                                        v-on:click="check"
-                                        v-bind:disabled="checkButtonDisabled">
-                                    Check
-                                </button>
-
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <div class="col-4">
-                                <button class="btn btn-primary float-right"
-                                        v-on:click="submit"
-                                        v-bind:disabled="submitButtonDisabled">
-                                    Submit
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="row">
-                            <div class="col-6">
+                <div class="col">
+                    <div class="row">
+                        <div v-if="checkClicked">
+                            <div class="col">
                                 <p>Protein sequence with residues to be repacked in CAPS:</p>
                             </div>
-                            <div class="col-6">
+                            <div class="col">
                                 <div class="row">
                                     <div class="col">
                                         <p class="text-break">
@@ -160,6 +162,7 @@
                                 <div class="row">
                                     <div class="col">
                                         <ul>
+                                            <p>Position that will be mutated:</p>
                                             <li v-for="residue in residues">
                                                 {% verbatim %}{{ residue }}{% endverbatim %}
                                             </li>
@@ -191,7 +194,7 @@
                     checkClicked: false,
                     selectAllClicked: false,
                     FASPR_pdb_text: '',
-                    bestResolution: '',
+                    bestResolution: "false",
                     fetchingResolution: true,
                     fetchingpLDDT: true,
                     toggleAlphaFoldOn: true,
@@ -238,17 +241,35 @@
                 }
             },
             mounted: function () {
-                var request = {
+                var requestResolution = {
                     gene_ID: this.geneID,
                 }
                 $.ajax({
                     type: 'POST',
                     url: '{% url 'api:best_resolution' %}',
-                    data: request,
+                    data: requestResolution,
                     success: function (response) {
                         this.bestResolution = response.resolution;
+                        this.file_location = response.file_location;
                         this.fetchingResolution = false;
-                        console.log(this.bestResolution)
+                        console.log(this.bestResolution);
+                        console.log(this.file_location);
+                    }.bind(this)
+                })
+                var requestPLDDT = {
+                    gene_ID: this.geneID,
+                    CCID: this.CCID,
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url 'api:find_plddt' %}',
+                    data: requestPLDDT,
+                    success: function (response) {
+                        this.plddt_snv = response.plddt_snv;
+                        this.plddt_avg = response.plddt_avg;
+                        this.fetchingpLDDT = false;
+                        console.log(this.plddt_snv);
+                        console.log(this.plddt_avg);
                     }.bind(this)
                 })
             },
@@ -260,22 +281,25 @@
                 select_all: function () {
                     this.selectAllClicked = true;
                 },
-                changeSource: function () {
+                changeSourceToAlpha: function () {
                     if (this.toggleAlphaFoldOn) {
-                        this.toggleAlphaFoldOn = false;
-                        this.toggleProteinOn = true;
+                        console.log('already alpha');
                     } else {
                         this.toggleAlphaFoldOn = true;
                         this.toggleProteinOn = false;
                     }
-                    console.log(this.toggleAlphaFoldOn)
                 },
-
+                changeSourceToExp: function () {
+                    if (this.toggleAlphaFoldOn) {
+                        this.toggleAlphaFoldOn = false;
+                        this.toggleProteinOn = true;
+                    } else {
+                    }
+                },
                 pLDDTScore: function () {
                 },
                 check: function () {
                     this.checkClicked = true;
-                    debugger;
                     if (this.selectAllClicked == true) {
                         this.angstroms = 1000000000;
                     }
@@ -284,6 +308,7 @@
                         gene_ID: this.geneID,
                         angstroms: this.angstroms,
                         toggleAlphaFoldOn: this.toggleAlphaFoldOn,
+                        file_location: this.file_location,
                     }
                     $.ajax({
                         type: 'POST',

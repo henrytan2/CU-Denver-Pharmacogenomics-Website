@@ -70,9 +70,7 @@
                 <li class="nav-item"
                     title="directly to refolding">
                     <a class="nav-link"
-                       v-bind:class="{active: refoldTabIsActive}"
-                       ref="refoldTab"
-                       href="#">
+                       v-on:click="{active: refolderTabIsActive}">
                         refold
                     </a>
                 </li>
@@ -208,6 +206,37 @@
                     </div>
                 </div>
             </div>
+            <div v-show="refolderTabIsActive">
+                <div class="row">
+                    <div class="col">
+                        <div class="card">
+                            <p>
+                            <form>
+                                <div class="form-group">
+                                    <label for="exampleGene">Gene</label>
+                                    <input type="text"
+                                           placeholder="Search by gene name"
+                                           v-on:click="viewRefolderResults">
+
+                                    <small class="form-text text-muted">must be valid gnomad v2.1
+                                        (https://gnomad.broadinstitute.org/) name.
+                                    </small>
+                                </div>
+                            </form>
+                            <div style="text-align: right; margin-top: 10px">
+                                <button type="submit"
+                                        id="side-effect-list-submit"
+                                        v-bind:disabled="exacSubmitButtonDisabled"
+                                        v-on:click="viewRefolderResults"
+                                        class="btn btn-primary submit-btn">
+                                    Submit to refolder
+                                </button>
+                            </div>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </script>
 
@@ -220,6 +249,7 @@
                     return {
                         gtexTabIsActive: true,
                         exacTabIsActive: false,
+                        refolderTabIsActive: false,
                         lowerRatio: null,
                         upperRatio: null,
                         filterList: [],
@@ -290,6 +320,14 @@
                             this.gtexTabIsActive = true;
                             this.exacTabIsActive = false;
                         }
+                    },
+                    viewRefolderResults: function () {
+                        $.ajax({
+                            data: {},
+                            success: function () {
+                                window.location = "{% url 'api:pdbgen:pdbgen_index' %}?CCID=0&gene_ID=0&neighbors=null";
+                            }
+                        });
                     },
                     toggleFilter: function () {
                         if (this.filterByRatio) {

@@ -4,6 +4,7 @@ from mysite.business.faspr_prep import FasprPrep
 from mysite.business.faspr_run import FasprRun
 from mysite.business.metabolite_gen import MetabPrep
 from mysite.business.best_resolution import FindBestResolution
+from mysite.business.find_plddt import CheckPLDDT
 
 import json
 from mysite.business import plotly_trial # keep both
@@ -26,8 +27,9 @@ class FasprPrepAPI(APIView):
         ccid = request.data['CCID']
         gene_ID = request.data['gene_ID']
         angstroms = request.data['angstroms']
-        useAlphafold = request.data['useAlphafold']
-        faspr_prep = FasprPrep(ccid, gene_ID, angstroms, useAlphafold)
+        useAlphafold = request.data['toggleAlphaFoldOn']
+        file_location = request.data['file_location']
+        faspr_prep = FasprPrep(ccid, gene_ID, angstroms, useAlphafold, file_location)
         sequence_length = faspr_prep.sequence_length
         residues = faspr_prep.positions
         mutatseq = faspr_prep.mutatseq
@@ -120,9 +122,21 @@ class FindResolutionAPI(APIView):
         gene_ID = request.data['gene_ID']
         find_best_res = FindBestResolution(gene_ID)
         resolution = find_best_res.best_resolution
-        return Response({'resolution':resolution})
+        file_location = find_best_res.file_location
+        return Response({'resolution':resolution, 'file_location':file_location})
 
     def get(self, request):
         resolution = cache.get('protein_structure')
         print(resolution, 'is returned resolution from FindResolutionAPI')
         return Response(resolution)
+
+class FindpLDDTAPI(APIView):
+
+    def post(self, request):
+        gene_ID = request.data['gene_ID']
+        ccid = request.data['CCID']
+        find_plddt = CheckPLDDT(gene_ID, ccid)
+        plddt_snv = find_plddt.plddt_snv
+        plddt_avg = find_plddt.plddt_avg
+        return Response({'plddt_snv':plddt_snv, 'plddt_avg':plddt_avg})
+
