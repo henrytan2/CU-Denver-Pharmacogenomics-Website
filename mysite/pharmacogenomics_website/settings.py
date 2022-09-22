@@ -242,12 +242,9 @@ PLOTLY_COMPONENTS = [
 
     # Other components, as needed
     'dash_bootstrap_components',
-
     'dash.html',
-    # 'dash_renderer',
     'dash',
     'dash_bio',
-    # 'dash_bio_utils',
 ]
 
 STATIC_URL = '/static/'

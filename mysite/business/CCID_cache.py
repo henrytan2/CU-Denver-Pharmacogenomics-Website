@@ -34,3 +34,11 @@ def set_length(value):
     return success
 
 
+def set_hash(value):
+    hash = value
+    success = True
+    if hash == '':
+        success = False
+    return success
+
+

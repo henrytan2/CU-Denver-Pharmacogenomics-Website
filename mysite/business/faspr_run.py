@@ -3,13 +3,8 @@ import os
 
 class FasprRun:
     alderaan = None
-    # alderaan_pharmaco_folder = os.path.join('/', 'home', 'reedsc')
     scratch_folder = os.path.join('website_activity')
-    # alderaan_scratch_folder = os.path.join('/','storage','chemistry','projects','pharmacogenomics')
-    # alderaan_alpha_folder = os.path.join(alderaan_scratch_folder, 'alphafold')
-    # alpha_folder = os.path.join('Documents','alphafold')
     temp_folder = os.path.join(scratch_folder, 'tmp')
-
 
     def __init__(self):
         self.alderaan = Alderaan()
@@ -22,6 +17,7 @@ class FasprRun:
             FASPR_out, success = self.alderaan.run_command(FASPR_command)
             if "error!" in FASPR_out:
                 print(FASPR_out)
+                FASPR_pdb_text = 'Error'
 
             else:
                 cat_command = f"cat {self.temp_folder}/FASPR_output.pdb" #| tee FASPR_output.txt
@@ -29,6 +25,6 @@ class FasprRun:
 
         except:
             success = False
-            FASPR_pdb_text ='ERROR'
+            FASPR_pdb_text = 'ERROR'
 
         return FASPR_pdb_text

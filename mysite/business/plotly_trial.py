@@ -10,9 +10,11 @@ from dash import dcc
 from dash.exceptions import PreventUpdate
 import re
 import os
+import hashlib
 
-parser = PdbParser('glygly.pdb')
-# parser = PdbParser('https://git.io/4K8X.pdb')
+
+# parser = PdbParser('glygly.pdb')
+parser = PdbParser('https://git.io/4K8X.pdb')
 
 data = parser.mol3d_data()
 styles = create_mol3d_style(
@@ -20,7 +22,8 @@ styles = create_mol3d_style(
 )
 
 df = pd.DataFrame(data["atoms"])
-# df = df.drop_duplicates(subset=['residue_name'])
+df = df.drop_duplicates(subset=['residue_name'])
+
 df['positions'] = df['positions'].apply(lambda x: ', '.join(map(str, x)))
 
 mutation_app = DjangoDash('MutationViewer')
@@ -36,7 +39,11 @@ mutation_app.layout = html.Div(
             value=1,
             marks={50: "50", 100: "100", 150: "150", 200: "200", 250: "250", 300: "300",
                    350: "350", 400: "400", 450: "450", 500: "500", 550: "550", 600: "600",
-                   650: "650", 700: "700", 850: "850", 900: "900", 950: "950", 1000: "1000"},
+                   650: "650", 700: "700", 850: "850", 900: "900", 950: "950", 1000: "1000",
+                   1100: "1100", 1150: "1150", 1200: "1200", 1250: "1250", 1300: "1300",
+                   1350: "1350", 1400: "1400", 1450: "1450", 1500: "1500", 1550: "1550", 1600: "1600",
+                   1650: "1650", 1700: "1700", 1850: "1850", 1900: "1900", 1950: "1950", 2000: "2000"
+                   },
         ),
         dashbio.Molecule3dViewer(
             id="molecule3d-zoomto",
@@ -68,28 +75,39 @@ def residue(value):
     os.chmod('FASPR_output_cached.txt', 0o775)
     parser = PdbParser('FASPR_output_cached.txt')
     reloaded_protein = parser.mol3d_data()
-    df = pd.DataFrame(data["atoms"])
-    # df = df.drop_duplicates(subset=['residue_name'])
+
+    # protein_structure = reloaded_protein.encode('utf-8')
+    # hasher = hashlib.sha1()
+    # hasher.update(protein_structure)
+    # hashed_pdb = hasher.hexdigest()
+    # print('hashed_pdb', hashed_pdb)
+    df = pd.DataFrame(reloaded_protein["atoms"])
+
     df['positions'] = df['positions'].apply(lambda x: ', '.join(map(str, x)))
-
-    repacked = cache.get('positions')
-    # print('residues cached (called from plotly) are', repacked)
-    residue_numerical = int(str(re.findall(r'\d+', CCID)[0]))
-
+    df = df.drop_duplicates(subset=['residue_name', 'residue_index'])
     row = df.iloc[[value]]
     row['positions'] = row['positions'].apply(lambda x: [float(x) for x in x.split(',')])
 
+
+    repacked = cache.get('positions')
+    residue_numerical = int(str(re.findall(r'\d+', CCID)[0]))
     if value is None:
+        print('value is none')
         raise PreventUpdate
 
     if value > length:
+        print('value is > len')
         value = length
 
     output_text = f'You have zoomed to residue {value}. The SNV is at: {residue_numerical}. Full length is {length}'
     marks_output = {(residue_numerical): {'label': f'{residue_numerical}', 'style': {'color': '#f50'}}, 50: "50",
                     100: "100", 150: "150", 200: "200", 250: "250", 300: "300",
                     350: "350", 400: "400", 450: "450", 500: "500", 550: "550", 600: "600",
-                    650: "650", 700: "700", 850: "850", 900: "900", 950: "950", 1000: "1000"}
+                    650: "650", 700: "700", 850: "850", 900: "900", 950: "950", 1000: "1000",
+                    1100: "1100", 1150: "1150", 1200: "1200", 1250: "1250", 1300: "1300",
+                    1350: "1350", 1400: "1400", 1450: "1450", 1500: "1500", 1550: "1550", 1600: "1600",
+                    1650: "1650", 1700: "1700", 1850: "1850", 1900: "1900", 1950: "1950", 2000: "2000"
+                    }
 
     output_text_footer = f'The repacked residues are: {repacked}'
 

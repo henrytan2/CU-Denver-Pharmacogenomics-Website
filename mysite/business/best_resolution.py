@@ -3,7 +3,6 @@ from mysite.business.alderaan import Alderaan
 
 class FindBestResolution:
 
-
     def __init__(self, gene_ID):
         self.alderaan = Alderaan()
         self.best_resolution = 'false'
@@ -11,11 +10,13 @@ class FindBestResolution:
             '/home/boss/website_activity/remote_pdb/remote_pdb'
         )
         self.ENSG = gene_ID
-        if self.ENSG == '0':
-            self.best_resolution = "add Gene ID and refresh"
-            self.file_location = None
-        else:
+
+        if self.ENSG.startswith('ENSG'):
             self.best_resolution, self.file_location = self.get_best_pdb(self.ENSG)
+
+        else:
+            self.best_resolution = "Go back and add valid Gene ID + CCID"
+            self.file_location = None
 
     def get_best_pdb(self, ENSG):
 

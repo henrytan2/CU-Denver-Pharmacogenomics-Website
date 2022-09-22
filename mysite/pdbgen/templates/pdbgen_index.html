@@ -42,6 +42,24 @@
                     </label>
                 </ul>
             </div>
+            <div class="col-5">
+                <div class="row mb-1">
+                    <label class="col-4">
+                        GeneID
+                    </label>
+                    <input class="form-control col-5"
+                           v-model="geneID"
+                           type="text"/>
+                </div>
+                <div class="row mb-1">
+                    <label class="col-4">
+                        CCID
+                    </label>
+                    <input class="form-control col-5"
+                           v-model="CCID"
+                           type="text"/>
+                </div>
+            </div>
             <div class="row justify-content-start">
                 <div class="col-1">
                 </div>
@@ -60,7 +78,7 @@
                             Available at:
                             <b style="display:inline"
                                class="text-primary">{% verbatim %}{{ bestResolution }}{% endverbatim %}</b>
-                            <b class="text" style="display:inline">Angstrom resolution</b>
+                            <p class="text" style="display:inline">Angstrom resolution</p>
                         {% else %}
                             {% verbatim %}not available{% endverbatim %}
                         {% endif %}
@@ -80,7 +98,10 @@
                     <div v-else style="display:inline">
                         AlphaFold2 Structure Available
                         with <b class="text-primary"
-                                style="display:inline">{% verbatim %}{{ pLDDTScore }}{% endverbatim %}</b>
+                                style="display:inline">{% verbatim %}{{ plddt_avg }}{% endverbatim %}</b>
+                        average pLDDT score and
+                        <b class="text-primary"
+                                style="display:inline">{% verbatim %}{{ plddt_snv }}{% endverbatim %}</b>
                         pLDDT score at SNV
                     </div>
                 </div>
@@ -93,22 +114,6 @@
                 <div class="col-1">
                 </div>
                 <div class="col-5">
-                    <div class="row mb-1">
-                        <label class="col-4">
-                            GeneID
-                        </label>
-                        <input class="form-control col-5"
-                               v-model="geneID"
-                               type="text"/>
-                    </div>
-                    <div class="row mb-1">
-                        <label class="col-4">
-                            CCID
-                        </label>
-                        <input class="form-control col-5"
-                               v-model="CCID"
-                               type="text"/>
-                    </div>
                     <div class="form-group row">
                         <label class="col-4">
                             Angstroms
@@ -122,7 +127,7 @@
                         <input type="checkbox"
                                v-on:click="select_all"/>
                         <label class="col text-nowrap">
-                            Select all residues
+                            Repack all residues on chain
                         </label>
                     </div>
                     <div class="form-group row">
@@ -194,11 +199,13 @@
                     checkClicked: false,
                     selectAllClicked: false,
                     FASPR_pdb_text: '',
-                    bestResolution: "false",
                     fetchingResolution: true,
                     fetchingpLDDT: true,
                     toggleAlphaFoldOn: true,
                     toggleProteinOn: false,
+                    plddt_snv: 0,
+                    plddt_avg: 0,
+                    bestResolution: "false",
                 }
             },
             beforeMount:
@@ -211,13 +218,11 @@
                     var geneid = this.geneID;
                     var angstroms = this.angstroms;
                     var checked = this.checkClicked;
-                    {#var maxangstroms = ccid.replace(/\D/g, "");#}
                     var response = true;
                     if (ccid != '' &&
                         geneid != '' &&
                         angstroms != null &&
                         checked == true
-                        {#(maxangstroms - angstroms > 1)#}
                     ) {
                         response = false
                     }
@@ -227,13 +232,10 @@
                     var ccid = this.CCID;
                     var geneid = this.geneID;
                     var angstroms = this.angstroms;
-                    {#var selectall = this.selectAllClicked;#}
-                    {#var maxangstroms = ccid.replace(/\D/g, "");#}
                     var response = true;
                     if (ccid != '' &&
                         geneid != '' &&
                         angstroms != null
-                        {#(maxangstroms - angstroms > 1)#}
                     ) {
                         response = false
                     }
@@ -268,8 +270,6 @@
                         this.plddt_snv = response.plddt_snv;
                         this.plddt_avg = response.plddt_avg;
                         this.fetchingpLDDT = false;
-                        console.log(this.plddt_snv);
-                        console.log(this.plddt_avg);
                     }.bind(this)
                 })
             },
@@ -283,7 +283,6 @@
                 },
                 changeSourceToAlpha: function () {
                     if (this.toggleAlphaFoldOn) {
-                        console.log('already alpha');
                     } else {
                         this.toggleAlphaFoldOn = true;
                         this.toggleProteinOn = false;
@@ -295,8 +294,6 @@
                         this.toggleProteinOn = true;
                     } else {
                     }
-                },
-                pLDDTScore: function () {
                 },
                 check: function () {
                     this.checkClicked = true;
@@ -377,7 +374,6 @@
                         }.bind(this)
                     })
 
-
                 },
                 prefillForm: function () {
                     var currentURLString = window.location.href;
@@ -387,7 +383,6 @@
                     this.angstroms = currentURL.searchParams.get("angstroms");
                 }
             }
-
         })
     </script>
 {% endblock %}

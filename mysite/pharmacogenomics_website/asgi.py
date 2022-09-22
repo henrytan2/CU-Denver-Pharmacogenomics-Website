@@ -35,12 +35,3 @@ application = ProtocolTypeRouter({
     ))
 })
 
-# application = ProtocolTypeRouter({
-#     "websocket": AllowedHostsOriginValidator(
-#         AuthMiddlewareStack(
-#             URLRouter([
-#             ])
-#         )
-#     ),
-# })
-

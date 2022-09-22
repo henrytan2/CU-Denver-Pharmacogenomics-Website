@@ -48,29 +48,31 @@
             type="x-html-template">
         <div id="table-wrapper">
             <ul class="nav nav-tabs"
-                v-on:click="changeTabs">
+            >
                 <li class="nav-item"
-                    title="select protein by tissue expression">
+                    title="select protein by tissue expression"
+                    v-on:click="changeToGtex">
                     <a class="nav-link"
                        v-bind:class="{active: gtexTabIsActive}"
-                       ref="gtexTab"
                        href="#">
                         gtex
                     </a>
                 </li>
                 <li class="nav-item"
-                    title="select protein directly">
+                    title="select protein directly"
+                    v-on:click="changeToExac">
                     <a class="nav-link"
                        v-bind:class="{active: exacTabIsActive}"
-                       ref="exacTab"
                        href="#">
                         exac
                     </a>
                 </li>
                 <li class="nav-item"
-                    title="directly to refolding">
+                    title="directly to refolding"
+                    v-on:click="changeToRefolder">
                     <a class="nav-link"
-                       v-on:click="{active: refolderTabIsActive}">
+                       v-bind:class="{active: refolderTabIsActive}"
+                       href="#">
                         refold
                     </a>
                 </li>
@@ -212,27 +214,35 @@
                         <div class="card">
                             <p>
                             <form>
-                                <div class="form-group">
-                                    <label for="exampleGene">Gene</label>
-                                    <input type="text"
-                                           placeholder="Search by gene name"
-                                           v-on:click="viewRefolderResults">
-
-                                    <small class="form-text text-muted">must be valid gnomad v2.1
-                                        (https://gnomad.broadinstitute.org/) name.
-                                    </small>
+                                <div class="col-5">
+                                    <div class="row mb-1">
+                                        <label class="col-4">
+                                            GeneID
+                                        </label>
+                                        <input class="form-control col-5"
+                                               v-model="geneID"
+                                               type="text"/>
+                                    </div>
+                                    <div class="row mb-1">
+                                        <label class="col-4">
+                                            CCID
+                                        </label>
+                                        <input class="form-control col-5"
+                                               v-model="CCID"
+                                               type="text"/>
+                                    </div>
                                 </div>
                             </form>
                             <div style="text-align: right; margin-top: 10px">
                                 <button type="submit"
-                                        id="side-effect-list-submit"
-                                        v-bind:disabled="exacSubmitButtonDisabled"
+                                        id="refolder-submit"
+                                        v-bind:disabled="refolderSubmitButtonDisabled"
                                         v-on:click="viewRefolderResults"
                                         class="btn btn-primary submit-btn">
                                     Submit to refolder
                                 </button>
                             </div>
-                            </p>
+
                         </div>
                     </div>
                 </div>
@@ -258,6 +268,9 @@
                         selectedTissuesRange: [],
                         filterByRatio: true,
                         exacInput: null,
+                        CCID: null,
+                        gene_ID: null,
+                        geneID: null,
                     }
                 },
                 template: "#index-template",
@@ -284,7 +297,12 @@
                         if (input.length > 0) {
                             enabled = "exacSubmitButtonDisabled";
                         }
-
+                    },
+                    refolderSubmitButtonDisabled: function () {
+                        var input = 'exacInput'
+                        if (input.length > 0) {
+                            enabled = "refolderSubmitButtonDisabled";
+                        }
                     }
                 },
                 methods: {
@@ -312,23 +330,40 @@
                             }
                         }
                     },
-                    changeTabs: function () {
+                    changeToGtex: function () {
                         if (this.gtexTabIsActive) {
-                            this.gtexTabIsActive = false;
-                            this.exacTabIsActive = true;
                         } else {
                             this.gtexTabIsActive = true;
                             this.exacTabIsActive = false;
+                            this.refolderTabIsActive = false;
+                        }
+                    },
+                    changeToExac: function () {
+                        if (this.exacTabIsActive) {
+                        } else {
+                            this.exacTabIsActive = true;
+                            this.gtexTabIsActive = false;
+                            this.refolderTabIsActive = false;
+                        }
+                    },
+                    changeToRefolder: function () {
+                        if (this.refolderTabIsActive) {
+                        } else {
+                            this.refolderTabIsActive = true;
+                            this.exacTabIsActive = false;
+                            this.gtexTabIsActive = false;
                         }
                     },
                     viewRefolderResults: function () {
                         $.ajax({
-                            data: {},
-                            success: function () {
-                                window.location = "{% url 'api:pdbgen:pdbgen_index' %}?CCID=0&gene_ID=0&neighbors=null";
+                            var: _CCID = this.CCID,
+                            var2: _gene_ID = this.geneID,
+                            success: function (response) {
+                                window.location = '{% url 'pdbgen:pdbgen_index' %}?CCID=' + _CCID + '&gene_ID=' + _gene_ID + '&neighbors=null';
                             }
-                        });
-                    },
+                        })
+                    }
+                    ,
                     toggleFilter: function () {
                         if (this.filterByRatio) {
                             this.selectedTissuesRatio = [];
@@ -337,7 +372,8 @@
                             this.selectedTissuesRange = [];
                             this.filterByRatio = true;
                         }
-                    },
+                    }
+                    ,
                     viewResults: function () {
                         if (this.filterByRatio) {
                             let filterRatioDict = {};
@@ -376,7 +412,8 @@
                                 }
                             });
                         }
-                    },
+                    }
+                    ,
                     viewExacResults: function () {
                         axios({
                             url: "https://gnomad.broadinstitute.org/api/",
@@ -393,7 +430,8 @@
                             var gene_id = response.data.data.gene.gene_id;
                             window.location = `{% url 'gtexome:exome' %}?gene_id=${gene_id}`;
                         });
-                    },
+                    }
+                    ,
                     GetAllFilters: function () {
                         if (filterByRatio) {
                             let filterRatioDict = {};
@@ -432,7 +470,8 @@
                                 }
                             });
                         }
-                    },
+                    }
+                    ,
                 }
             }
         )

@@ -15,6 +15,7 @@ from mysite.business.CCID_cache import set_CCID
 from mysite.business.CCID_cache import set_positions
 from mysite.business.CCID_cache import set_length
 from mysite.business.CCID_cache import set_PDB
+from mysite.business.CCID_cache import set_hash
 from rest_framework import serializers
 
 from django.http import HttpResponse
@@ -50,9 +51,9 @@ class FasprPrepAPI(APIView):
 
 class FasprRunAPI(APIView):
     def post(self, request):
-        FASPR_pdb_text = FasprRun()
+        faspr_output = FasprRun()
         # print(FASPR_pdb_text.FASPR_pdb_text)
-        return Response({'protein_structure': FASPR_pdb_text.FASPR_pdb_text})
+        return Response({'protein_structure': faspr_output.FASPR_pdb_text})
 
 
 class CacheCCIDAPI(APIView):
@@ -103,11 +104,13 @@ class CacheProteinAPI(APIView):
         hasher.update(protein_structure)
         hashed_pdb = hasher.hexdigest()
         success = set_PDB(protein_structure)
+        success = set_hash(hashed_pdb)
         # print('CacheProteinAPI post is', success, protein_structure)
         return Response({'protein_structure':protein_structure},{'hashed_pdb':hashed_pdb})
 
     def get(self, request):
         returned_protein_structure = cache.get('protein_structure')
+        returned_hash = cache.get('hashed_pdb')
         # print(returned_protein_structure, 'is returned sequence_length from CacheProteinAPI')
         return Response(returned_protein_structure)
 

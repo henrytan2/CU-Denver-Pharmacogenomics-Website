@@ -1,6 +1,5 @@
 import pickle5 as pickle
 from mysite.business.alderaan import Alderaan
-from Bio.PDB import PPBuilder
 from Bio.PDB.PDBParser import PDBParser
 import os
 import re
@@ -23,9 +22,9 @@ class CheckPLDDT:
         self.mut_residue = self.chain[self.mutation_position]
         pLDDT = []
         self.plddt_snv = self.mutation_pLDDT(self.mut_residue)
-
         for residue in self.AF_residues:
             self.plddt_avg = self.average_pLDDT(residue, pLDDT)
+        self.plddt_avg = round(self.plddt_avg, 2)
 
     def get_Pnum(self):
         with open('../pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:
@@ -45,7 +44,7 @@ class CheckPLDDT:
                 _, self.protein_short_name = os.path.split(pdb_file[:-4])
                 mkdir_command = f'mkdir {self.temp_folder}/{self.protein_short_name[:-4]}'
                 _, success = self.alderaan.run_command(mkdir_command)
-                if success == True:
+                if success:
                     gunzip_command = f'gunzip -c {pdb_file[:-1]} > {self.temp_folder}/{self.protein_short_name[:-4]}/{self.protein_short_name}'
                     self.alderaan.run_command(gunzip_command)
                 open_command = f"cat {self.temp_folder}/{self.protein_short_name[:-4]}/{self.protein_short_name} | tee {self.temp_folder}/pdb_temporary.txt"
@@ -57,10 +56,6 @@ class CheckPLDDT:
                 model = structure[0]
 
                 residues = model.get_residues()
-                ppb = PPBuilder()
-                peptides = ppb.build_peptides(structure)
-                PDB_sequence = peptides[0].get_sequence()
-                # unmutated_sequence = PDB_sequence.lower()
 
                 return residues, model
             else:
