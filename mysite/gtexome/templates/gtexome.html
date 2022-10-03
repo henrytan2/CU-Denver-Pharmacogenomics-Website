@@ -220,6 +220,7 @@
                                             GeneID
                                         </label>
                                         <input class="form-control col-5"
+                                               v-on:keyup.enter="viewRefolderResults"
                                                v-model="geneID"
                                                type="text"/>
                                     </div>
@@ -228,6 +229,7 @@
                                             CCID
                                         </label>
                                         <input class="form-control col-5"
+                                               v-on:keyup.enter="viewRefolderResults"
                                                v-model="CCID"
                                                type="text"/>
                                     </div>

@@ -154,7 +154,9 @@
                     <div class="row">
                         <div v-if="checkClicked">
                             <div class="col">
-                                <p>Protein sequence with residues to be repacked in CAPS:</p>
+                                <p>Protein sequence with residues to be repacked in CAPS
+                                have an average pLDDT score of:</p>
+                                {% verbatim %}{{ repack_pLDDT }}{% endverbatim %}
                             </div>
                             <div class="col">
                                 <div class="row">
@@ -206,6 +208,7 @@
                     plddt_snv: 0,
                     plddt_avg: 0,
                     bestResolution: "false",
+                    repack_pLDDT: "searching",
                 }
             },
             beforeMount:
@@ -219,10 +222,13 @@
                     var angstroms = this.angstroms;
                     var checked = this.checkClicked;
                     var response = true;
+                    var repack_pLDDT = this.repack_pLDDT;
                     if (ccid != '' &&
                         geneid != '' &&
                         angstroms != null &&
-                        checked == true
+                        checked == true &&
+                        repack_pLDDT != 'searching' &&
+                        repack_pLDDT != 'structure too large'
                     ) {
                         response = false
                     }
@@ -315,6 +321,7 @@
                             this.residues = response.residue_output;
                             this.seq_length = response.sequence_length;
                             this.mut_seq = response.mut_seq;
+                            this.repack_pLDDT = response.repack_pLDDT;
                         }.bind(this)
                     })
                     $.ajax({

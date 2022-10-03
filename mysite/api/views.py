@@ -6,7 +6,6 @@ from mysite.business.metabolite_gen import MetabPrep
 from mysite.business.best_resolution import FindBestResolution
 from mysite.business.find_plddt import CheckPLDDT
 
-import json
 from mysite.business import plotly_trial # keep both
 from mysite.business import plotly_trial # keep both
 
@@ -19,8 +18,6 @@ from mysite.business.CCID_cache import set_hash
 from rest_framework import serializers
 
 from django.http import HttpResponse
-import hashlib
-
 
 class FasprPrepAPI(APIView):
 
@@ -34,19 +31,16 @@ class FasprPrepAPI(APIView):
         sequence_length = faspr_prep.sequence_length
         residues = faspr_prep.positions
         mutatseq = faspr_prep.mutatseq
-        # print('residues.output is', residues)
-        # print('sequence_length.output is', sequence_length)
-        # print('mutatseq.output is', mutatseq)
-        return Response({"residue_output": list(residues), "sequence_length": sequence_length, "mut_seq":mutatseq})
+        repack_pLDDT = faspr_prep.repack_pLDDT
+
+        return Response({"residue_output": list(residues),
+                         "sequence_length": sequence_length,
+                         "mut_seq": mutatseq,
+                         "repack_pLDDT": repack_pLDDT})
 
     def get(self, request):
         returned_protein_structure = cache.get('protein_structure')
-            # print(returned_protein_structure, 'is returned sequence_length from CacheProteinAPI')
         return Response(returned_protein_structure)
-        # with open('FASPR_output.txt', 'r') as f:
-        #     ss=f.read()
-        #     pdb_json = json.dumps(ss)
-        # return Response(pdb_json)
 
 
 class FasprRunAPI(APIView):
@@ -95,18 +89,19 @@ class CacheLengthAPI(APIView):
         # print(returned_length, 'is returned sequence_length from CacheLengthAPI')
         return Response(returned_length)
 
+
 class CacheProteinAPI(APIView):
     def post(self, request):
         protein_structure = request.data['protein_structure']
-        cache.set('protein_structure', protein_structure)
-        protein_structure = protein_structure.encode('utf-8')
-        hasher = hashlib.sha1()
-        hasher.update(protein_structure)
-        hashed_pdb = hasher.hexdigest()
-        success = set_PDB(protein_structure)
-        success = set_hash(hashed_pdb)
+        # cache.set('protein_structure', protein_structure)
+        # protein_structure = protein_structure.encode('utf-8')
+        # hasher = hashlib.sha1()
+        # hasher.update(protein_structure)
+        # hashed_pdb = hasher.hexdigest()
+        # success = set_PDB(protein_structure)
+        # success = set_hash(hashed_pdb)
         # print('CacheProteinAPI post is', success, protein_structure)
-        return Response({'protein_structure':protein_structure},{'hashed_pdb':hashed_pdb})
+        return Response({'protein_structure':protein_structure})
 
     def get(self, request):
         returned_protein_structure = cache.get('protein_structure')
@@ -114,11 +109,13 @@ class CacheProteinAPI(APIView):
         # print(returned_protein_structure, 'is returned sequence_length from CacheProteinAPI')
         return Response(returned_protein_structure)
 
+
 class MetabPrepAPI(APIView):
     def post(self, request):
         smiles_code = request.data['smiles']
         MetabPrep(smiles_code)
         return Response(True)
+
 
 class FindResolutionAPI(APIView):
     def post(self, request):
@@ -133,6 +130,7 @@ class FindResolutionAPI(APIView):
         print(resolution, 'is returned resolution from FindResolutionAPI')
         return Response(resolution)
 
+
 class FindpLDDTAPI(APIView):
 
     def post(self, request):
@@ -141,5 +139,4 @@ class FindpLDDTAPI(APIView):
         find_plddt = CheckPLDDT(gene_ID, ccid)
         plddt_snv = find_plddt.plddt_snv
         plddt_avg = find_plddt.plddt_avg
-        return Response({'plddt_snv':plddt_snv, 'plddt_avg':plddt_avg})
-
+        return Response({'plddt_snv': plddt_snv, 'plddt_avg': plddt_avg})

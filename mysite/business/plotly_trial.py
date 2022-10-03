@@ -4,7 +4,6 @@ import dash_bio as dashbio
 from dash_bio.utils import PdbParser, create_mol3d_style
 from dash import html
 import pandas as pd
-from dash import dash_table
 from django.core.cache import cache
 from dash import dcc
 from dash.exceptions import PreventUpdate
@@ -13,8 +12,8 @@ import os
 import hashlib
 
 
-# parser = PdbParser('glygly.pdb')
-parser = PdbParser('https://git.io/4K8X.pdb')
+parser = PdbParser('glygly.pdb')
+# parser = PdbParser('https://git.io/4K8X.pdb')
 
 data = parser.mol3d_data()
 styles = create_mol3d_style(
@@ -66,6 +65,7 @@ mutation_app.layout = html.Div(
     [Input(component_id="mutation_slider", component_property='value')],
     prevent_initial_call=False
 )
+
 def residue(value):
     CCID = cache.get('CCID')
     length = int(cache.get('sequence_length'))
@@ -76,18 +76,22 @@ def residue(value):
     parser = PdbParser('FASPR_output_cached.txt')
     reloaded_protein = parser.mol3d_data()
 
-    # protein_structure = reloaded_protein.encode('utf-8')
-    # hasher = hashlib.sha1()
-    # hasher.update(protein_structure)
-    # hashed_pdb = hasher.hexdigest()
-    # print('hashed_pdb', hashed_pdb)
+    hasher_for_cache = hashlib.sha1()
+    protein_structure_from_cache = pdb_cached.encode('utf-8')
+    hasher_for_cache.update(protein_structure_from_cache)
+    hashed_pdb_from_cache = hasher_for_cache.hexdigest()
+
+    hasher_for_file = hashlib.sha1()
+    protein_structure_from_file = pdb_cached.encode('utf-8')
+    hasher_for_file.update(protein_structure_from_file)
+    hashed_pdb_from_file = hasher_for_file.hexdigest()
+
     df = pd.DataFrame(reloaded_protein["atoms"])
 
     df['positions'] = df['positions'].apply(lambda x: ', '.join(map(str, x)))
     df = df.drop_duplicates(subset=['residue_name', 'residue_index'])
     row = df.iloc[[value]]
     row['positions'] = row['positions'].apply(lambda x: [float(x) for x in x.split(',')])
-
 
     repacked = cache.get('positions')
     residue_numerical = int(str(re.findall(r'\d+', CCID)[0]))
@@ -110,6 +114,10 @@ def residue(value):
                     }
 
     output_text_footer = f'The repacked residues are: {repacked}'
+
+    if hashed_pdb_from_file != hashed_pdb_from_cache:
+        output_text = 'Stored pdb file does not match cache. Recommend recreating protein'
+        raise Exception('hashed pdb file does not equal hashed pdb from cache')
 
     return [
         {

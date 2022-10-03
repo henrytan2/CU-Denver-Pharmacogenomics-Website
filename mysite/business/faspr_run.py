@@ -1,5 +1,8 @@
 from mysite.business.alderaan import Alderaan
 import os
+import hashlib
+from django.core.cache import cache
+
 
 class FasprRun:
     alderaan = None
@@ -22,9 +25,14 @@ class FasprRun:
             else:
                 cat_command = f"cat {self.temp_folder}/FASPR_output.pdb" #| tee FASPR_output.txt
                 FASPR_pdb_text, success = self.alderaan.run_command(cat_command)
+                hasher = hashlib.sha1()
+                protein_structure = FASPR_pdb_text.encode('utf-8')
+                cache.set('protein_structure', FASPR_pdb_text)
+                hasher.update(protein_structure)
+                hashed_pdb = hasher.hexdigest()
+                cache.set('hashed_pdb', hashed_pdb)
 
         except:
-            success = False
             FASPR_pdb_text = 'ERROR'
 
         return FASPR_pdb_text

@@ -3,12 +3,14 @@ positions = ''
 sequence_length = ''
 pdb = ''
 
+
 def set_PDB(value):
     pdb = value
     success = True
     if pdb == '':
         success = False
     return success
+
 
 def set_CCID(value):
     CCID = value
