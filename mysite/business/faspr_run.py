@@ -5,32 +5,42 @@ from django.core.cache import cache
 
 
 class FasprRun:
-    alderaan = None
+
     scratch_folder = os.path.join('website_activity')
     temp_folder = os.path.join(scratch_folder, 'tmp')
 
-    def __init__(self):
+    def __init__(self, mutated_sequence, protein_location):
         self.alderaan = Alderaan()
-        self.FASPR_pdb_text = self.run_FASPR()
+        self.mutated_sequence = mutated_sequence
+        self.protein_location = protein_location
+        self.save_mutatedseq_file(self.mutated_sequence)
+        self.FASPR_pdb_text = self.run_faspr(self.protein_location)
 
-    def run_FASPR(self):
+    def save_mutatedseq_file(self, mutated_sequence):
+        mutatseq_pipe = str(f'"{mutated_sequence}"')
+        mutatseq_pipe += f' | tee {self.temp_folder}/repacked_pdb.txt'
+        echo_command = f'echo {mutatseq_pipe}'
+        _, success = self.alderaan.run_command(echo_command)
+        chmod_command = f'{self.temp_folder}/repacked_pdb.txt'
+        self.alderaan.send_chmod(chmod_command)
 
+    def run_faspr(self, protein_location):
         try:
-            FASPR_command = f"FASPR/FASPR -i {self.temp_folder}/pdb_temporary.txt -o {self.temp_folder}/FASPR_output.pdb -s {self.temp_folder}/repacked_pdb.txt"
-            FASPR_out, success = self.alderaan.run_command(FASPR_command)
-            if "error!" in FASPR_out:
-                print(FASPR_out)
+            faspr_command = f"FASPR/FASPR -i {protein_location} -o {self.temp_folder}/FASPR_output.pdb -s {self.temp_folder}/repacked_pdb.txt"
+            faspr_out, success = self.alderaan.run_command(faspr_command)
+            if "error!" in faspr_out:
+                print(faspr_out)
                 FASPR_pdb_text = 'Error'
 
             else:
                 cat_command = f"cat {self.temp_folder}/FASPR_output.pdb" #| tee FASPR_output.txt
                 FASPR_pdb_text, success = self.alderaan.run_command(cat_command)
-                hasher = hashlib.sha1()
-                protein_structure = FASPR_pdb_text.encode('utf-8')
-                cache.set('protein_structure', FASPR_pdb_text)
-                hasher.update(protein_structure)
-                hashed_pdb = hasher.hexdigest()
-                cache.set('hashed_pdb', hashed_pdb)
+
+                header = cache.get('pdb_header')
+                FASPR_pdb_text = header + FASPR_pdb_text
+
+                cache.set('post_faspr_pdb', FASPR_pdb_text)
+
 
         except:
             FASPR_pdb_text = 'ERROR'

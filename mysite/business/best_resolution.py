@@ -1,6 +1,7 @@
 import os
 from mysite.business.alderaan import Alderaan
 
+
 class FindBestResolution:
 
     def __init__(self, gene_ID):
@@ -10,7 +11,7 @@ class FindBestResolution:
         self.ENSG = gene_ID
 
         if self.ENSG.startswith('ENSG'):
-            self.best_resolution, self.file_location = self.get_best_pdb(self.ENSG)
+            self.best_resolution, self.file_location, self.chain_id = self.get_best_pdb(self.ENSG)
 
         else:
             self.best_resolution = "Go back and add valid Gene ID + CCID"
@@ -18,14 +19,15 @@ class FindBestResolution:
 
     def get_best_pdb(self, ENSG):
         try:
-            #Add source {self.remote_pdb_path}/env/bin/activate; if needed
+            #Add venv with: source {self.remote_pdb_path}/env/bin/activate; if needed
             best_res = f'cd {self.remote_pdb_path}; python find_best_strucutre.py {ENSG}'
             returned_results, success = self.alderaan.run_command(best_res)
             returned_results = returned_results.split('\n')
             self.best_resolution = returned_results[0]
             self.file_location = returned_results[1]
+            self.chain_id = returned_results[2]
             if self.best_resolution.startswith('Downloading PDB structure'):
-                self.best_resolution = 'reload page'
+                self.best_resolution = 'submit again'
 
             if self.best_resolution == 'false':
                 self.best_resolution = 'no structure found'
@@ -33,4 +35,4 @@ class FindBestResolution:
         except:
             self.best_resolution = 'no structure found'
             self.file_location = 'empty'
-        return self.best_resolution, self.file_location
+        return self.best_resolution, self.file_location, self.chain_id

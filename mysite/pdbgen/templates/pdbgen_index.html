@@ -37,7 +37,8 @@
                                id="option2"
                                v-on:click="changeSourceToExp"
                                v-bind:class="{active: toggleProteinOn}"
-                               autocomplete="off">
+                               autocomplete="off"
+                               v-bind:disabled="expButtonDisabled">
                         Experimental
                     </label>
                 </ul>
@@ -49,6 +50,7 @@
                     </label>
                     <input class="form-control col-5"
                            v-model="geneID"
+                           v-on:keyup.enter="reload"
                            type="text"/>
                 </div>
                 <div class="row mb-1">
@@ -57,6 +59,7 @@
                     </label>
                     <input class="form-control col-5"
                            v-model="CCID"
+                           v-on:keyup.enter="reload"
                            type="text"/>
                 </div>
             </div>
@@ -101,7 +104,7 @@
                                 style="display:inline">{% verbatim %}{{ plddt_avg }}{% endverbatim %}</b>
                         average pLDDT score and
                         <b class="text-primary"
-                                style="display:inline">{% verbatim %}{{ plddt_snv }}{% endverbatim %}</b>
+                           style="display:inline">{% verbatim %}{{ plddt_snv }}{% endverbatim %}</b>
                         pLDDT score at SNV
                     </div>
                 </div>
@@ -121,6 +124,7 @@
                         <input class="form-control col-5"
                                v-model.number="angstroms"
                                v-bind:disabled="!select_all"
+                               v-on:keyup.enter="check"
                                type="number"/>
                     </div>
                     <div class="form-group row">
@@ -155,7 +159,7 @@
                         <div v-if="checkClicked">
                             <div class="col">
                                 <p>Protein sequence with residues to be repacked in CAPS
-                                have an average pLDDT score of:</p>
+                                    have an average pLDDT score of:</p>
                                 {% verbatim %}{{ repack_pLDDT }}{% endverbatim %}
                             </div>
                             <div class="col">
@@ -194,7 +198,6 @@
                     geneID: "",
                     CCID: "",
                     angstroms: 0,
-                    residue: [1],
                     residues: [],
                     mut_seq: '',
                     submitClicked: false,
@@ -202,13 +205,16 @@
                     selectAllClicked: false,
                     FASPR_pdb_text: '',
                     fetchingResolution: true,
-                    fetchingpLDDT: true,
                     toggleAlphaFoldOn: true,
                     toggleProteinOn: false,
+                    residue: [1],
                     plddt_snv: 0,
                     plddt_avg: 0,
-                    bestResolution: "false",
+                    bestResolution: "no structure found",
                     repack_pLDDT: "searching",
+                    fetchingpLDDT: true,
+                    file_location: 'empty',
+                    chain_id: 'empty',
                 }
             },
             beforeMount:
@@ -216,6 +222,14 @@
                     this.prefillForm();
                 },
             computed: {
+                expButtonDisabled: function () {
+                    response = true;
+                    var bestResolution = this.bestResolution;
+                    if (bestResolution !== "no structure found") {
+                        response = false
+                    }
+                    return response;
+                },
                 submitButtonDisabled: function () {
                     var ccid = this.CCID;
                     var geneid = this.geneID;
@@ -259,8 +273,8 @@
                     success: function (response) {
                         this.bestResolution = response.resolution;
                         this.file_location = response.file_location;
+                        this.chain_id = response.chain_id;
                         this.fetchingResolution = false;
-                        console.log(this.bestResolution);
                         console.log(this.file_location);
                     }.bind(this)
                 })
@@ -285,7 +299,11 @@
                     this.residues = value;
                 },
                 select_all: function () {
-                    this.selectAllClicked = true;
+                    if (this.selectAllClicked) {
+                        this.selectAllClicked = false;
+                    } else {
+                        this.selectAllClicked = true
+                    }
                 },
                 changeSourceToAlpha: function () {
                     if (this.toggleAlphaFoldOn) {
@@ -312,6 +330,7 @@
                         angstroms: this.angstroms,
                         toggleAlphaFoldOn: this.toggleAlphaFoldOn,
                         file_location: this.file_location,
+                        chain_id: this.chain_id,
                     }
                     $.ajax({
                         type: 'POST',
@@ -322,6 +341,7 @@
                             this.seq_length = response.sequence_length;
                             this.mut_seq = response.mut_seq;
                             this.repack_pLDDT = response.repack_pLDDT;
+                            this.protein_location = response.protein_location;
                         }.bind(this)
                     })
                     $.ajax({
@@ -339,6 +359,7 @@
                     this.submitClicked = true;
                     this.dataset = this.residues;
                     this.length = this.seq_length;
+                    this.mutated_sequence = this.mut_seq;
 
                     $.ajax({
                         var: residues_out = this.dataset,
@@ -357,13 +378,18 @@
                             this.seq_length = response;
                         }.bind(this)
                     })
+                    var fasprData = {
+                        mutated_sequence: this.mutated_sequence,
+                        protein_location: this.protein_location,
+                    }
+                    console.log(this.protein_location);
                     $.ajax({
                         type: 'POST',
                         url: '{% url 'api:faspr_run' %}',
-                        data: '',
+                        data: fasprData,
                         success: function (response) {
                             _this.FASPR_pdb_text = response.protein_structure;
-
+                            console.log(_this.FASPR_pdb_text);
                             $.ajax({
                                 type: 'POST',
                                 url: '{% url 'api:cache_protein_structure' %}',
@@ -388,6 +414,42 @@
                     this.geneID = currentURL.searchParams.get("gene_ID");
                     this.CCID = currentURL.searchParams.get("CCID");
                     this.angstroms = currentURL.searchParams.get("angstroms");
+                },
+                reload: function () {
+                    var requestResolution = {
+                        gene_ID: this.geneID,
+                    }
+                    this.bestResolution = 'searching';
+                    this.plddt_snv = 'searching';
+                    this.plddt_avg = 'searching';
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url 'api:best_resolution' %}',
+                        data: requestResolution,
+                        success: function (response) {
+                            this.bestResolution = response.resolution;
+                            this.file_location = response.file_location;
+                            this.chain_id = response.chain_id;
+                            this.fetchingResolution = false;
+                            console.log(this.bestResolution);
+                            console.log(this.file_location);
+                            console.log(this.chain_id);
+                        }.bind(this)
+                    })
+                    var requestPLDDT = {
+                        gene_ID: this.geneID,
+                        CCID: this.CCID,
+                    }
+                    $.ajax({
+                        type: 'POST',
+                        url: '{% url 'api:find_plddt' %}',
+                        data: requestPLDDT,
+                        success: function (response) {
+                            this.plddt_snv = response.plddt_snv;
+                            this.plddt_avg = response.plddt_avg;
+                            this.fetchingpLDDT = false;
+                        }.bind(this)
+                    })
                 }
             }
         })

@@ -69,20 +69,25 @@ mutation_app.layout = html.Div(
 def residue(value):
     CCID = cache.get('CCID')
     length = int(cache.get('sequence_length'))
-    pdb_cached = cache.get('protein_structure')
-    with open('FASPR_output_cached.txt', 'w+') as f:
+    pdb_cached = cache.get('post_faspr_pdb')
+    with open('FASPR_output_cached.pdb', 'w+') as f:
         f.write(pdb_cached)
-    os.chmod('FASPR_output_cached.txt', 0o775)
-    parser = PdbParser('FASPR_output_cached.txt')
-    reloaded_protein = parser.mol3d_data()
+    os.chmod('FASPR_output_cached.pdb', 0o775)
+    dpd_parsed_file = PdbParser('FASPR_output_cached.pdb')
+    reloaded_protein = dpd_parsed_file.mol3d_data()
 
     hasher_for_cache = hashlib.sha1()
     protein_structure_from_cache = pdb_cached.encode('utf-8')
     hasher_for_cache.update(protein_structure_from_cache)
     hashed_pdb_from_cache = hasher_for_cache.hexdigest()
 
+    f = open('FASPR_output_cached.pdb', 'r')
+    protein_structure_from_file = f.readlines()
+    f.close()
+
     hasher_for_file = hashlib.sha1()
-    protein_structure_from_file = pdb_cached.encode('utf-8')
+    protein_structure_from_file = ''.join(protein_structure_from_file)
+    protein_structure_from_file = protein_structure_from_file.encode('utf-8')
     hasher_for_file.update(protein_structure_from_file)
     hashed_pdb_from_file = hasher_for_file.hexdigest()
 
@@ -107,10 +112,11 @@ def residue(value):
     marks_output = {(residue_numerical): {'label': f'{residue_numerical}', 'style': {'color': '#f50'}}, 50: "50",
                     100: "100", 150: "150", 200: "200", 250: "250", 300: "300",
                     350: "350", 400: "400", 450: "450", 500: "500", 550: "550", 600: "600",
-                    650: "650", 700: "700", 850: "850", 900: "900", 950: "950", 1000: "1000",
-                    1100: "1100", 1150: "1150", 1200: "1200", 1250: "1250", 1300: "1300",
-                    1350: "1350", 1400: "1400", 1450: "1450", 1500: "1500", 1550: "1550", 1600: "1600",
-                    1650: "1650", 1700: "1700", 1850: "1850", 1900: "1900", 1950: "1950", 2000: "2000"
+                    650: "650", 700: "700", 750: "750", 800: "800", 850: "850", 900: "900",
+                    950: "950", 1000: "1000", 1100: "1100", 1150: "1150", 1200: "1200", 1250: "1250",
+                    1300: "1300", 1350: "1350", 1400: "1400", 1450: "1450", 1500: "1500", 1550: "1550",
+                    1600: "1600", 1650: "1650", 1700: "1700", 1750: "1750", 1800: "1800", 1850: "1850",
+                    1900: "1900", 1950: "1950", 2000: "2000"
                     }
 
     output_text_footer = f'The repacked residues are: {repacked}'
