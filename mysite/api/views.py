@@ -94,7 +94,7 @@ class CacheProteinAPI(APIView):
         return Response({'protein_structure':protein_structure})
 
     def get(self, request):
-        returned_protein_structure = cache.get('post_faspr_pdb')
+        returned_protein_structure = cache.get('protein_structure')
         return Response(returned_protein_structure)
 
 
