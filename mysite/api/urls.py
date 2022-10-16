@@ -8,6 +8,7 @@ from .views import CacheLengthAPI
 from .views import CacheProteinAPI
 from .views import FindResolutionAPI
 from .views import FindpLDDTAPI
+from .business.plotly_trial import mutation_app
 
 app_name = 'api'
 

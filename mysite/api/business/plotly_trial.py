@@ -12,7 +12,7 @@ import os
 import hashlib
 
 
-parser = PdbParser('glygly.pdb')
+parser = PdbParser('./pharmacogenomics_website/glygly.pdb')
 
 data = parser.mol3d_data()
 styles = create_mol3d_style(
