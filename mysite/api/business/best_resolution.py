@@ -1,5 +1,5 @@
 import os
-from mysite.api.business.alderaan import Alderaan
+from .alderaan import Alderaan
 
 
 class FindBestResolution:

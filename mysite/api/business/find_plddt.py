@@ -1,5 +1,5 @@
 import pickle5 as pickle
-from mysite.api.business.alderaan import Alderaan
+from .alderaan import Alderaan
 from Bio.PDB.PDBParser import PDBParser
 import os
 import re

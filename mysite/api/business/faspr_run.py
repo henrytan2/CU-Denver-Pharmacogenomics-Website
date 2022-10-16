@@ -1,4 +1,4 @@
-from mysite.api.business.alderaan import Alderaan
+from .alderaan import Alderaan
 import os
 from django.core.cache import cache
 

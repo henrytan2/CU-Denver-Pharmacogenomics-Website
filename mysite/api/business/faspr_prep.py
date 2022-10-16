@@ -1,5 +1,5 @@
 import pickle5 as pickle
-from mysite.api.business.alderaan import Alderaan
+from .alderaan import Alderaan
 from Bio import SeqUtils
 from Bio.PDB import Selection
 from Bio.PDB import PPBuilder, NeighborSearch
