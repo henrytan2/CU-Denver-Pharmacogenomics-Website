@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.getcwd())
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from mysite.business.faspr_prep import FasprPrep
