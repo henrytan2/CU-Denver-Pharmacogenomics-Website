@@ -30,11 +30,11 @@ class CheckPLDDT:
 
         except Exception as e:
             print(e)
-            self.plddt_snv = str(e)
-            self.plddt_avg = os.getcwd()#'structure too large'
+            self.plddt_snv = 'structure too large'
+            self.plddt_avg = 'structure too large'
 
     def get_Pnum(self):
-        with open('./resources/ENSG_PN_dictALL.pickle', 'rb') as f:
+        with open('./pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:
             ENSG_Pnum_dict = pickle.load(f)
             self.P_num = ENSG_Pnum_dict[f'{self.gene_ID}']
             print('Pnum is: ', self.P_num)
