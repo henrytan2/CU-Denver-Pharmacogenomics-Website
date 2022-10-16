@@ -175,6 +175,7 @@ DATABASES = {
 }
 
 
+
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
@@ -247,3 +248,5 @@ CACHES = {
         'LOCATION': 'unique-snowflake',
     }
 }
+
+X_FRAME_OPTIONS = 'ALLOW-FROM https://pharmacogenomics.clas.ucdenver.edu/'
