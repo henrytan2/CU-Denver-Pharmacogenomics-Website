@@ -45,8 +45,8 @@ class FasprRun:
                 FASPR_pdb_text = header + FASPR_pdb_text
                 cache.set('post_faspr_pdb', FASPR_pdb_text)
 
-        except:
-            FASPR_pdb_text = 'error'
+        except Exception as e:
+            FASPR_pdb_text = str(e)
             chain_pdb = ''
 
         return FASPR_pdb_text, chain_pdb
