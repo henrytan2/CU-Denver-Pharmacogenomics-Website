@@ -1,6 +1,6 @@
 import sys
 import os
-sys.path.append(os.getcwd())
+sys.path.append(os.path.join(os.getcwd(), 'business'))
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
