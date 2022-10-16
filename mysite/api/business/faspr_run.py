@@ -36,7 +36,7 @@ class FasprRun:
             faspr_command = f"FASPR/FASPR -i {protein_location} -o {self.temp_folder}/FASPR_output.pdb -s {self.temp_folder}/repacked_pdb.txt"
             faspr_out, success = self.alderaan.run_command(faspr_command)
             if 'error' in faspr_out:
-                FASPR_pdb_text = 'error'
+                FASPR_pdb_text = faspr_out
 
             else:
                 cat_command = f"cat {self.temp_folder}/FASPR_output.pdb" #| tee FASPR_output.txt
