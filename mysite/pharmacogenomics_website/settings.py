@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_plotly_dash.apps.DjangoPlotlyDashConfig',
     'rest_framework',
-    # 'home.apps.HomeConfig',
     'channels',
     'channels_redis',
 ]
@@ -68,14 +67,7 @@ CHANNEL_LAYERS = {
         },
     },
 }
-# channel_layer = RedisChannelLayer(
-#     host="redis",
-#     db=4,
-#     channel_capacity={
-#         "http.request": 200,
-#         "http.response*": 10,
-#     }
-# )
+
 MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -87,7 +79,7 @@ MIDDLEWARE = [
     'django_plotly_dash.middleware.BaseMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
-    'django_plotly_dash.middleware.ExternalRedirectionMiddleware',#optional
+    'django_plotly_dash.middleware.ExternalRedirectionMiddleware'
 ]
 
 X_FRAME_OPTIONS = 'ALLOWALL'
@@ -248,39 +240,6 @@ PLOTLY_COMPONENTS = [
 ]
 
 STATIC_URL = '/static/'
-
-# PLOTLY_DASH = {
-#
-#     # Route used for the message pipe websocket connection
-#     "ws_route" :   "dpd/ws/channel",
-#
-#     # Route used for direct http insertion of pipe messages
-#     "http_route" : "dpd/views",
-#
-#     # Flag controlling existince of http poke endpoint
-#     "http_poke_enabled" : True,
-#
-#     # Insert data for the demo when migrating
-#     "insert_demo_migrations" : False,
-#
-#     # Timeout for caching of initial arguments in seconds
-#     "cache_timeout_initial_arguments": 60,
-#
-#     # Name of view wrapping function
-#     "view_decorator": None,
-#
-#     # Flag to control location of initial argument storage
-#     "cache_arguments": True, #False suggested for initial_arguments
-#
-#     # Flag controlling local serving of assets
-#     "serve_locally": True,
-# }
-# CACHES = {
-#     'default': {
-#         'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
-#         'LOCATION': '127.0.0.1:11211',
-#     }
-# }
 
 CACHES = {
     'default': {
