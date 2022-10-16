@@ -249,4 +249,4 @@ CACHES = {
     }
 }
 
-X_FRAME_OPTIONS = 'ALLOW-FROM https://pharmacogenomics.clas.ucdenver.edu/'
+X_FRAME_OPTIONS = 'SAMEORIGIN'
