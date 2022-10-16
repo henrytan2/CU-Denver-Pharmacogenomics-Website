@@ -28,8 +28,9 @@ class CheckPLDDT:
                 self.plddt_avg = self.average_pLDDT(residue, pLDDT)
             self.plddt_avg = round(self.plddt_avg, 2)
 
-        except:
-            self.plddt_snv = 'structure too large'
+        except Exception as e:
+            print(e)
+            self.plddt_snv = str(e)
             self.plddt_avg = 'structure too large'
 
     def get_Pnum(self):
