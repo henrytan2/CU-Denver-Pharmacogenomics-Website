@@ -1,14 +1,14 @@
-from mysite.business.alderaan import Alderaan
+from mysite.api.business.alderaan import Alderaan
 import os
 
 
 class MetabPrep:
     smiles = ''
     # alderaan = ''
-    alderaan_folder = os.path.join('/','home','reedsc')
+    alderaan_folder = os.path.join('/', 'home', 'reedsc')
     temp_folder = os.path.join(alderaan_folder, 'tmp')
     # singularity_folder = os.path.join('..','..','..','storage','singularity')
-    biotransformer_folder = os.path.join('/','home','reedsc','Biotransformer')
+    biotransformer_folder = os.path.join('/', 'home', 'reedsc', 'Biotransformer')
 
     def __init__(self, smiles):
         self.alderaan = Alderaan()

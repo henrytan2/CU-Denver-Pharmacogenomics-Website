@@ -1,13 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from mysite.business.faspr_prep import FasprPrep
-from mysite.business.faspr_run import FasprRun
-from mysite.business.metabolite_gen import MetabPrep
-from mysite.business.best_resolution import FindBestResolution
-from mysite.business.find_plddt import CheckPLDDT
-
-from mysite.business import plotly_trial # keep both
-from mysite.business import plotly_trial # keep both
+from .business.faspr_prep import FasprPrep
+from .business.faspr_run import FasprRun
+from .business.metabolite_gen import MetabPrep
+from .business.best_resolution import FindBestResolution
+from .business.find_plddt import CheckPLDDT
 
 from django.core.cache import cache
 from django.http import HttpResponse

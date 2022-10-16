@@ -1,5 +1,5 @@
 import pickle5 as pickle
-from mysite.business.alderaan import Alderaan
+from mysite.api.business.alderaan import Alderaan
 from Bio import SeqUtils
 from Bio.PDB import Selection
 from Bio.PDB import PPBuilder, NeighborSearch
@@ -104,7 +104,7 @@ class FasprPrep:
         self.get_mut_seq = self.capitalize(self.mutated_sequence, self.positions)
 
     def get_Pnum(self):
-        with open('../pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:
+        with open('../../pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:
             ENSG_Pnum_dict = pickle.load(f)
             self.P_num = ENSG_Pnum_dict[f'{self.gene_ID}']
 
