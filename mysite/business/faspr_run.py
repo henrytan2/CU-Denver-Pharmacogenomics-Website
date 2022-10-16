@@ -1,6 +1,5 @@
 from mysite.business.alderaan import Alderaan
 import os
-import hashlib
 from django.core.cache import cache
 
 
@@ -14,7 +13,7 @@ class FasprRun:
         self.mutated_sequence = mutated_sequence
         self.protein_location = protein_location
         self.save_mutatedseq_file(self.mutated_sequence)
-        self.FASPR_pdb_text = self.run_faspr(self.protein_location)
+        self.FASPR_pdb_text, self.chain_pdb = self.run_faspr(self.protein_location)
 
     def save_mutatedseq_file(self, mutated_sequence):
         mutatseq_pipe = str(f'"{mutated_sequence}"')
@@ -26,23 +25,28 @@ class FasprRun:
 
     def run_faspr(self, protein_location):
         try:
+            chain_pdb = cache.get('chain_pdb')
+            if chain_pdb != 'empty':
+                chain_pipe = str(f'"{chain_pdb}"')
+                chain_pipe += f' | tee {self.temp_folder}/repacked_chain_pdb.txt'
+                savechain_command = f'echo {chain_pipe}'
+                _, success = self.alderaan.run_command(savechain_command)
+                protein_location = f'{self.temp_folder}/repacked_chain_pdb.txt'
+
             faspr_command = f"FASPR/FASPR -i {protein_location} -o {self.temp_folder}/FASPR_output.pdb -s {self.temp_folder}/repacked_pdb.txt"
             faspr_out, success = self.alderaan.run_command(faspr_command)
-            if "error!" in faspr_out:
-                print(faspr_out)
-                FASPR_pdb_text = 'Error'
+            if 'error' in faspr_out:
+                FASPR_pdb_text = 'error'
 
             else:
                 cat_command = f"cat {self.temp_folder}/FASPR_output.pdb" #| tee FASPR_output.txt
                 FASPR_pdb_text, success = self.alderaan.run_command(cat_command)
-
                 header = cache.get('pdb_header')
                 FASPR_pdb_text = header + FASPR_pdb_text
-
                 cache.set('post_faspr_pdb', FASPR_pdb_text)
 
-
         except:
-            FASPR_pdb_text = 'ERROR'
+            FASPR_pdb_text = 'error'
+            chain_pdb = ''
 
-        return FASPR_pdb_text
+        return FASPR_pdb_text, chain_pdb

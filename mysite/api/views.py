@@ -10,9 +10,6 @@ from mysite.business import plotly_trial # keep both
 from mysite.business import plotly_trial # keep both
 
 from django.core.cache import cache
-# from mysite.business.CCID_cache import set_CCID
-# from mysite.business.CCID_cache import set_positions
-# from mysite.business.CCID_cache import set_length
 from django.http import HttpResponse
 
 class FasprPrepAPI(APIView):
@@ -34,8 +31,10 @@ class FasprPrepAPI(APIView):
         header += (str(residues))
         header += ('\n')
         header += faspr_prep.header
-
         cache.set('pdb_header', header)
+        chain_pdb = faspr_prep.chain_pdb
+        chain_pdb = "".join(chain_pdb)
+        cache.set('chain_pdb', chain_pdb)
         protein_location = faspr_prep.protein_location
 
         return Response({"residue_output": list(residues),
@@ -54,6 +53,8 @@ class FasprRunAPI(APIView):
         mutated_sequence = request.data['mutated_sequence']
         protein_location = request.data['protein_location']
         faspr_output = FasprRun(mutated_sequence, protein_location)
+        if 'error' in faspr_output.FASPR_pdb_text:
+            faspr_output.FASPR_pdb_text = 'error'
         return Response({'protein_structure': faspr_output.FASPR_pdb_text})
 
 
@@ -61,7 +62,6 @@ class CacheCCIDAPI(APIView):
     def post(self, request):
         ccid = request.data['CCID']
         cache.set('CCID', ccid)
-        # success = set_CCID(ccid)
         return Response({'CCID':ccid})
 
     def get(self, request):
@@ -73,7 +73,6 @@ class CachePositionsAPI(APIView):
     def post(self, request):
         positions = request.POST.getlist('positions[]')
         cache.set('positions', positions)
-        # _ = set_positions(positions)
         return HttpResponse(positions)
 
     def get(self, request):
@@ -84,8 +83,6 @@ class CacheLengthAPI(APIView):
     def post(self, request):
         sequence_length = request.data['sequence_length']
         cache.set('sequence_length', sequence_length)
-        # _ = set_length(sequence_length)
-        # print('CachePositionsAPI Length post is', success, sequence_length)
         return HttpResponse({'sequence_length':sequence_length})
 
     def get(self, request):
@@ -101,7 +98,6 @@ class CacheProteinAPI(APIView):
 
     def get(self, request):
         returned_protein_structure = cache.get('post_faspr_pdb')
-        # _ = cache.get('post_faspr_pdb') # ?
         return Response(returned_protein_structure)
 
 
@@ -115,16 +111,12 @@ class MetabPrepAPI(APIView):
 class FindResolutionAPI(APIView):
     def post(self, request):
         gene_ID = request.data['gene_ID']
-        find_best_res = FindBestResolution(gene_ID)
+        CCID = request.data['CCID']
+        find_best_res = FindBestResolution(gene_ID, CCID)
         resolution = find_best_res.best_resolution
         file_location = find_best_res.file_location
         chain_id = find_best_res.chain_id
         return Response({'resolution':resolution, 'file_location':file_location, 'chain_id':chain_id})
-
-    # def get(self, request):
-    #     resolution = cache.get('protein_structure')
-    #     print(resolution, 'is returned resolution from FindResolutionAPI')
-    #     return Response(resolution)
 
 
 class FindpLDDTAPI(APIView):

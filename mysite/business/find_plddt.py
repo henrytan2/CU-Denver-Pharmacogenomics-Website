@@ -54,19 +54,16 @@ class CheckPLDDT:
                     self.alderaan.run_command(gunzip_command)
                 open_command = f"cat {self.temp_folder}/{self.protein_short_name[:-4]}/{self.protein_short_name} | tee {self.temp_folder}/pdb_temporary.txt"
                 pdb_text, success = self.alderaan.run_command(open_command)
-                # with open('pdb_temporary.txt', 'w+') as f:
-                #     f.write(pdb_text)
                 p = PDBParser(PERMISSIVE=1)
                 pdb_stream = io.StringIO(pdb_text)
                 structure = p.get_structure(id='_', file=pdb_stream)
-                # structure = p.get_structure(id='_', file='pdb_temporary.txt')
                 model = structure[0]
                 residues = model.get_residues()
                 return residues, model
             else:
                 self.plddt_avg = 'structure too large'
                 self.plddt_snv = 'structure too large'
-                raise Exception ('AF structure contains multiple files. Skipped')
+                raise Exception('AF structure contains multiple files. Skipped')
 
     def average_pLDDT(self, residue, pLDDT):
         if residue.has_id("CA"):

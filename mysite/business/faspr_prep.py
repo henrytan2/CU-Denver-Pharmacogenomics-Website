@@ -7,7 +7,8 @@ from Bio.PDB.PDBParser import PDBParser
 import os
 import re
 import io
-from django.core.cache import cache
+from Bio.PDB import PDBIO
+
 
 class FasprPrep:
 
@@ -22,24 +23,40 @@ class FasprPrep:
         self.mutation_str = self.mutant_n.strip("['']")
         self.mutation_position = int(self.mutation_str)
         self.gene_ID = gene_ID
-        self.angstroms = angstroms
         self.get_Pnum()
         self.mut_pos, self.single_nucleotide, self.single_nucleotide_variation = self.get_mutation_position(self.CCID)
         self.use_alphafold = use_alphafold
-        self.file_location = file_location
-        self.chain_id = 'A' #= response.chain_id;'A' #get from remote_pdb
-
-        # if self.file_location == 'empty':
-        #     print('no experimental file provided, using AF')
-        #     self.use_alphafold == 'true'
+        self.protein_location = file_location
+        self.chain_id = chain_id
+        self.chain_pdb = 'empty'
 
         if self.use_alphafold == 'false':
             try:
-                self.structure, self.header = self.get_sequence_unmut(self.file_location)
-                self.repack_pLDDT = 'using experimental'
+                self.structure, self.header, self.protein_location = self.get_sequence_unmut(
+                    self.protein_location)
+                self.model = self.structure[0]
+                self.repack_pLDDT = 'Using Experimental'
+                self.unmutated_sequence, self.sequence_length = self.get_peptide_properties(self.structure)
+                self.mutated_sequence = self.unmutated_sequence[:self.mutation_position - 1] + \
+                                        self.unmutated_sequence[self.mutation_position - \
+                                                                1:self.mutation_position].replace(
+                                            self.single_nucleotide,
+                                            self.single_nucleotide_variation) + \
+                                        self.unmutated_sequence[self.mutation_position:]
+
+                self.angstroms = int(angstroms)
+                self.positions = self.get_mutated_sequence3d(self.structure, self.mut_pos, self.chain_id,
+                                                             self.angstroms)
                 if self.chain_id == 'empty':
                     self.chain_id = 'A'
-                    print('using chain A')
+
+                self.chain = self.model[self.chain_id]
+                bio_io = PDBIO()
+                bio_io.set_structure(self.chain)
+                bio_io.save("chain_only.pdb")
+                with open("chain_only.pdb", 'r') as f:
+                    self.chain_pdb = f.readlines()
+
             except:
                 self.positions = '0'
                 self.mutatseq = '0'
@@ -48,39 +65,32 @@ class FasprPrep:
 
         else:
             try:
-                self.structure, self.protein_location, self.header = self.get_sequence_unmut_AF()
+                self.chain_id = 'A'
+                self.structure, self.header, self.protein_location = self.get_sequence_unmut_AF()
+                self.model = self.structure[0]
+                self.unmutated_sequence, self.sequence_length = self.get_peptide_properties(self.structure)
+                self.mutated_sequence = self.unmutated_sequence[:self.mutation_position - 1] + \
+                                        self.unmutated_sequence[self.mutation_position - \
+                                                                1:self.mutation_position].replace(
+                                            self.single_nucleotide,
+                                            self.single_nucleotide_variation) + \
+                                        self.unmutated_sequence[self.mutation_position:]
 
+                self.angstroms = int(angstroms)
+                self.positions = self.get_mutated_sequence3d(self.structure, self.mut_pos, self.chain_id,
+                                                             self.angstroms)
             except:
                 self.positions = '0'
                 self.mutatseq = '0'
                 self.repack_pLDDT = 'structure too large'
                 self.sequence_length = '0'
+                self.get_mut_seq = ''
+                self.header = ''
                 return
 
-        try:
-            self.unmutated_seq, self.sequence_length, self.model, self.residues, self.positions = \
-                self.get_structure_properties(self.structure, self.mutation_position, self.angstroms, self.chain_id)
+        self.positions_short = str(self.positions)
 
-        except:
-            print('using AF instead')#pass worning to html
-            self.structure, self.protein_location, self.header = self.get_sequence_unmut_AF()
-
-        self.unmutated_sequence = str(self.unmutated_seq)
-        self.mutated_sequence = self.unmutated_sequence[:self.mutation_position - 1] + \
-                                        self.unmutated_sequence[self.mutation_position - \
-                                        1:self.mutation_position].replace(self.single_nucleotide,
-                                        self.single_nucleotide_variation) + \
-                                        self.unmutated_sequence[self.mutation_position:]
-
-        if self.single_nucleotide != self.unmutated_sequence[self.mutation_position - 1:self.mutation_position]:
-            print('self.single_nucleotide is', self.single_nucleotide, 'self.unmutated_sequence[self.mutation_position - 1:self.mutation_position]', self.unmutated_sequence[self.mutation_position - 1:self.mutation_position])
-
-        self.angstroms = int(angstroms)
-        # self.positions = self.get_mutated_sequence3d(self.structure, self.mut_pos, self.chain_id, self.angstroms)
-        self.get_mut_seq = self.capitalize(self.mutated_sequence, self.positions)
-        self.chain = self.model['A']
-        self.mut_residue = self.chain[self.mutation_position]
-
+        self.chain = self.model[self.chain_id]
         if self.use_alphafold != 'false':
             pLDDT = []
             for x in self.positions:
@@ -91,22 +101,17 @@ class FasprPrep:
                     pLDDT.append(pLDDT_score)
             self.repack_pLDDT = sum(pLDDT) / len(pLDDT)
             self.repack_pLDDT = round(self.repack_pLDDT, 2)
+        self.get_mut_seq = self.capitalize(self.mutated_sequence, self.positions)
 
     def get_Pnum(self):
         with open('../pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:
             ENSG_Pnum_dict = pickle.load(f)
             self.P_num = ENSG_Pnum_dict[f'{self.gene_ID}']
 
-    def get_sequence_unmut(self, file_location):
-        # open_command = f"cat {self.file_location} | tee {self.temp_folder}/pdb_temporary.txt"
-        open_command = f"cat {file_location}"
+    def get_sequence_unmut(self, protein_location):
+        open_command = f"cat {protein_location} "# | tee {self.temp_folder}/pdb_temporary.txt"
         pdb_text, success = self.alderaan.run_command(open_command)
-        p = PDBParser(PERMISSIVE=1)
         pdb_stream = io.StringIO(pdb_text)
-        structure = p.get_structure(id='_', file=pdb_stream)
-        # protein_location = self.file_location
-        cache.set('native_structure', pdb_stream)
-
         header = []
         for line in pdb_stream:
             if not line.startswith('ATOM'):
@@ -114,9 +119,9 @@ class FasprPrep:
             if line.startswith('ATOM'):
                 break
         header = (''.join(header))
+        p = PDBParser(PERMISSIVE=1)
         structure = p.get_structure(id='_', file=pdb_stream)
-
-        return structure, header
+        return structure, header, protein_location
 
     def get_sequence_unmut_AF(self):
         protein_count_command = f'ls -dq {self.alpha_folder}/AF-{self.P_num}-F*-model_v* | wc -l'
@@ -133,10 +138,11 @@ class FasprPrep:
                     gunzip_command = f'gunzip -c {pdb_file[:-1]} > {self.temp_folder}/{self.protein_short_name[:-4]}/{self.protein_short_name}'
                     self.alderaan.run_command(gunzip_command)
                 protein_location = f"{self.temp_folder}/{self.protein_short_name[:-4]}/{self.protein_short_name}"
-                open_command = f"cat {protein_location}"# | tee {self.temp_folder}/pdb_temporary.txt"
+                open_command = f"cat {protein_location}"
                 pdb_text, success = self.alderaan.run_command(open_command)
                 p = PDBParser(PERMISSIVE=1)
                 pdb_stream = io.StringIO(pdb_text)
+                structure = p.get_structure(id='_', file=pdb_stream)
 
                 header = []
                 for line in pdb_stream:
@@ -145,72 +151,44 @@ class FasprPrep:
                     if line.startswith('ATOM'):
                         break
                 header = (''.join(header))
-                structure = p.get_structure(id='_', file=pdb_stream)
-                return structure, protein_location, header
+                return structure, header, protein_location
+            else:
+                print('protein in multiple files. Skipped.')
 
 
-    def get_structure_properties(self, structure, mutation_position, angstroms, chain_id):
-        model = structure[0]
-        residues = model.get_residues()
+    def get_peptide_properties(self, structure):
         ppb = PPBuilder()
-        if len(structure) > 1:
-            peptides = ppb.build_peptides(model)# multi chain experimental
-            # chain = structure[chain_id]#drop [0] (use model) for multi-chain exp. Keep [0] for AF
-        else:
-            peptides = ppb.build_peptides(structure)#AF and single chain
-            # chain = structure[0][chain_id]#drop [0] (use model) for multi-chain exp. Keep [0] for AF
+        peptides = ppb.build_peptides(structure)
         PDB_sequence = peptides[0].get_sequence()
         unmutated_sequence = PDB_sequence.lower()
         sequence_length = len(unmutated_sequence)
-        # center_residues = [chain[resi] for resi in [mutation_position]]
-        # center_atoms = Selection.unfold_entities(center_residues, chain_id)
-        # if len(structure) > 1:
-        #     atom_list = [atom for atom in structure[0].get_atoms() if atom.name == 'CA']  # drop 0?
-        # else:
-        #     atom_list = [atom for atom in structure[0].get_atoms() if atom.name == 'CA']  # drop 0?
-        #
-        chain = structure[0][chain_id]
-        center_residues = [chain[resi] for resi in [mutation_position]]
-        center_atoms = Selection.unfold_entities(center_residues, chain_id)
-        atom_list = [atom for atom in structure.get_atoms() if atom.name == 'CA']
+        return unmutated_sequence, sequence_length
 
-        ns = NeighborSearch(atom_list)
-        print(ns)
-        nearby_residues = {res for center_atom in center_atoms for res in ns.search(center_atom.coord, angstroms, 'R')}
-        print('a')
-        positions = sorted(int(res.id[1]) for res in nearby_residues)# int?
-        print('a')
-        return unmutated_sequence, sequence_length, model, residues, positions
+    def get_mutation_position(self, mutation):
+        if mutation.startswith('p.') \
+                and mutation[2:5] != mutation[-3:] \
+                and mutation[-3:] != 'del' \
+                and mutation[-3:] != 'Ter' and mutation[-3:] != 'dup' \
+                and len(mutation) < 13:
 
-    # def get_mutated_sequence3d(self, structure, mutation_position, chain_id, angstroms):
-        # chain = structure[0][chain_id] #drop [0] for exp
-        # center_residues = [chain[resi] for resi in [mutation_position]]
-        # center_atoms = Selection.unfold_entities(center_residues, chain_id)
-        # atom_list = [atom for atom in structure.get_atoms() if atom.name == 'CA']
-        # ns = NeighborSearch(atom_list)
-        # nearby_residues = {res for center_atom in center_atoms for res in ns.search(center_atom.coord, angstroms, 'R')}
-        # positions = sorted(int(res.id[1]) for res in nearby_residues)# int?
-        # return positions
-
-    def get_mutation_position(self, poss_mutation):
-        if poss_mutation.startswith('p.') \
-                and poss_mutation[2:5] != poss_mutation[-3:] \
-                and poss_mutation[-3:] != 'del' \
-                and poss_mutation[-3:] != 'Ter' \
-                and poss_mutation[-3:] != 'dup' \
-                and len(poss_mutation) < 13:
-            act_mutation = poss_mutation.split(' ')
-            for mutation in act_mutation:
-                mutant_n = str(re.findall(r'\d+', mutation))
-                # mutation_str = mutant_n.strip("['']")
-                inv = mutation[2:5]
-                mnv = mutation[-3:]
-                single_nucleotide = SeqUtils.IUPACData.protein_letters_3to1[inv].lower()
-                single_nucleotide_variation = SeqUtils.IUPACData.protein_letters_3to1[mnv]
-
+                INV = mutation[2:5]
+                MNV = mutation[-3:]
+                single_nucleotide = SeqUtils.IUPACData.protein_letters_3to1[INV].lower()
+                single_nucleotide_variation = SeqUtils.IUPACData.protein_letters_3to1[MNV]
                 getVals = list([val for val in mutation if val.isnumeric()])
                 mutation_position = int("".join(getVals))
                 return mutation_position, single_nucleotide, single_nucleotide_variation
+
+    def get_mutated_sequence3d(self, structure, mutation_position, chain_id, angstroms):
+        chain = structure[0][chain_id]
+        center_residues = [chain[resi] for resi in [mutation_position]] #start exp vs AF separation
+        center_atoms = Selection.unfold_entities(center_residues, chain_id)
+        atom_list = [atom for atom in structure.get_atoms() if atom.name == 'CA']
+        ns = NeighborSearch(atom_list)
+        nearby_residues = {res for center_atom in center_atoms for res in ns.search(center_atom.coord, angstroms, 'R')}
+        positions = sorted(int(res.id[1]) for res in nearby_residues)# int?
+        return positions
+
 
     def capitalize(self, mutatedsequence, positions):
         split_mutatedsequence = list(mutatedsequence)

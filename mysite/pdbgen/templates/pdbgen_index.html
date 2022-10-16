@@ -4,7 +4,8 @@
 {% block content %}
 
     <h1 class="lead">
-        Select preferred source of protein data and then repack amino acids
+        Select preferred source of protein data and then
+        repack amino acids (<a href="https://zhanggroup.org/FASPR/" target="_blank">using FASPR</a>)
         surrounding the SNV by entering a diameter (in Angstroms)
     </h1>
     <index></index>
@@ -225,7 +226,8 @@
                 expButtonDisabled: function () {
                     response = true;
                     var bestResolution = this.bestResolution;
-                    if (bestResolution !== "no structure found") {
+                    if (bestResolution !== "no structure found" &&
+                        bestResolution !== 'best structure lacks SNV site') {
                         response = false
                     }
                     return response;
@@ -265,6 +267,7 @@
             mounted: function () {
                 var requestResolution = {
                     gene_ID: this.geneID,
+                    CCID: this.CCID,
                 }
                 $.ajax({
                     type: 'POST',
@@ -275,7 +278,6 @@
                         this.file_location = response.file_location;
                         this.chain_id = response.chain_id;
                         this.fetchingResolution = false;
-                        console.log(this.file_location);
                     }.bind(this)
                 })
                 var requestPLDDT = {
@@ -389,7 +391,9 @@
                         data: fasprData,
                         success: function (response) {
                             _this.FASPR_pdb_text = response.protein_structure;
-                            console.log(_this.FASPR_pdb_text);
+                            if (response.protein_structure === 'error') {
+                                window.alert('Experimental Structure Missing residues. Using AF.');
+                            }
                             $.ajax({
                                 type: 'POST',
                                 url: '{% url 'api:cache_protein_structure' %}',
@@ -397,6 +401,7 @@
                                 success: function (response) {
                                 }
                             })
+
                             $.ajax({
                                 var: CCID_out = this.CCID,
                                 var: residues_out = this.residues,
@@ -433,7 +438,6 @@
                             this.fetchingResolution = false;
                             console.log(this.bestResolution);
                             console.log(this.file_location);
-                            console.log(this.chain_id);
                         }.bind(this)
                     })
                     var requestPLDDT = {
