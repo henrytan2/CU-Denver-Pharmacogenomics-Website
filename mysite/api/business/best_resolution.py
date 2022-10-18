@@ -38,7 +38,7 @@ class FindBestResolution:
                 self.best_resolution = 'no structure found'
 
         except:
-            self.best_resolution = 'error: no structure found'
+            self.best_resolution = 'no structure found'
             self.file_location = 'empty'
             self.chain_id = ''
 

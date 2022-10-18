@@ -1,7 +1,9 @@
 from .alderaan import Alderaan
 import os
 from django.core.cache import cache
+import logging
 
+error_logger = logging.getLogger('django.error')
 
 class FasprRun:
 
@@ -47,6 +49,7 @@ class FasprRun:
 
         except Exception as e:
             FASPR_pdb_text = str(e)
+            error_logger.error(e)
             chain_pdb = ''
 
         return FASPR_pdb_text, chain_pdb

@@ -394,13 +394,7 @@
                             if (response.protein_structure === 'error') {
                                 window.alert('Experimental Structure Missing residues. Using AF.');
                             }
-                            $.ajax({
-                                type: 'POST',
-                                url: '{% url 'api:cache_protein_structure' %}',
-                                data: {protein_structure: _this.FASPR_pdb_text},
-                                success: function (response) {
-                                }
-                            })
+
 
                             $.ajax({
                                 var: CCID_out = this.CCID,

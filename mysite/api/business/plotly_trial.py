@@ -10,6 +10,9 @@ from dash.exceptions import PreventUpdate
 import re
 import os
 import hashlib
+import logging
+
+error_logger = logging.getLogger('django.error')
 
 
 parser = PdbParser('./pharmacogenomics_website/glygly.pdb')
@@ -123,7 +126,8 @@ def residue(value):
 
     if hashed_pdb_from_file != hashed_pdb_from_cache:
         output_text = 'Stored pdb file does not match cache. Recommend recreating protein'
-        raise Exception('hashed pdb file does not equal hashed pdb from cache')
+        error_logger.error(output_text)
+        raise Exception(output_text)
 
     return [
         {

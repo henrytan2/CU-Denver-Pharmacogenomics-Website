@@ -8,6 +8,9 @@ from .business.find_plddt import CheckPLDDT
 
 from django.core.cache import cache
 from django.http import HttpResponse
+import logging
+
+error_logger = logging.getLogger('django.error')
 
 class FasprPrepAPI(APIView):
 
@@ -51,7 +54,8 @@ class FasprRunAPI(APIView):
         protein_location = request.data['protein_location']
         faspr_output = FasprRun(mutated_sequence, protein_location)
         cache.set('protein_structure', faspr_output.FASPR_pdb_text)
-        # if 'error' in faspr_output.FASPR_pdb_text:
+        if 'error' in faspr_output.FASPR_pdb_text:
+            error_logger.error(faspr_output.FASPR_pdb_text)
         #     faspr_output.FASPR_pdb_text = 'error'
         return Response({'protein_structure': faspr_output.FASPR_pdb_text})
 
@@ -81,7 +85,7 @@ class CacheLengthAPI(APIView):
     def post(self, request):
         sequence_length = request.data['sequence_length']
         cache.set('sequence_length', sequence_length)
-        return HttpResponse({'sequence_length':sequence_length})
+        return HttpResponse({'sequence_length': sequence_length})
 
     def get(self, request):
         returned_length = cache.get('sequence_length')
@@ -114,7 +118,7 @@ class FindResolutionAPI(APIView):
         resolution = find_best_res.best_resolution
         file_location = find_best_res.file_location
         chain_id = find_best_res.chain_id
-        return Response({'resolution':resolution, 'file_location':file_location, 'chain_id':chain_id})
+        return Response({'resolution': resolution, 'file_location': file_location, 'chain_id': chain_id})
 
 
 class FindpLDDTAPI(APIView):
