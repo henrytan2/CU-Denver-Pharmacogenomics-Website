@@ -50,6 +50,7 @@ class FasprRunAPI(APIView):
         mutated_sequence = request.data['mutated_sequence']
         protein_location = request.data['protein_location']
         faspr_output = FasprRun(mutated_sequence, protein_location)
+        cache.set('protein_structure', faspr_output.FASPR_pdb_text)
         # if 'error' in faspr_output.FASPR_pdb_text:
         #     faspr_output.FASPR_pdb_text = 'error'
         return Response({'protein_structure': faspr_output.FASPR_pdb_text})
@@ -91,7 +92,7 @@ class CacheProteinAPI(APIView):
     def post(self, request):
         protein_structure = request.data['protein_structure']
         cache.set('protein_structure', protein_structure)
-        return Response({'protein_structure':protein_structure})
+        return Response({'protein_structure': protein_structure})
 
     def get(self, request):
         returned_protein_structure = cache.get('protein_structure')

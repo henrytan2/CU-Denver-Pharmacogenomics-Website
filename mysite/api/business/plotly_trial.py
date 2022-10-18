@@ -12,8 +12,8 @@ import os
 import hashlib
 
 
-
-parser = PdbParser('https://git.io/4K8X.pdb')
+parser = PdbParser('./pharmacogenomics_website/glygly.pdb')
+# parser = PdbParser('https://git.io/4K8X.pdb')
 
 data = parser.mol3d_data()
 styles = create_mol3d_style(
@@ -69,7 +69,7 @@ mutation_app.layout = html.Div(
 def residue(value):
     CCID = cache.get('CCID')
     length = int(cache.get('sequence_length'))
-    pdb_cached = cache.get('post_faspr_pdb')
+    pdb_cached = cache.get('protein_structure')
     with open('FASPR_output_cached.pdb', 'w+') as f:
         f.write(pdb_cached)
     os.chmod('FASPR_output_cached.pdb', 0o775)
