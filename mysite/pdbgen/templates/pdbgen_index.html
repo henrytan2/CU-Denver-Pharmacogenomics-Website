@@ -380,7 +380,6 @@
                 submit: function () {
                     var _this = this;
                     this.submitClicked = true;
-
                     var fasprData = {
                         mutated_sequence: this.mutated_sequence,
                         protein_location: this.protein_location,
@@ -395,15 +394,23 @@
                             if (response.protein_structure === 'error') {
                                 window.alert('Experimental Structure Missing residues. Using AF.');
                             }
-
-
+                            console.log(_this.FASPR_pdb_text);
                             $.ajax({
-                                var: CCID_out = this.CCID,
-                                var: residues_out = this.residues,
+                                type: 'POST',
+                                url: '{% url 'api:cache_protein_structure' %}',
+                                data: {protein_structure: _this.FASPR_pdb_text},
                                 success: function (response) {
-                                    window.location = '{% url 'pdbgen:pdbgen-results.html' %}'
+                                    this.protein_structure = response;
+                                    $.ajax({
+                                        var: CCID_out = this.CCID,
+                                        var: residues_out = this.residues,
+                                        success: function (response) {
+                                            window.location = '{% url 'pdbgen:pdbgen-results.html' %}'
+                                        }
+                                    })
                                 }
                             })
+
                         }.bind(this)
                     })
 

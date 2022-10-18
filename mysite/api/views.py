@@ -53,7 +53,7 @@ class FasprRunAPI(APIView):
         mutated_sequence = request.data['mutated_sequence']
         protein_location = request.data['protein_location']
         faspr_output = FasprRun(mutated_sequence, protein_location)
-        cache.set('protein_structure', faspr_output.FASPR_pdb_text)
+        # cache.set('protein_structure', faspr_output.FASPR_pdb_text)
         if 'error' in faspr_output.FASPR_pdb_text:
             error_logger.error(faspr_output.FASPR_pdb_text)
         #     faspr_output.FASPR_pdb_text = 'error'
