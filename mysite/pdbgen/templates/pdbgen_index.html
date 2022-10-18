@@ -344,42 +344,43 @@
                             this.mut_seq = response.mut_seq;
                             this.repack_pLDDT = response.repack_pLDDT;
                             this.protein_location = response.protein_location;
+                            $.ajax({
+                                type: 'POST',
+                                url: '{% url 'api:cache_CCID' %}',
+                                data: {CCID: this.CCID},
+                                success: function (response) {
+                                    this.CCID = response;
+                                }
+                            })
+                            this.dataset = this.residues;
+                            this.length = this.seq_length;
+                            this.mutated_sequence = this.mut_seq;
+
+                            $.ajax({
+                                var: residues_out = this.dataset,
+                                type: 'POST',
+                                url: '{% url 'api:cache_positions' %}',
+                                data: {positions: this.dataset},
+                                success: function (response) {
+                                    this.dataset = response;
+                                }
+                            })
+                            $.ajax({
+                                type: 'POST',
+                                url: '{% url 'api:cache_length' %}',
+                                data: {sequence_length: this.length},
+                                success: function (response) {
+                                    this.seq_length = response;
+                                }
+                            })
                         }.bind(this)
-                    })
-                    $.ajax({
-                        type: 'POST',
-                        url: '{% url 'api:cache_CCID' %}',
-                        data: {CCID: this.CCID},
-                        success: function (response) {
-                            this.CCID = response;
-                        }
                     })
                 },
 
                 submit: function () {
                     var _this = this;
                     this.submitClicked = true;
-                    this.dataset = this.residues;
-                    this.length = this.seq_length;
-                    this.mutated_sequence = this.mut_seq;
 
-                    $.ajax({
-                        var: residues_out = this.dataset,
-                        type: 'POST',
-                        url: '{% url 'api:cache_positions' %}',
-                        data: {positions: _this.dataset},
-                        success: function (response) {
-                            _this.dataset = response;
-                        }.bind(this)
-                    })
-                    $.ajax({
-                        type: 'POST',
-                        url: '{% url 'api:cache_length' %}',
-                        data: {sequence_length: this.length},
-                        success: function (response) {
-                            this.seq_length = response;
-                        }.bind(this)
-                    })
                     var fasprData = {
                         mutated_sequence: this.mutated_sequence,
                         protein_location: this.protein_location,

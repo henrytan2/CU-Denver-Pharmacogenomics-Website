@@ -64,7 +64,7 @@ class CacheCCIDAPI(APIView):
     def post(self, request):
         ccid = request.data['CCID']
         cache.set('CCID', ccid)
-        return Response({'CCID':ccid})
+        return Response({'CCID': ccid})
 
     def get(self, request):
         returned_CCID = cache.get('CCID')
@@ -75,7 +75,7 @@ class CachePositionsAPI(APIView):
     def post(self, request):
         positions = request.POST.getlist('positions[]')
         cache.set('positions', positions)
-        return HttpResponse(positions)
+        return Response({'positions': positions})
 
     def get(self, request):
         returned_positions = cache.get('positions')
@@ -85,7 +85,7 @@ class CacheLengthAPI(APIView):
     def post(self, request):
         sequence_length = request.data['sequence_length']
         cache.set('sequence_length', sequence_length)
-        return HttpResponse({'sequence_length': sequence_length})
+        return Response({'sequence_length': sequence_length})
 
     def get(self, request):
         returned_length = cache.get('sequence_length')
