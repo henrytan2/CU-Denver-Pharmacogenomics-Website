@@ -47,18 +47,6 @@
     <script type="application/javascript">
         Vue.component('index', {
             template: "#index-template",
-            mounted:
-                function () {
-                    $.ajax({
-                        type: 'GET',
-                        url: '{% url 'api:cache_protein_structure' %}',
-                        data: '',
-                        success: function (response) {
-                            this.protein_structure = response;
-                            console.log(this.protein_structure);
-                        },
-                    })
-                },
 
             methods: {
                 downloadProtein() {

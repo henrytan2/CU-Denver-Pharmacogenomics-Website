@@ -244,7 +244,8 @@
                         angstroms != null &&
                         checked == true &&
                         repack_pLDDT != 'searching' &&
-                        repack_pLDDT != 'structure too large'
+                        repack_pLDDT != 'structure too large' &&
+                        repack_pLDDT != 'experimental structure not suitable'
                     ) {
                         response = false
                     }
@@ -394,7 +395,6 @@
                             if (response.protein_structure === 'error') {
                                 window.alert('Experimental Structure Missing residues. Using AF.');
                             }
-                            console.log(_this.FASPR_pdb_text);
                             $.ajax({
                                 type: 'POST',
                                 url: '{% url 'api:cache_protein_structure' %}',
@@ -438,8 +438,6 @@
                             this.file_location = response.file_location;
                             this.chain_id = response.chain_id;
                             this.fetchingResolution = false;
-                            console.log(this.bestResolution);
-                            console.log(this.file_location);
                         }.bind(this)
                     })
                     var requestPLDDT = {

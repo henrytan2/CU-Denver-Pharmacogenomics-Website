@@ -60,7 +60,7 @@ class FasprPrep:
             except:
                 self.positions = '0'
                 self.mutatseq = '0'
-                self.repack_pLDDT = 'exp structure not suitable'
+                self.repack_pLDDT = 'experimental structure not suitable'
                 self.sequence_length = '0'
 
         else:

@@ -45,7 +45,6 @@ class FasprRun:
                 FASPR_pdb_text, success = self.alderaan.run_command(cat_command)
                 header = cache.get('pdb_header')
                 FASPR_pdb_text = header + FASPR_pdb_text
-                # cache.set('protein_structure', FASPR_pdb_text)
 
         except Exception as e:
             FASPR_pdb_text = str(e)
