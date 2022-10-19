@@ -72,7 +72,7 @@ mutation_app.layout = html.Div(
 def residue(value):
     CCID = cache.get('CCID')
     length = int(cache.get('sequence_length'))
-    pdb_cached = cache.get('protein_structure')
+    pdb_cached = cache.get('protein_structure') # failing here
     with open('./FASPR_output_cached.pdb', 'w+') as f:
         f.write(pdb_cached)
     os.chmod('./FASPR_output_cached.pdb', 0o775)

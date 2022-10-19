@@ -56,6 +56,7 @@ class FasprRunAPI(APIView):
         # cache.set('protein_structure', faspr_output.FASPR_pdb_text)
         if 'error' in faspr_output.FASPR_pdb_text:
             error_logger.error(faspr_output.FASPR_pdb_text)
+            raise ValueError
         #     faspr_output.FASPR_pdb_text = 'error'
         return Response({'protein_structure': faspr_output.FASPR_pdb_text})
 

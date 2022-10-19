@@ -53,7 +53,7 @@ class CheckPLDDT:
                 if success:
                     gunzip_command = f'gunzip -c {pdb_file[:-1]} > {self.temp_folder}/{self.protein_short_name[:-4]}/{self.protein_short_name}'
                     self.alderaan.run_command(gunzip_command)
-                open_command = f"cat {self.temp_folder}/{self.protein_short_name[:-4]}/{self.protein_short_name} | tee {self.temp_folder}/pdb_temporary.txt"
+                open_command = f"cat {self.temp_folder}/{self.protein_short_name[:-4]}/{self.protein_short_name}"# | tee {self.temp_folder}/pdb_temporary.txt"
                 pdb_text, success = self.alderaan.run_command(open_command)
                 p = PDBParser(PERMISSIVE=1)
                 pdb_stream = io.StringIO(pdb_text)
