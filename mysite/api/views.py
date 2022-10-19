@@ -100,7 +100,7 @@ class CacheProteinAPI(APIView):
 
     def get(self, request):
         returned_protein_structure = cache.get('protein_structure')
-        return Response(returned_protein_structure)
+        return Response({'protein_structure': returned_protein_structure})
 
 
 class MetabPrepAPI(APIView):

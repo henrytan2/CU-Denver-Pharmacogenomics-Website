@@ -69,6 +69,7 @@ CHANNEL_LAYERS = {
 }
 
 MIDDLEWARE = [
+    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -77,9 +78,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_plotly_dash.middleware.BaseMiddleware',
-    'django.middleware.cache.UpdateCacheMiddleware',
+    'django_plotly_dash.middleware.ExternalRedirectionMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
-    'django_plotly_dash.middleware.ExternalRedirectionMiddleware'
 ]
 
 X_FRAME_OPTIONS = 'ALLOWALL'

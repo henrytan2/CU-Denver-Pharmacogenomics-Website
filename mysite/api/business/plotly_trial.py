@@ -73,9 +73,9 @@ def residue(value):
     CCID = cache.get('CCID')
     length = int(cache.get('sequence_length'))
     pdb_cached = cache.get('protein_structure')
-    with open('FASPR_output_cached.pdb', 'w+') as f:
+    with open('./FASPR_output_cached.pdb', 'w+') as f:
         f.write(pdb_cached)
-    os.chmod('FASPR_output_cached.pdb', 0o775)
+    os.chmod('./FASPR_output_cached.pdb', 0o775)
     dpd_parsed_file = PdbParser('FASPR_output_cached.pdb')
     reloaded_protein = dpd_parsed_file.mol3d_data()
 
