@@ -56,6 +56,7 @@
                         url: '{% url 'api:cache_protein_structure' %}',
                         data: '',
                         success: function (protein_structure) {
+                            console.log(protein_structure);
                             const pdb_blob = new Blob(
                                 [protein_structure],
                                 {

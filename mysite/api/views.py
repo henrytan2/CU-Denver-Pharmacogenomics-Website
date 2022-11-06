@@ -7,7 +7,6 @@ from .business.best_resolution import FindBestResolution
 from .business.find_plddt import CheckPLDDT
 
 from django.core.cache import cache
-from django.http import HttpResponse
 import logging
 
 error_logger = logging.getLogger('django.error')
@@ -117,6 +116,8 @@ class FindResolutionAPI(APIView):
         resolution = find_best_res.best_resolution
         file_location = find_best_res.file_location
         chain_id = find_best_res.chain_id
+        if resolution == 'best structure lacks SNV site':
+            resolution = 'refresh page'
         return Response({'resolution': resolution, 'file_location': file_location, 'chain_id': chain_id})
 
 
