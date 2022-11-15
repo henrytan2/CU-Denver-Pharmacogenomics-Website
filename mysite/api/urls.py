@@ -7,8 +7,9 @@ from .views import CachePositionsAPI
 from .views import CacheLengthAPI
 from .views import CacheProteinAPI
 from .views import FindResolutionAPI
-from .views import FindpLDDTAPI
+from .views import FindPlddtAPI
 from .business.plotly_trial import mutation_app
+from .views import profile
 
 app_name = 'api'
 
@@ -23,5 +24,7 @@ urlpatterns = [
     path(r'cache-length', CacheLengthAPI.as_view(), name='cache_length'),
     path(r'cache-protein-structure', CacheProteinAPI.as_view(), name='cache_protein_structure'),
     path(r'best-resolution', FindResolutionAPI.as_view(), name='best_resolution'),
-    path(r'plddt-score', FindpLDDTAPI.as_view(), name='find_plddt'),
+    path(r'plddt-score', FindPlddtAPI.as_view(), name='find_plddt'),
+    path(r'templates/profile/', profile, name='users-profile'),
+    path(r'profile/', profile, name='users-profile'),
 ]

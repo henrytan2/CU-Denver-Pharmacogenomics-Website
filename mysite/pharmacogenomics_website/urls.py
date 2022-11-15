@@ -16,6 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from . import views
+from rest_framework.authtoken import views as rest_views
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,4 +32,6 @@ urlpatterns = [
     path('precursors/', include('precursors.urls')),
     path('pdbgen/', include('pdbgen.urls')),
     path('django_plotly_dash/', include('django_plotly_dash.urls')),
+    path('api-token-auth/', rest_views.obtain_auth_token),
+    path('accounts/', include('django.contrib.auth.urls')),
 ]

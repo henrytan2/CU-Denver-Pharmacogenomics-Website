@@ -54,10 +54,20 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_plotly_dash.apps.DjangoPlotlyDashConfig',
     'rest_framework',
+    'rest_framework.authtoken',
     'channels',
     'channels_redis',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
+}
 
 CHANNEL_LAYERS = {
     'default': {
@@ -81,6 +91,8 @@ MIDDLEWARE = [
     'django_plotly_dash.middleware.ExternalRedirectionMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
 ]
+
+LOGIN_REDIRECT_URL = '/api/templates/profile/'
 
 X_FRAME_OPTIONS = 'ALLOWALL'
 

@@ -5,9 +5,18 @@ from .business.faspr_run import FasprRun
 from .business.metabolite_gen import MetabPrep
 from .business.best_resolution import FindBestResolution
 from .business.find_plddt import CheckPLDDT
-
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 import logging
+from django.conf import settings
+from django.shortcuts import redirect
+
+@login_required
+def profile(request):
+    return render(request, 'users/profile.html')
 
 error_logger = logging.getLogger('django.error')
 
@@ -104,8 +113,9 @@ class CacheProteinAPI(APIView):
 class MetabPrepAPI(APIView):
     def post(self, request):
         smiles_code = request.data['smiles']
-        MetabPrep(smiles_code)
-        return Response(True)
+        metabolites = MetabPrep(smiles_code)
+        bt_output = metabolites.bt_output
+        return Response({'bt_output': bt_output})
 
 
 class FindResolutionAPI(APIView):
@@ -121,12 +131,22 @@ class FindResolutionAPI(APIView):
         return Response({'resolution': resolution, 'file_location': file_location, 'chain_id': chain_id})
 
 
-class FindpLDDTAPI(APIView):
+class FindPlddtAPI(APIView):
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        if not request.user.is_authenticated:
+            return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
+
         gene_ID = request.data['gene_ID']
         ccid = request.data['CCID']
         find_plddt = CheckPLDDT(gene_ID, ccid)
         plddt_snv = find_plddt.plddt_snv
         plddt_avg = find_plddt.plddt_avg
-        return Response({'plddt_snv': plddt_snv, 'plddt_avg': plddt_avg})
+        return Response({
+                'user': str(request.user),
+                'auth': str(request.auth),
+                'plddt_snv': plddt_snv,
+                'plddt_avg': plddt_avg
+            })
