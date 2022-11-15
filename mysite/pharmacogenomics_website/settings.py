@@ -225,7 +225,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static/'),
-    os.path.join(BASE_DIR, 'rest_framework/static/')
+    os.path.join(BASE_DIR, 'rest_framework/static/'),
+    os.path.join('../venv/lib/python3.9/site-packages/rest_framework/static/rest_framework/css')
 )
 
 STATICFILES_FINDERS = [
