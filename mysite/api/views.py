@@ -144,9 +144,15 @@ class FindPlddtAPI(APIView):
         find_plddt = CheckPLDDT(gene_ID, ccid)
         plddt_snv = find_plddt.plddt_snv
         plddt_avg = find_plddt.plddt_avg
+        charge_change = find_plddt.charge_change
+        disulfide_check = find_plddt.disulfide_check
+        proline_check = find_plddt.proline_check
         return Response({
                 'user': str(request.user),
                 'auth': str(request.auth),
                 'plddt_snv': plddt_snv,
-                'plddt_avg': plddt_avg
+                'plddt_avg': plddt_avg,
+                'charge_change': charge_change,
+                'disulfide_check': disulfide_check,
+                'proline_check': proline_check,
             })
