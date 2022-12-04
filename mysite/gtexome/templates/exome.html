@@ -165,6 +165,7 @@
                         exomeColumns['Alt'],
                         exomeColumns['lof_filter'],
                         exomeColumns['lof_flags'],
+                        exomeColumns['verdict'],
                         exomeColumns['ConsequenceInCanonicalTranscript'],
                         exomeColumns['AlleleNumber'],
                         exomeColumns['AlleleCount'],
@@ -734,6 +735,12 @@
                 {
                     data: "lof_flags",
                     title: "lof_flags",
+                    className: "text-center",
+                    defaultContent: "",
+                },
+                {
+                    data: "verdict",
+                    title: "lof_curated",
                     className: "text-center",
                     defaultContent: "",
                 },

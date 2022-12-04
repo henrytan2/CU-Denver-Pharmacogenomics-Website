@@ -79,6 +79,13 @@ class FasprPrep:
                 self.angstroms = int(angstroms)
                 self.positions = self.get_mutated_sequence3d(self.structure, self.mut_pos, self.chain_id,
                                                              self.angstroms)
+                self.chain = self.model[self.chain_id]
+                bio_io = PDBIO()
+                bio_io.set_structure(self.chain)
+                bio_io.save("chain_only.pdb")
+                with open("chain_only.pdb", 'r') as f:
+                    self.chain_pdb = f.readlines()
+
             except:
                 self.positions = '0'
                 self.mutatseq = '0'

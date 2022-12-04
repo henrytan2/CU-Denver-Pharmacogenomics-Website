@@ -44,5 +44,6 @@ class ExomeColumns:
         'lof': 41,
         'lof_filter': 42,
         'lof_flags': 43,
-        'rsid': 44
+        'rsid': 44,
+        'verdict': 45,
     }

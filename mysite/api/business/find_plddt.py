@@ -1,9 +1,11 @@
 import pickle5 as pickle
 from .alderaan import Alderaan
 from Bio.PDB.PDBParser import PDBParser
+from Bio.PDB.ResidueDepth import get_surface
 import os
 import re
 import io
+import numpy
 
 class CheckPLDDT:
 
@@ -35,11 +37,21 @@ class CheckPLDDT:
                 self.plddt_avg = self.average_pLDDT(residue, pLDDT)
             self.plddt_avg = round(self.plddt_avg, 2)
             self.charge_change = self.charge_check(self.INV, self.MNV)
-            self.disulfide_check = self.check_disulfides(self.pdb_text, self.mutation_position, self.chain)
-            if self.INV == "Pro" or self.INV == "Pro" or self.INV == "pro":
+            self.disulfide_check = self.check_disulfides(self.INV, self.pdb_text, self.mutation_position, self.chain)
+            if self.INV == "Pro" or self.INV == "PRO" or self.INV == "pro":
                 self.proline_check = self.get_torsion_angle(self.mut_residue, self.structure)
             else:
-                self.proline_check = 'no cis proline removed'
+                self.proline_check = 'No cis proline removed'
+            self.buried = self.buried_residues(self.structure, self.mutation_position, self.INV, self.MNV)
+            self.recommendation = 'Alphafold structure not suitable for modeling'
+            if self.charge_change == 'No swap of positively and negatively charged residues.'\
+                    and self.disulfide_check == 'No disulfides disrupted.' \
+                    and self.proline_check == 'No cis proline removed'\
+                    and self.plddt_snv >= 90\
+                    and not (self.buried.startswith('Charged')) \
+                    and not (self.buried.startswith('Lost')) \
+                    and not (self.buried.startswith('Buried')):
+                self.recommendation = 'Alphafold structure suitable for modeling'
 
         except Exception as e:
             print(e)
@@ -48,6 +60,8 @@ class CheckPLDDT:
             self.charge_change = 'error checking structure'
             self.disulfide_check = 'error checking structure'
             self.proline_check = 'error checking structure'
+            self.buried = 'error checking structure'
+            self.recommendation = 'Alphafold structure not suitable for modeling'
 
     def get_Pnum(self):
         with open('./pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:
@@ -96,40 +110,119 @@ class CheckPLDDT:
             pLDDT_score = ca.get_bfactor()
             return pLDDT_score
 
-    def charge_check(self, INV, MNV):
-        charge_change = 'no change in residue charge'
-
-        if INV == "Asp" or INV == "Glu":
-            if MNV == "Lys" or MNV == "Arg" or MNV == "His":
-                charge_change = "charge switched from - to +. Avoid using."
-                print(charge_change)
-
-        if INV == "Lys" or INV == "Arg" or INV == "His":
-            if MNV == "Asp" or MNV == "Glu":
-                charge_change = "charge switched from - to +. Avoid using."
-                print(charge_change)
-
-        return charge_change
-
-    def check_disulfides(self, file, mutation_position, best_chain_id):
-        disulfide_check = 'no disulfides disrupted'
-
+    def check_disulfides(self, INV, file, mutation_position, best_chain_id):
+        disulfide_check = 'No disulfides disrupted.'
+        if INV != "Cys":
+            return disulfide_check
         for line in file.split('\n'):
             if line.startswith('SSBOND'):
                 if line[1] == mutation_position or line[4] == mutation_position and line[3] == best_chain_id:
-                    disulfide_check = 'mutation dispruts disulfide. Avoid using.'
+                    disulfide_check = 'Mutation disrupts disulfide.'
 
         return disulfide_check
 
     def get_torsion_angle(self, residue, structure):
-        proline_check = 'no cis proline present'
+        proline_check = 'No cis proline removed.'
         structure.atom_to_internal_coordinates()
         ric = residue.internal_coord
         torsion_angle = ric.get_angle("omg")
         torsion_abs = round(abs(torsion_angle))
 
         if torsion_abs not in range(150, 190):
-            print(f"cis proline at mutation")
-            proline_check = 'cis proline present'
+            proline_check = 'cis proline removed.'
 
         return proline_check
+
+    def charge_check(self, INV, MNV):
+        charge_change = 'No swap of positively and negatively charged residues.'
+
+        if INV == "Asp" or INV == "Glu":
+            if MNV == "Lys" or MNV == "Arg" or MNV == "His":
+                charge_change = "Charge switched from - to +"
+
+        if INV == "Lys" or INV == "Arg" or INV == "His":
+            if MNV == "Asp" or MNV == "Glu":
+                charge_change = "Charge switched from + to -"
+
+        return charge_change
+
+    def buried_residues(self, structure, mut_residue, INV, MNV):
+
+        if INV == "Gly":
+            buried = "Buried Glycine replaced.  "
+
+        elif INV == "Lys" or INV == "Arg" or INV == "His":
+            if MNV == "Asp" or MNV == "Glu":
+                buried = "Charge that is buried switched from + to -.  "
+            elif MNV != "Lys" and MNV != "Arg" and MNV != "His":
+                buried = "Lost buried positive charge.  "
+            else:
+                buried = "No loss of buried charges or glycine.  "
+
+        elif INV == "Asp" or INV == "Glu":
+            if MNV == "Lys" or MNV == "Arg" or MNV == "His":
+                buried = "Charge that is buried switched from - to +.  "
+            elif MNV != "Asp" and MNV != "Glu":
+                buried = "Lost buried negative charge.  "
+            else:
+                buried = "No loss of buried charges or glycine.  "
+
+        else:
+            buried = "No loss of buried charges or glycine.  "
+
+        if MNV == "Pro":
+            buried += "Buried Proline introduced.  "
+        else:
+            buried += "No buried Proline introduced.  "
+
+        if MNV == "Ser" or MNV == "Thr" or MNV == "Cys" or MNV == "Tyr" or MNV == "Asn" or MNV == "Gln":
+            if INV != "Ser" and INV != "Thr" and INV != "Cys" and INV != "Tyr" and INV != "Asn" and INV != "Gln":
+                buried += "Buried hydrophilic residue introduced.  "
+            else:
+                buried += "No buried charge or hydrophilic residue introduced.  "
+
+        elif MNV == "Asp" or MNV == "Glu":
+            if INV != "Asp" and INV != "Glu":
+                buried += "Buried negative charge introduced.  "
+            else:
+                buried += "No buried charge or hydrophilic residue  introduced.  " # repeated?
+
+        elif MNV == "Lys" or MNV == "Arg" or MNV == "His":
+            if INV == "Asp" or INV == "Glu":
+                buried += "" # already covered
+            elif INV != "Lys" and INV != "Arg" and INV != "His":
+                buried += "Buried positive charge introduced.  "
+            else:
+                buried += "No buried charge or hydrophilic residue  introduced.  "
+
+        else:
+            if buried.startswith("No"):
+                buried += "No gain of buried charge or hydrophilic residue.  No loss of buried charge.  "
+            else:
+                buried += "No gain of buried charge or hydrophilic residue.  "
+            return buried
+
+        if buried.startswith("No"):
+            return buried
+
+        model = structure[0]
+        chain = model['A']
+        residue = chain[mut_residue]
+        if not residue.has_id("CA"):
+            return None
+        ca = residue["CA"]
+        coord = ca.get_coord()
+        try:
+            surface = get_surface(model, MSMS='./msms.x86_64Darwin.2.6.1')
+        except:
+            surface = get_surface(model, MSMS='./msms.x86_64Linux2.2.6.1') #from https://ccsb.scripps.edu/msms/downloads/
+        d = surface - coord
+        d2 = numpy.sum(d * d, 1)
+        min_dist = numpy.sqrt(min(d2))
+
+        if min_dist > 4:
+            return buried
+
+        else:
+            buried = "No gain of buried charge, proline, or hydrophilic residue. No loss of buried charge."
+            return buried

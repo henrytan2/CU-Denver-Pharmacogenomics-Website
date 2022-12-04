@@ -168,6 +168,9 @@ class ExomeView(generic.TemplateView):
               lof_filter
               lof_flags
               rsid
+              lof_curation{
+                verdict
+                }
               }      
             }
           }

@@ -13,6 +13,7 @@ from django.core.cache import cache
 import logging
 from django.conf import settings
 from django.shortcuts import redirect
+from datetime import date
 
 @login_required
 def profile(request):
@@ -34,7 +35,11 @@ class FasprPrepAPI(APIView):
         residues = faspr_prep.positions
         get_mut_seq = faspr_prep.get_mut_seq
         repack_pLDDT = faspr_prep.repack_pLDDT
-        header = str(f'REMARK created on GTexome ')# {get_mut_seq}
+        header = str(f'REMARK created on GTExome (https://pharmacogenomics.clas.ucdenver.edu/gtexome/)')
+        header += (f'\nREMARK created on: {date.today()}')
+        header += (f'\nREMARK using gene ID: {gene_ID}')
+        header += (f'\nREMARK from file: {file_location[-20:]}')
+        header += (f'\nREMARK introducing mutation: {ccid}')
         header += ('\nREMARK FASPR Repacked these residues:')
         header += (str(residues))
         header += ('\n')
@@ -107,7 +112,7 @@ class CacheProteinAPI(APIView):
 
     def get(self, request):
         returned_protein_structure = cache.get('protein_structure')
-        return Response({'protein_structure': returned_protein_structure})
+        return Response(returned_protein_structure)
 
 
 class MetabPrepAPI(APIView):
@@ -126,7 +131,7 @@ class FindResolutionAPI(APIView):
         resolution = find_best_res.best_resolution
         file_location = find_best_res.file_location
         chain_id = find_best_res.chain_id
-        if resolution == 'best structure lacks SNV site':
+        if resolution.startswith('Downloading'):
             resolution = 'refresh page'
         return Response({'resolution': resolution, 'file_location': file_location, 'chain_id': chain_id})
 
@@ -147,6 +152,8 @@ class FindPlddtAPI(APIView):
         charge_change = find_plddt.charge_change
         disulfide_check = find_plddt.disulfide_check
         proline_check = find_plddt.proline_check
+        buried = find_plddt.buried
+        recommendation = find_plddt.recommendation
         return Response({
                 'user': str(request.user),
                 'auth': str(request.auth),
@@ -155,4 +162,6 @@ class FindPlddtAPI(APIView):
                 'charge_change': charge_change,
                 'disulfide_check': disulfide_check,
                 'proline_check': proline_check,
+                'buried': buried,
+                'recommendation': recommendation,
             })

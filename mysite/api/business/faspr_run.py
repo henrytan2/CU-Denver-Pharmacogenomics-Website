@@ -29,12 +29,8 @@ class FasprRun:
         try:
             chain_pdb = cache.get('chain_pdb')
             if chain_pdb != 'empty':
-                chain_pipe = str(f'"{chain_pdb}"')
-                chain_pipe += f' | tee {self.temp_folder}/repacked_chain_pdb.txt'
-                savechain_command = f'echo {chain_pipe}'
-                _, success = self.alderaan.run_command(savechain_command)
-                protein_location = f'{self.temp_folder}/repacked_chain_pdb.txt'
-
+                self.alderaan.send_batch(f'{self.temp_folder}/repacked_chain_pdb.txt', chain_pdb)
+                self.alderaan.send_chmod(f'{self.temp_folder}/repacked_chain_pdb.txt')
             faspr_command = f"FASPR/FASPR -i {protein_location} -o {self.temp_folder}/FASPR_output.pdb -s {self.temp_folder}/repacked_pdb.txt"
             faspr_out, success = self.alderaan.run_command(faspr_command)
             if 'error' in faspr_out:

@@ -54,81 +54,89 @@
                             </label>
                         </ul>
                     </div>
-                            <div class="col-5">
-                <div class="row mb-1">
-                    <label class="col-6">
-                        GeneID
-                    </label>
-                    <input class="form-control col-10"
-                           v-model="geneID"
-                           v-on:keyup.enter="reload"
-                           type="text"/>
-                </div>
-                <div class="row mb-1">
-                    <label class="col-6">
-                        CCID
-                    </label>
-                    <input class="form-control col-10"
-                           v-model="CCID"
-                           v-on:keyup.enter="reload"
-                           type="text"/>
-                </div>
-            </div>
-                                <div class="row justify-content-start">
-
-                <div class="col-12">
-                    <div v-if="fetchingResolution">
-                        Searching for experimental structures
-                        <div class="spinner-border spinner-border-sm" role="status">
-                            <span class="sr-only">Loading...</span>
+                    <div class="col-5">
+                        <div class="row mb-1">
+                            <label class="col-6">
+                                GeneID
+                            </label>
+                            <input class="form-control col-10"
+                                   v-model="geneID"
+                                   v-on:keyup.enter="reload"
+                                   type="text"/>
+                        </div>
+                        <div class="row mb-1">
+                            <label class="col-6">
+                                CCID
+                            </label>
+                            <input class="form-control col-10"
+                                   v-model="CCID"
+                                   v-on:keyup.enter="reload"
+                                   type="text"/>
                         </div>
                     </div>
-                    <div v-else>
-                        Experimental Structure
-                        {% if  bestResolution == "false" %}
-                            {% verbatim %} not available {% endverbatim %}
-                        {% elif bestResolution|add:"2" == '' %}
-                            Available at:
-                            <b style="display:inline"
-                               class="text-primary">{% verbatim %}{{ bestResolution }}{% endverbatim %}</b>
-                            <p class="text" style="display:inline">Angstrom resolution</p>
-                        {% else %}
-                            {% verbatim %}not available{% endverbatim %}
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            <div class="row justify-content-start">
+                    <div class="row justify-content-start">
 
-                <div class="col-12">
-                    <div v-if="fetchingpLDDT">
-                        Searching for AlphaFold2 Structure
-                        <div class="spinner-border spinner-border-sm" role="status">
-                            <span class="sr-only">Loading...</span>
+                        <div class="col-12">
+                            <div v-if="fetchingResolution">
+                                Searching for experimental structures
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </div>
+                            <div v-else>
+                                Experimental Structure
+                                {% if  bestResolution == "false" %}
+                                    {% verbatim %} not available {% endverbatim %}
+                                {% elif bestResolution|add:"2" == '' %}
+                                    Available at:
+                                    <b style="display:inline"
+                                       class="text-primary">{% verbatim %}{{ bestResolution }}{% endverbatim %}</b>
+                                    <p class="text" style="display:inline">Angstrom resolution</p>
+                                {% else %}
+                                    {% verbatim %}not available{% endverbatim %}
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
-                    <div v-else style="display:inline">
-                        AlphaFold2 Structure Available.
-                        <ul>Warnings based on AF structure:</ul>
-                        <ul><b class="text-primary"
-                               style="display:inline">average pLDDT score: {% verbatim %}{{ plddt_avg }}{% endverbatim %}</b>
-                        </ul>
-                        <ul><b class="text-primary"
-                               style="display:inline">pLDDT score at SNV: {% verbatim %}{{ plddt_snv }}{% endverbatim %}</b>
-                        </ul>
-                        <ul>
-                            <b class="text-primary"
-                               style="display:inline">{% verbatim %}{{ charge_change }}{% endverbatim %} </b></ul>
-                        <ul><b class="text-primary"
-                               style="display:inline">{% verbatim %}{{ proline_check }}{% endverbatim %} </b></ul>
+                    <div class="row justify-content-start">
+
+                        <div class="col-12">
+                            <div v-if="fetchingpLDDT">
+                                Searching for AlphaFold2 Structure
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </div>
+                            <div v-else style="display:inline">
+                                AlphaFold2 Structure Available.
+                                <ul>Warnings based on AF structure:</ul>
+                                <ul><b class="text-primary"
+                                       style="display:inline">Average pLDDT score: {% verbatim %}{{ plddt_avg }}{% endverbatim %}</b>
+                                </ul>
+                                <ul><b class="text-primary"
+                                       style="display:inline">pLDDT score at SNV: {% verbatim %}{{ plddt_snv }}{% endverbatim %}</b>
+                                </ul>
+                                <ul>
+                                    <b class="text-primary"
+                                       style="display:inline">{% verbatim %}{{ charge_change }}{% endverbatim %} </b>
+                                </ul>
+                                <ul><b class="text-primary"
+                                       style="display:inline">{% verbatim %}{{ proline_check }}{% endverbatim %} </b>
+                                </ul>
+                                <ul><b class="text-primary"
+                                       style="display:inline">{% verbatim %}{{ buried }}{% endverbatim %} </b>
+                                </ul>
+                                <ul><b class="text-danger"
+                                       style="display:inline">{% verbatim %}{{ recommendation }}{% endverbatim %} </b>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
                 </div>
                 <div class="col-6">
                     <div class="row justify-content-start">
                         <div class="col-1">
-                            </div>
+                        </div>
                         <div class="col-6">
                             <div class="form-group row">
                                 <label class="col-8">
@@ -227,11 +235,13 @@
                     charge_change: 'checking residue charge',
                     disulfide_check: 'checking for disulfide',
                     proline_check: 'checking proline',
+                    buried: 'checking for buried',
                     bestResolution: "no structure found",
                     repack_pLDDT: "searching",
                     fetchingpLDDT: true,
                     file_location: 'empty',
                     chain_id: 'empty',
+                    recommendation: '',
                 }
             },
             beforeMount:
@@ -307,7 +317,9 @@
                         this.charge_change = response.charge_change;
                         this.disulfide_check = response.disulfide_check;
                         this.proline_check = response.proline_check;
+                        this.buried = response.buried;
                         this.fetchingpLDDT = false;
+                        this.recommendation = response.recommendation;
                     }.bind(this)
                 })
             },
@@ -417,15 +429,12 @@
                                 success: function (response) {
                                     this.protein_structure = response;
                                     $.ajax({
-                                        var: CCID_out = this.CCID,
-                                        var: residues_out = this.residues,
                                         success: function (response) {
                                             window.location = '{% url 'pdbgen:pdbgen-results.html' %}'
                                         }
                                     })
                                 }
                             })
-
                         }.bind(this)
                     })
 

@@ -32,7 +32,7 @@ class Alderaan:
         return stdout, success
 
     def send_batch(self, path, command):
-        f = self.sftp.open(f'{path}', "wb")
+        f = self.sftp.open(f'{path}', "w+")
         f.write(f'{command}')
         f.close()
 
