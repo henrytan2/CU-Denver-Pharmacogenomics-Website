@@ -15,9 +15,9 @@ from django.conf import settings
 from django.shortcuts import redirect
 from datetime import date
 
-@login_required
-def profile(request):
-    return render(request, 'users/profile.html')
+# @login_required
+# def profile(request):
+#     return render(request, '../user_accounts/templates/profile.html')
 
 error_logger = logging.getLogger('django.error')
 
@@ -140,6 +140,7 @@ class FindPlddtAPI(APIView):
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
 
+    @login_required
     def post(self, request):
         if not request.user.is_authenticated:
             return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))

@@ -1,6 +1,4 @@
 from django.views import generic
-# from mysite.business.alderaan import Alderaan
-import pickle5 as pickle
 
 class IndexView(generic.TemplateView):
     template_name = 'index.html'
