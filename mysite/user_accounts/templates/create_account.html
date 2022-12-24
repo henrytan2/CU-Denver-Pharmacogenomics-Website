@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Create Account</title>
+    </head>
+    <create_account>
+
+    </create_account>
+    <script type="text-html-template" id="create_account">
+
+        <div>
+            <div class="row">
+                <div class="col-1">
+                </div>
+                <div class="col">
+                    <label>
+                        User Name
+                        <input type="text"
+                               v-model="username">
+                    </label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-1">
+                </div>
+                <div class="col">
+                    <label>
+                        Email
+                        <input type="text"
+                               v-model="email">
+                    </label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-1">
+                </div>
+                <div class="col">
+                    <label>
+                        Password
+                        <input type="password"
+                               v-model="password">
+                    </label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-1">
+                </div>
+                <button
+                        v-on:click="submit">
+                    Submit
+                </button>
+            </div>
+        </div>
+    </script>
+
+    <script type="application/javascript">
+        Vue.component("create_account", {
+            template: "#create_account",
+            data: function () {
+                return {
+                    username: "",
+                    password: "",
+                    email: "",
+                }
+            },
+        methods: {submit: function (){
+            var username = this.username;
+            var password = this.password;
+            var email = this.email;
+            var request = {username: username, password: password, email: email};
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url 'user_account:submit_create_account' %}',
+                    data: request,
+                    success: function (response) {
+                        if (response === "True")
+                            console.log('account created');
+
+                    }
+
+            })}
+        }}
+        )
+    </script>
+{% endblock %}

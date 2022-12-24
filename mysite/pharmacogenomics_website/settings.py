@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'drug_name_precursor_map.apps.DrugNamePrecursorMapConfig',
     'full_metabolite_map.apps.FullMetaboliteMapConfig',
     'api.apps.ApiConfig',
+    'user_accounts.apps.UserAccountsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -59,8 +60,11 @@ INSTALLED_APPS = [
     'channels_redis',
 ]
 
+AUTH_USER_MODEL = 'user_accounts.MyUser'
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ],

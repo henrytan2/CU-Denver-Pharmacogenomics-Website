@@ -26,3 +26,8 @@ urlpatterns = [
     path(r'templates/login', views.contact, name='login'),
     path(r'templates/profile', contact, name='profile'),
 ]
+
+# urlpatterns = [
+#     path('admin/', admin.site.urls),
+#     path('api/accounts/', include('authemail.urls')),
+# ]
