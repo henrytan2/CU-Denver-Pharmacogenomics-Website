@@ -18,6 +18,7 @@ from django.urls import path, include
 from . import views
 from rest_framework.authtoken import views as rest_views
 from .views import profile, contact
+from rest_framework.urlpatterns import format_suffix_patterns
 
 
 urlpatterns = [
@@ -25,9 +26,33 @@ urlpatterns = [
     # path(r'profile/', profile, name='users-profile'),
     path(r'templates/login', views.contact, name='login'),
     path(r'templates/profile', contact, name='profile'),
+    path('admin/', admin.site.urls),
+    # path('api/accounts/', include('authemail.urls')),
+
+    path('signup/', views.Signup.as_view(), name='authemail-signup'),
+    path('signup/verify/', views.SignupVerify.as_view(),
+         name='authemail-signup-verify'),
+
+    path('login/', views.Login.as_view(), name='authemail-login'),
+    path('logout/', views.Logout.as_view(), name='authemail-logout'),
+
+    path('password/reset/', views.PasswordReset.as_view(),
+         name='authemail-password-reset'),
+    path('password/reset/verify/', views.PasswordResetVerify.as_view(),
+         name='authemail-password-reset-verify'),
+    path('password/reset/verified/', views.PasswordResetVerified.as_view(),
+         name='authemail-password-reset-verified'),
+
+    path('email/change/', views.EmailChange.as_view(),
+         name='authemail-email-change'),
+    path('email/change/verify/', views.EmailChangeVerify.as_view(),
+         name='authemail-email-change-verify'),
+
+    path('password/change/', views.PasswordChange.as_view(),
+         name='authemail-password-change'),
+
+    path('users/me/', views.UserMe.as_view(), name='authemail-me'),
 ]
 
-# urlpatterns = [
-#     path('admin/', admin.site.urls),
-#     path('api/accounts/', include('authemail.urls')),
-# ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)
