@@ -1,7 +1,26 @@
+from rest_framework.renderers import TemplateHTMLRenderer
 from .forms import CreateAccountForm
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-
+from django.views import generic
+from .models import SignupCode, EmailChangeCode, PasswordResetCode
+from datetime import date
+from django.conf import settings
+from django.contrib.auth import authenticate, get_user_model
+from django.utils.translation import gettext as _
+from rest_framework import status
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from authemail.serializers import SignupSerializer, LoginSerializer
+from authemail.serializers import PasswordResetSerializer
+from authemail.serializers import PasswordResetVerifiedSerializer
+from authemail.serializers import EmailChangeSerializer
+from authemail.serializers import PasswordChangeSerializer
+from authemail.serializers import UserSerializer
+from .models import send_multi_format_email
+from django.template.response import TemplateResponse
+from django.views.generic.base import TemplateResponseMixin
 # @login_required
 # def profile(request):
 #     return render(request, '../user_accounts/templates/login.html')
@@ -10,41 +29,6 @@ def contact(request):
     form = CreateAccountForm()
     return render(request, '../user_accounts/templates/profile.html', {'form': form})
 
-
-from django.shortcuts import render
-
-# Create your views here.
-
-
-# from mysite.user_accounts.forms import CreateAccountForm
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
-from django.views import generic
-from rest_framework.views import APIView
-from rest_framework.response import Response
-# from tokens.models import Token
-from datetime import datetime, timedelta
-from django.core.mail import send_mail
-from uuid import uuid4
-
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
-
-
-class TokenGenerator(PasswordResetTokenGenerator):
-    def _make_hash_value(self, username, timestamp):
-        return (
-            str(username.pk) + str(timestamp) +
-            str(username.is_active)
-        )
-
-account_activation_token = TokenGenerator()
-
-# class TokenView(generic.ListView):
-#     model = Token
-    # template_name = '.html'
-    # precursor_UUIDs = []
-    # precursors_to_metabolites = {}
 
 def profile(request):
     return render(request, '../user_accounts/../accounts/templates/login.html')
@@ -55,15 +39,14 @@ class CreateAccountView(generic.TemplateView):
 
 class SubmitCreateAccount(APIView):
 
-
     def post(self, request):
         success = True
-        username = request.data['username']
-        password = request.data['password']
-        email = request.data['email']
-        date_created = datetime.today()
-        expiration_date = date_created+timedelta(days=1)
-        UUID = uuid4()
+        # username = request.data['username']
+        # password = request.data['password']
+        # email = request.data['email']
+        # date_created = datetime.today()
+        # expiration_date = date_created+timedelta(days=1)
+        # UUID = uuid4()
         # email_token = Token.objects.create(token_type=token_type,
         #                                    value=value,
         #                                    UUID=UUID,
@@ -71,75 +54,14 @@ class SubmitCreateAccount(APIView):
         #                                    expiration_date=expiration_date,
         #                                    username=username)  #
         # token = email_token.value
-
-        domain = 'https://pharmacogenomics.clas.ucdenver.edu/'
+        # domain = 'https://pharmacogenomics.clas.ucdenver.edu/'
         # context = {'domain': domain, 'token': token}
-        # send_mail(
-        #     'Pharmacogenomics account verification',
-        #     'To validate your account click on the provided link.',
-        #     'from@example.com',
-        #     [email],
-        #     fail_silently=False,
-        # )
-
-        try:
-            user = User.objects.create_user(username=username,
-                                            email=email,
-                                            password=password,
-                                            is_active=False)
-            account_activation_token.make_token(user)
-
-        except:
-            success = False
-
         # CreateAccountForm(user)
-
-
         return Response(success)
 
-
-# def send_email(email, token_type, value, date_created, expiration_date, username):
-    # UUID = uuid4()
-    # email_token = Token.objects.create(token_type=token_type,
-    #                                      value=value,
-    #                                      UUID=UUID,
-    #                                      date_created=date_created,
-    #                                      expiration_date=expiration_date,
-    #                                      username=username) #
-    # token = email_token.value
-    #
-    # domain = 'https://pharmacogenomics.clas.ucdenver.edu/'
-    # context = {'domain': domain}
-    # send_mail(
-    #     'Pharmacogenomics account verification',
-    #     'To validate your account click on the provided link.',
-    #     'from@example.com',
-    #     ['to@example.com'],
-    #     fail_silently=False,
-    # )
-    # return True
-    #send email with f{email_token}
-
 # @login_required
-from datetime import date
 
-from django.conf import settings
-from django.contrib.auth import authenticate, get_user_model
-from django.utils.translation import gettext as _
-
-from rest_framework import status
-from rest_framework.authtoken.models import Token
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from authemail.serializers import SignupSerializer, LoginSerializer
-from authemail.serializers import PasswordResetSerializer
-from authemail.serializers import PasswordResetVerifiedSerializer
-from authemail.serializers import EmailChangeSerializer
-from authemail.serializers import PasswordChangeSerializer
-from authemail.serializers import UserSerializer
-from .models import SignupCode, EmailChangeCode, PasswordResetCode, send_multi_format_email
+EXPIRY_PERIOD = 3    # days
 
 class Signup(APIView):
     permission_classes = (AllowAny,)
@@ -163,7 +85,6 @@ class Signup(APIView):
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
                 try:
-                    # Delete old signup codes
                     signup_code = SignupCode.objects.get(user=user)
                     signup_code.delete()
                 except SignupCode.DoesNotExist:
@@ -172,7 +93,6 @@ class Signup(APIView):
             except get_user_model().DoesNotExist:
                 user = get_user_model().objects.create_user(email=email)
 
-            # Set user fields provided
             user.set_password(password)
             user.first_name = first_name
             user.last_name = last_name
@@ -279,7 +199,6 @@ class PasswordReset(APIView):
             try:
                 user = get_user_model().objects.get(email=email)
 
-                # Delete all unused password reset codes
                 PasswordResetCode.objects.filter(user=user).delete()
 
                 if user.is_verified and user.is_active:
@@ -338,8 +257,6 @@ class PasswordResetVerified(APIView):
                 password_reset_code = PasswordResetCode.objects.get(code=code)
                 password_reset_code.user.set_password(password)
                 password_reset_code.user.save()
-
-                # Delete password reset code just used
                 password_reset_code.delete()
 
                 content = {'success': _('Password reset.')}
@@ -362,10 +279,7 @@ class EmailChange(APIView):
 
         if serializer.is_valid():
             user = request.user
-
-            # Delete all unused email change codes
             EmailChangeCode.objects.filter(user=user).delete()
-
             email_new = serializer.data['email']
 
             try:
@@ -424,11 +338,8 @@ class EmailChangeVerify(APIView):
             except get_user_model().DoesNotExist:
                 pass
 
-            # If all is well, change the email address.
             email_change_code.user.email = email_change_code.email
             email_change_code.user.save()
-
-            # Delete email change code just used
             email_change_code.delete()
 
             content = {'success': _('Email address changed.')}
@@ -436,6 +347,14 @@ class EmailChangeVerify(APIView):
         except EmailChangeCode.DoesNotExist:
             content = {'detail': _('Unable to verify user.')}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserMe(APIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserSerializer
+
+    def get(self, request, format=None):
+        return Response(self.serializer_class(request.user).data)
 
 
 class PasswordChange(APIView):
@@ -458,11 +377,3 @@ class PasswordChange(APIView):
         else:
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserMe(APIView):
-    permission_classes = (IsAuthenticated,)
-    serializer_class = UserSerializer
-
-    def get(self, request, format=None):
-        return Response(self.serializer_class(request.user).data)

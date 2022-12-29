@@ -13,21 +13,16 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path, include
-from . import views
-from rest_framework.authtoken import views as rest_views
-from .views import profile, contact
-from rest_framework.urlpatterns import format_suffix_patterns
 
+from django.urls import path
+from . import views
+from .views import contact
 
 urlpatterns = [
     # path(r'templates/users', profile, name='users-profile'),
     # path(r'profile/', profile, name='users-profile'),
     path(r'templates/login', views.contact, name='login'),
     path(r'templates/profile', contact, name='profile'),
-    path('admin/', admin.site.urls),
-    # path('api/accounts/', include('authemail.urls')),
 
     path('signup/', views.Signup.as_view(), name='authemail-signup'),
     path('signup/verify/', views.SignupVerify.as_view(),
@@ -53,6 +48,3 @@ urlpatterns = [
 
     path('users/me/', views.UserMe.as_view(), name='authemail-me'),
 ]
-
-
-urlpatterns = format_suffix_patterns(urlpatterns)
