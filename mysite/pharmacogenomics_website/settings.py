@@ -60,6 +60,8 @@ INSTALLED_APPS = [
     'channels_redis',
 ]
 
+LOGIN_URL = 'user_accounts.account-welcome'
+
 AUTH_USER_MODEL = 'user_accounts.MyUser'
 AUTH_EMAIL_VERIFICATION = True
 
@@ -199,7 +201,6 @@ DATABASES = {
         'PORT': PORT,
     }
 }
-
 
 
 # Password validation

@@ -1,75 +1,91 @@
-from rest_framework.renderers import TemplateHTMLRenderer
-from .forms import CreateAccountForm
-from django.shortcuts import render
 from django.views import generic
-from .models import SignupCode, EmailChangeCode, PasswordResetCode
+from .models import SignupCode, PasswordResetCode
 from datetime import date
 from django.conf import settings
-from django.contrib.auth import authenticate, get_user_model
-from django.utils.translation import gettext as _
-from rest_framework import status
+from django.contrib.auth import get_user_model
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from authemail.serializers import SignupSerializer, LoginSerializer
 from authemail.serializers import PasswordResetSerializer
 from authemail.serializers import PasswordResetVerifiedSerializer
-from authemail.serializers import EmailChangeSerializer
 from authemail.serializers import PasswordChangeSerializer
-from authemail.serializers import UserSerializer
 from .models import send_multi_format_email
-from django.template.response import TemplateResponse
-from django.views.generic.base import TemplateResponseMixin
-# @login_required
-# def profile(request):
-#     return render(request, '../user_accounts/templates/login.html')
-#
-def contact(request):
-    form = CreateAccountForm()
-    return render(request, '../user_accounts/templates/profile.html', {'form': form})
-
-
-def profile(request):
-    return render(request, '../user_accounts/../accounts/templates/login.html')
-
-class CreateAccountView(generic.TemplateView):
-
-    template_name = 'create_account.html'
-
-class SubmitCreateAccount(APIView):
-
-    def post(self, request):
-        success = True
-        # username = request.data['username']
-        # password = request.data['password']
-        # email = request.data['email']
-        # date_created = datetime.today()
-        # expiration_date = date_created+timedelta(days=1)
-        # UUID = uuid4()
-        # email_token = Token.objects.create(token_type=token_type,
-        #                                    value=value,
-        #                                    UUID=UUID,
-        #                                    date_created=date_created,
-        #                                    expiration_date=expiration_date,
-        #                                    username=username)  #
-        # token = email_token.value
-        # domain = 'https://pharmacogenomics.clas.ucdenver.edu/'
-        # context = {'domain': domain, 'token': token}
-        # CreateAccountForm(user)
-        return Response(success)
-
-# @login_required
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import render
 
 EXPIRY_PERIOD = 3    # days
 
-class Signup(APIView):
+
+class Profile(generic.View):
+    # template_name = '../user_accounts/templates/profile.html'
+    form = UserCreationForm()
+
+    def get(self, request):
+        status = 'Status: Not logged in'
+        form = UserCreationForm()
+        return render(request, './templates/profile.html', {'form': form, 'status':status})
+
+    def post(self, request):
+        self.serializer_class = LoginSerializer
+        email = request.POST['username']
+        pw = request.POST['password1']
+
+        serializer = self.serializer_class(data={'email': email, 'password': pw})
+        form = UserCreationForm()
+
+        if serializer.is_valid():
+            email = serializer.data['email']
+            password = serializer.data['password']
+            user = authenticate(email=email, password=password)
+
+            if user:
+                if user.is_verified:
+                    if user.is_active:
+                        token, created = Token.objects.get_or_create(user=user)
+                        login(request, user)
+                        status = 'Status: Logged in'
+                        return render(request, './templates/profile.html',
+                                      {'token': token.key,
+                                       'status': status,
+                                       'form': form},)
+                    else:
+                        status = 'Status: Not logged in'
+                        return render(request, './templates/profile.html',
+                                      {'form': form,
+                                       'status': status})
+
+                else:
+                    status = {'detail':'User account not verified.'}
+                    return render(request, './templates/profile.html', {'form': form, 'status': status})
+            else:
+                status = 'Unable to login with provided credentials.'
+                return render(request, './templates/profile.html', {'form': form, 'status': status})
+
+        else:
+            status = serializer.errors
+            return render(request, './templates/profile.html', {'form': form,'status': status})
+
+
+class Signup(generic.View):
+
     permission_classes = (AllowAny,)
     serializer_class = SignupSerializer
 
-    def post(self, request, format=None):
-        serializer = self.serializer_class(data=request.data)
+    def get(self, request):
+        status = 'Enter account info here:'
+        form = UserCreationForm()
+        return render(request, './templates/create_account.html', {'form': form, 'status': status})
 
+    def post(self, request, format=None):
+        form = UserCreationForm()
+        email = request.POST['email']
+        pw = request.POST['password']
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
+
+        serializer = self.serializer_class(data={'email': email, 'password': pw,
+                                                 'first_name': first_name,'last_name': last_name})
         if serializer.is_valid():
             email = serializer.data['email']
             password = serializer.data['password']
@@ -81,8 +97,8 @@ class Signup(APIView):
             try:
                 user = get_user_model().objects.get(email=email)
                 if user.is_verified:
-                    content = {'detail': _('Email address already taken.')}
-                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                    status = 'Email address already taken.'
+                    return render(request, './templates/create_account.html', {'form': form, 'status': status})
 
                 try:
                     signup_code = SignupCode.objects.get(user=user)
@@ -111,15 +127,17 @@ class Signup(APIView):
 
             content = {'email': email, 'first_name': first_name,
                        'last_name': last_name}
-            return Response(content, status=status.HTTP_201_CREATED)
+            status = 'Email address already taken.'
+            return render(request, './templates/create_account.html', {'form': form, 'status': status})
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        status = '400_BAD_REQUEST.'
+        return render(request, './templates/create_account.html', {'form': form, 'status': status})
 
 
-class SignupVerify(APIView):
+class SignupVerify(generic.View):
     permission_classes = (AllowAny,)
 
-    def get(self, request, format=None):
+    def get(self, request):
         code = request.GET.get('code', '')
         verified = SignupCode.objects.set_user_is_verified(code)
 
@@ -129,99 +147,92 @@ class SignupVerify(APIView):
                 signup_code.delete()
             except SignupCode.DoesNotExist:
                 pass
-            content = {'success': _('Email address verified.')}
-            return Response(content, status=status.HTTP_200_OK)
+            status = 'Email address verified.'
+            return render(request, './templates/create_account.html', {'status': status})
         else:
-            content = {'detail': _('Unable to verify user.')}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            status = 'Unable to verify user.'
+            return render(request, './templates/create_account.html', {'status': status})
 
 
-class Login(APIView):
-    permission_classes = (AllowAny,)
-    serializer_class = LoginSerializer
-
-    def post(self, request, format=None):
-        serializer = self.serializer_class(data=request.data)
-
-        if serializer.is_valid():
-            email = serializer.data['email']
-            password = serializer.data['password']
-            user = authenticate(email=email, password=password)
-
-            if user:
-                if user.is_verified:
-                    if user.is_active:
-                        token, created = Token.objects.get_or_create(user=user)
-                        return Response({'token': token.key},
-                                        status=status.HTTP_200_OK)
-                    else:
-                        content = {'detail': _('User account not active.')}
-                        return Response(content,
-                                        status=status.HTTP_401_UNAUTHORIZED)
-                else:
-                    content = {'detail':
-                               _('User account not verified.')}
-                    return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-            else:
-                content = {'detail':
-                           _('Unable to login with provided credentials.')}
-                return Response(content, status=status.HTTP_401_UNAUTHORIZED)
-
-        else:
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
-
-
-class Logout(APIView):
+class Logout(generic.View):
+    template_name = './templates/profile.html'
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request, format=None):
+    def get(self, request):
         """
         Remove all auth tokens owned by request.user.
         """
-        tokens = Token.objects.filter(user=request.user)
+        tokens = Token.objects.filter(user=self.request.user)
         for token in tokens:
             token.delete()
-        content = {'success': _('User logged out.')}
-        return Response(content, status=status.HTTP_200_OK)
+        form = UserCreationForm()
+        status = 'User logged out.'
+        return render(request, './templates/profile.html', {'form': form, 'status': status})
 
 
-class PasswordReset(APIView):
+class PasswordReset(generic.View):
     permission_classes = (AllowAny,)
     serializer_class = PasswordResetSerializer
 
-    def post(self, request, format=None):
-        serializer = self.serializer_class(data=request.data)
-
+    def get(self, request):
+        self.serializer_class = LoginSerializer
+        email = request.user.email
+        serializer = self.serializer_class(data={'email': email})
+        form = UserCreationForm()
         if serializer.is_valid():
             email = serializer.data['email']
 
             try:
                 user = get_user_model().objects.get(email=email)
+                if user.is_verified and user.is_active:
+                    status = 'User active and verified.'
+                    return render(request, './templates/account_management.html', {'status': status,
+                                                                                   'form': form})
+            except get_user_model().DoesNotExist:
+                status = 'Account does not exist.'
+                return render(request, './templates/account_management.html', {'status': status,
+                                                                               'form': form})
+        else:
+            status = 'Invalid email.'
+            return render(request, './templates/account_management.html', {'status': status,
+                                                                           'form': form})
 
+    def post(self, request):
+
+        email = request.POST['username']
+        serializer = self.serializer_class(data={'email': email})
+        form = UserCreationForm()
+        if serializer.is_valid():
+            email = serializer.data['email']
+
+            try:
+                user = get_user_model().objects.get(email=email)
                 PasswordResetCode.objects.filter(user=user).delete()
 
                 if user.is_verified and user.is_active:
                     password_reset_code = \
                         PasswordResetCode.objects.create_password_reset_code(user)
                     password_reset_code.send_password_reset_email()
-                    content = {'email': email}
-                    return Response(content, status=status.HTTP_201_CREATED)
+                    # content = {'email': email}
+                    return render(request, './templates/account_management.html',
+                                  {'form': form})
 
             except get_user_model().DoesNotExist:
                 pass
 
-            # Since this is AllowAny, don't give away error.
-            content = {'detail': _('Password reset not allowed.')}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            status = 'Password reset not allowed.'
+            return render(request, './templates/account_management.html', {'status': status,
+                                                                           'form': form})
 
         else:
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
+            status = 'Invalid account.'
+            return render(request, './templates/account_management.html', {'status': status,
+                                                                           'form': form})
 
 
-class PasswordResetVerify(APIView):
+class PasswordResetVerify(generic.View):
     permission_classes = (AllowAny,)
+    template_name = './templates/account_management.html'
 
     def get(self, request, format=None):
         code = request.GET.get('code', '')
@@ -235,14 +246,14 @@ class PasswordResetVerify(APIView):
                 password_reset_code.delete()
                 raise PasswordResetCode.DoesNotExist()
 
-            content = {'success': _('Email address verified.')}
-            return Response(content, status=status.HTTP_200_OK)
+            status = 'Email address verified.'
+            return render(request, './templates/account_management.html', {'status': status})
         except PasswordResetCode.DoesNotExist:
-            content = {'detail': _('Unable to verify user.')}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            status = 'Unable to verify user.'
+            return render(request, './templates/account_management.html', {'status': status})
 
 
-class PasswordResetVerified(APIView):
+class PasswordResetVerified(generic.View):
     permission_classes = (AllowAny,)
     serializer_class = PasswordResetVerifiedSerializer
 
@@ -258,110 +269,28 @@ class PasswordResetVerified(APIView):
                 password_reset_code.user.set_password(password)
                 password_reset_code.user.save()
                 password_reset_code.delete()
+                status = 'Password reset.'
 
-                content = {'success': _('Password reset.')}
-                return Response(content, status=status.HTTP_200_OK)
+                return render(request, './templates/account_management.html', {'status': status})
+
             except PasswordResetCode.DoesNotExist:
-                content = {'detail': _('Unable to verify user.')}
-                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                status = 'Unable to verify user.'
+                return render(request, './templates/account_management.html', {'status': status})
 
         else:
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
+            status = 'Serializer error'
+            return render(request, './templates/account_management.html', {'status': status})
 
 
-class EmailChange(APIView):
-    permission_classes = (IsAuthenticated,)
-    serializer_class = EmailChangeSerializer
-
-    def post(self, request, format=None):
-        serializer = self.serializer_class(data=request.data)
-
-        if serializer.is_valid():
-            user = request.user
-            EmailChangeCode.objects.filter(user=user).delete()
-            email_new = serializer.data['email']
-
-            try:
-                user_with_email = get_user_model().objects.get(email=email_new)
-                if user_with_email.is_verified:
-                    content = {'detail': _('Email address already taken.')}
-                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    # If the account with this email address is not verified,
-                    # give this user a chance to verify and grab this email address
-                    raise get_user_model().DoesNotExist
-
-            except get_user_model().DoesNotExist:
-                email_change_code = EmailChangeCode.objects.create_email_change_code(user, email_new)
-
-                email_change_code.send_email_change_emails()
-
-                content = {'email': email_new}
-                return Response(content, status=status.HTTP_201_CREATED)
-
-        else:
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
-
-
-class EmailChangeVerify(APIView):
-    permission_classes = (AllowAny,)
-
-    def get(self, request, format=None):
-        code = request.GET.get('code', '')
-
-        try:
-            # Check if the code exists.
-            email_change_code = EmailChangeCode.objects.get(code=code)
-
-            # Check if the code has expired.
-            delta = date.today() - email_change_code.created_at.date()
-            if delta.days > EmailChangeCode.objects.get_expiry_period():
-                email_change_code.delete()
-                raise EmailChangeCode.DoesNotExist()
-
-            # Check if the email address is being used by a verified user.
-            try:
-                user_with_email = get_user_model().objects.get(email=email_change_code.email)
-                if user_with_email.is_verified:
-                    # Delete email change code since won't be used
-                    email_change_code.delete()
-
-                    content = {'detail': _('Email address already taken.')}
-                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    # If the account with this email address is not verified,
-                    # delete the account (and signup code) because the email
-                    # address will be used for the user who just verified.
-                    user_with_email.delete()
-            except get_user_model().DoesNotExist:
-                pass
-
-            email_change_code.user.email = email_change_code.email
-            email_change_code.user.save()
-            email_change_code.delete()
-
-            content = {'success': _('Email address changed.')}
-            return Response(content, status=status.HTTP_200_OK)
-        except EmailChangeCode.DoesNotExist:
-            content = {'detail': _('Unable to verify user.')}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserMe(APIView):
-    permission_classes = (IsAuthenticated,)
-    serializer_class = UserSerializer
-
-    def get(self, request, format=None):
-        return Response(self.serializer_class(request.user).data)
-
-
-class PasswordChange(APIView):
+class PasswordChange(generic.View):
     permission_classes = (IsAuthenticated,)
     serializer_class = PasswordChangeSerializer
 
-    def post(self, request, format=None):
+    def get(self, request):
+        status = 'Password change page.'
+        return render(request, './templates/account_management.html', {'status': status})
+
+    def post(self, request):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
@@ -371,9 +300,9 @@ class PasswordChange(APIView):
             user.set_password(password)
             user.save()
 
-            content = {'success': _('Password changed.')}
-            return Response(content, status=status.HTTP_200_OK)
+            status = 'Password changed.'
+            return render(request, './templates/account_management.html', {'status': status})
 
         else:
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
+            status = 'Password not changed.'
+            return render(request, './templates/account_management.html', {'status': status})

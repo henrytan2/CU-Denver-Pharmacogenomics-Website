@@ -150,7 +150,7 @@ def send_multi_format_email(template_prefix, template_ctxt, target_email):
     auth_user = os.getenv('EMAIL_HOST_USER'),
     auth_password = os.getenv('AUTHEMAIL_EMAIL_HOST_PASSWORD')
     connection = get_connection(username=auth_user[0])
-    send_mail(subject='account update from pharmacogenomics',
+    send_mail(subject=subject,
               message=text_content,
               from_email=from_email,
               recipient_list=to_list,
@@ -215,4 +215,3 @@ class EmailChangeCode(AbstractBaseCode):
         }
 
         send_multi_format_email(prefix, ctxt, target_email=self.email)
-

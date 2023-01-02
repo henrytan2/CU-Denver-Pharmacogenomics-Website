@@ -137,7 +137,7 @@ class FindResolutionAPI(APIView):
 
 
 class FindPlddtAPI(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
 
     @login_required
