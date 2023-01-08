@@ -7,8 +7,14 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.core.mail import send_mail, get_connection
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
+from django.contrib.auth.models import User
+# from mysite import user_accounts
 
-# Make part of the model eventually, so it can be edited
+
 EXPIRY_PERIOD = 3    # days
 
 
@@ -94,9 +100,6 @@ class MyUser(AbstractBaseUser, PermissionsMixin):
         Sends an email to this User.
         """
         send_mail(subject, message, from_email, [self.email], **kwargs)
-
-    def __str__(self):
-        return self.email
 
 
 class SignupCodeManager(models.Manager):
@@ -215,3 +218,10 @@ class EmailChangeCode(AbstractBaseCode):
         }
 
         send_multi_format_email(prefix, ctxt, target_email=self.email)
+
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
+

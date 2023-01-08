@@ -1,3 +1,4 @@
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer,  TemplateHTMLRenderer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .business.faspr_prep import FasprPrep
@@ -5,19 +6,14 @@ from .business.faspr_run import FasprRun
 from .business.metabolite_gen import MetabPrep
 from .business.best_resolution import FindBestResolution
 from .business.find_plddt import CheckPLDDT
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.core.cache import cache
 import logging
-from django.conf import settings
 from django.shortcuts import redirect
 from datetime import date
+from rest_framework.authtoken.models import Token
 
-# @login_required
-# def profile(request):
-#     return render(request, '../user_accounts/templates/profile.html')
 
 error_logger = logging.getLogger('django.error')
 
@@ -137,14 +133,8 @@ class FindResolutionAPI(APIView):
 
 
 class FindPlddtAPI(APIView):
-    authentication_classes = [SessionAuthentication]
-    permission_classes = [IsAuthenticated]
 
-    @login_required
-    def post(self, request):
-        if not request.user.is_authenticated:
-            return redirect('%s?next=%s' % (settings.LOGIN_URL, request.path))
-
+    def post(self, request, **kwargs):
         gene_ID = request.data['gene_ID']
         ccid = request.data['CCID']
         find_plddt = CheckPLDDT(gene_ID, ccid)
@@ -155,9 +145,7 @@ class FindPlddtAPI(APIView):
         proline_check = find_plddt.proline_check
         buried = find_plddt.buried
         recommendation = find_plddt.recommendation
-        return Response({
-                'user': str(request.user),
-                'auth': str(request.auth),
+        response_dict = {
                 'plddt_snv': plddt_snv,
                 'plddt_avg': plddt_avg,
                 'charge_change': charge_change,
@@ -165,4 +153,38 @@ class FindPlddtAPI(APIView):
                 'proline_check': proline_check,
                 'buried': buried,
                 'recommendation': recommendation,
-            })
+            }
+        if kwargs:
+            response_dict.update(kwargs)
+        return Response(response_dict)
+
+
+class CustomAPIRenderer(BrowsableAPIRenderer):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    renderer_classes = [BrowsableAPIRenderer, TemplateHTMLRenderer, JSONRenderer]
+
+    def get_default_renderer(self, view):
+        return JSONRenderer()
+
+    @property
+    def template(self):
+        return 'rest_framework/api.html'
+        # return '../templates/api.html' # csrf error
+
+
+class FindPlddtPublicAPI(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    renderer_classes = [CustomAPIRenderer]
+
+
+    def post(self, request):
+        try:
+            Token.objects.get_or_create(user=request.user)
+        except:
+            return redirect('./templates/profile.html')
+
+        user = request.user.email
+        auth = request.user.auth_token.key
+        return FindPlddtAPI.post(FindPlddtAPI(), request, user=user, auth=auth)

@@ -18,11 +18,12 @@ EXPIRY_PERIOD = 3    # days
 
 
 class Profile(generic.View):
-    # template_name = '../user_accounts/templates/profile.html'
     form = UserCreationForm()
 
     def get(self, request):
         status = 'Status: Not logged in'
+        if request.user.is_authenticated:
+            status = f'Status: logged in as {request.user}'
         form = UserCreationForm()
         return render(request, './templates/profile.html', {'form': form, 'status':status})
 
@@ -44,7 +45,7 @@ class Profile(generic.View):
                     if user.is_active:
                         token, created = Token.objects.get_or_create(user=user)
                         login(request, user)
-                        status = 'Status: Logged in'
+                        status = f'Status: logged in as {request.user}'
                         return render(request, './templates/profile.html',
                                       {'token': token.key,
                                        'status': status,
@@ -56,7 +57,7 @@ class Profile(generic.View):
                                        'status': status})
 
                 else:
-                    status = {'detail':'User account not verified.'}
+                    status = {'User account not verified.'}
                     return render(request, './templates/profile.html', {'form': form, 'status': status})
             else:
                 status = 'Unable to login with provided credentials.'
@@ -125,8 +126,6 @@ class Signup(generic.View):
                 signup_code = SignupCode.objects.create_signup_code(user, ipaddr)
                 signup_code.send_signup_email()
 
-            content = {'email': email, 'first_name': first_name,
-                       'last_name': last_name}
             status = 'Email address already taken.'
             return render(request, './templates/create_account.html', {'form': form, 'status': status})
 
@@ -165,8 +164,8 @@ class Logout(generic.View):
         tokens = Token.objects.filter(user=self.request.user)
         for token in tokens:
             token.delete()
-        form = UserCreationForm()
         status = 'User logged out.'
+        form = UserCreationForm()
         return render(request, './templates/profile.html', {'form': form, 'status': status})
 
 
@@ -213,7 +212,6 @@ class PasswordReset(generic.View):
                     password_reset_code = \
                         PasswordResetCode.objects.create_password_reset_code(user)
                     password_reset_code.send_password_reset_email()
-                    # content = {'email': email}
                     return render(request, './templates/account_management.html',
                                   {'form': form})
 
