@@ -1,7 +1,6 @@
 from django.db import models
 
 
-# Create your models here.
 class GTEx(models.Model):
     class Meta:
         managed = True
@@ -66,3 +65,19 @@ class GTEx(models.Model):
 
     def __str__(self):
         return self.gene_id
+
+
+class MutationModel(models.Model):
+    class Meta:
+        managed = True
+        db_table = 'gtexome_mutations'
+
+    geneID_CCID = models.CharField(label='geneID_CCID', max_length=40)
+    # CCID = models.CharField(label='CCID', max_length=20)
+    # geneID = models.CharField(label='geneID', max_length=20)
+    plddt_snv = models.DecimalField(label='plddt_snv', max_value=100, min_value=0)
+    charge_change = models.CharField(label='charge_change', max_length=55)
+    disulfide_check = models.CharField(label='disulfide_check', max_length=28)
+    proline_check = models.CharField(label='proline_check', max_length=25)
+    buried = models.CharField(label='buried', max_length=80)
+    recommendation = models.CharField(label='recommendation', max_length=50)

@@ -285,6 +285,10 @@
                         var selectedRangeLength = selectedTissuesRange.length;
                         if (!(selectedRatioLength > 0) || !(selectedRangeLength > 0)) {
                             if (this.filterByRatio) {
+                                if (this.upperRatio == null &&
+                                    this.lowerRatio > 0) {
+                                    response = false;
+                                }
                                 if (this.upperRatio > this.lowerRatio) {
                                     response = false;
                                 }
