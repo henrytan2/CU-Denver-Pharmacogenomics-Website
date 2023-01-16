@@ -30,7 +30,8 @@
 
             <div v-if="geneNotFound">
                 <h1>Gene not found in ExAC</h1>
-                <p>Unamed genes (staring with RP11), long noncoding RNA (starting with LINC), mitochondrial genes (starting with MT), and others will not appear in ExAC</p>
+                <p>Unamed genes (staring with RP11), long noncoding RNA (starting with LINC), mitochondrial genes
+                    (starting with MT), and others will not appear in ExAC</p>
             </div>
 
             <div class="container-fluid">
@@ -259,60 +260,74 @@
                     });
                     d.draw();
                 }
-            },
-            mounted: function () {
-                if (this.gnomadData.hasOwnProperty("errors")) {
-                    if (this.gnomadData["errors"][0]["message"] === "Gene not found") {
-                        this.geneNotFound = true;
-                        return;
-                    }
+                ,
+                addContent: function () {
+                    var _this = this;
+                    var d = _this.dtTable
+                    this.filters.forEach(function (filter) {
+                        d.column(filter.columnIndex)
+                            .search(filter.searchText,
+                                filter.useRegex,
+                                filter.useSmartSearch);
+                    });
+                    d.draw();
                 }
-                var _this = this;
-                var exomeData = this.gnomadData["data"]["gene"]["variants"];
-                exomeData.forEach(function (item, i) {
-                    if (item["exome"] === null) {
-                        item["exome"] = {"populations": null};
+            },
+            mounted:
+                function () {
+                    if (this.gnomadData.hasOwnProperty("errors")) {
+                        if (this.gnomadData["errors"][0]["message"] === "Gene not found") {
+                            this.geneNotFound = true;
+                            return;
+                        }
                     }
-                });
-                this.dtTable = $(this.$refs.datatable).DataTable({
-                    dom: "lBfrtip",
-                    buttons: [{
-                        extend: "csv",
-                        exportOptions: {
-                            columns: ":visible",
+                    var _this = this;
+                    var exomeData = this.gnomadData["data"]["gene"]["variants"];
+                    exomeData.forEach(function (item, i) {
+                        if (item["exome"] === null) {
+                            item["exome"] = {"populations": null};
                         }
-                    }],
-                    data: exomeData,
-                    search: {regex: true},
-                    columns: RenderColumns(this),
-                    initComplete: function () {
-                        this.removeClass("d-none");
-                    },
-                    columnDefs: [
-                        {
-                            visible: false,
-                            targets: _this.hiddenColumns,
-                        }
-                    ],
-                    order: [[this.exomeColumns["AlleleFrequency"], "desc"]],
-                    stateSave: true,
-                    stateSaveParams: function (settings, data) {
-                        data.stateVariables = {
-                            hiddenColumns: _this.hiddenColumns,
-                            filters: _this.filters,
-                        };
-                    },
-                    stateLoadParams: function (settings, data) {
-                        if (data && data.stateVariables) {
-                            _this.hiddenColumns = (data.stateVariables.hiddenColumns || _this.hiddenColumns);
-                            _this.filters = (data.stateVariables.filters || _this.filters);
-                        }
-                    },
-                });
-                this.dtTable.columns().header().to$().removeClass("text-center");
-            }
+                    });
+                    this.dtTable = $(this.$refs.datatable).DataTable({
+                        dom: "lBfrtip",
+                        buttons: [{
+                            extend: "csv",
+                            exportOptions: {
+                                columns: ":visible",
+                            }
+                        }],
+                        data: exomeData,
+                        search: {regex: true},
+                        columns: RenderColumns(this),
+                        initComplete: function () {
+                            this.removeClass("d-none");
+                        },
+                        columnDefs: [
+                            {
+                                visible: false,
+                                targets: _this.hiddenColumns,
+                            }
+                        ],
+                        order: [[this.exomeColumns["AlleleFrequency"], "desc"]],
+                        stateSave: true,
+                        stateSaveParams: function (settings, data) {
+                            data.stateVariables = {
+                                hiddenColumns: _this.hiddenColumns,
+                                filters: _this.filters,
+                            };
+                        },
+                        stateLoadParams: function (settings, data) {
+                            if (data && data.stateVariables) {
+                                _this.hiddenColumns = (data.stateVariables.hiddenColumns || _this.hiddenColumns);
+                                _this.filters = (data.stateVariables.filters || _this.filters);
+                            }
+                        },
+                    });
+                    this.dtTable.columns().header().to$().removeClass("text-center");
+                }
         });
     </script>
+
     <script type="application/javascript">
         function RenderColumns(vueComponent) {
             return [
@@ -721,10 +736,49 @@
                     }
                 },
                 {
-                    data: "lof",
-                    title: "lof",
+                    data: null,
+                    title: "pLDDT",
                     className: "text-center",
-                    defaultContent: "",
+                    defaultContent: "defaultContent",
+
+                    render: function (data, type) {
+                        var hgvsp = data['hgvsp'];
+                        if (hgvsp == null) {
+                            return 'null';
+                        }
+                        if (hgvsp.lastIndexOf(hgvsp.slice(2, 5)) !== 2) {
+                            return 'synonymous mutation'
+                        } else {
+                            var currentURLString = window.location.href;
+                            var currentURL = new URL(currentURLString);
+                            geneID = currentURL.searchParams.get("gene_id");
+                            var requestPLDDT = {
+                                gene_ID: geneID,
+                                CCID: data['hgvsp'],
+                            }
+                            var recommendation;
+                            var buried;
+                            $.ajax({
+                                type: 'POST',
+                                url: '{% url 'api:find_plddt' %}',
+                                data: requestPLDDT,
+                                success: function (response) {
+                                    plddt_snv = response.plddt_snv;
+                                    plddt_avg = response.plddt_avg;
+                                    charge_change = response.charge_change;
+                                    disulfide_check = response.disulfide_check;
+                                    proline_check = response.proline_check;
+                                    buried = response.buried;
+                                    fetchingpLDDT = false;
+                                    recommendation = response.recommendation;
+                                    plddt = this.plddt_snv;
+                                    console.log(requestPLDDT, plddt_snv, plddt_avg, charge_change,
+                                        disulfide_check, buried, recommendation);
+                                }
+                            })
+                        }
+                        return {buried: buried, recommendation: recommendation};
+                    },
                 },
                 {
                     data: "lof_filter",
@@ -735,12 +789,6 @@
                 {
                     data: "lof_flags",
                     title: "lof_flags",
-                    className: "text-center",
-                    defaultContent: "",
-                },
-                {
-                    data: "verdict",
-                    title: "lof_curated",
                     className: "text-center",
                     defaultContent: "",
                 },

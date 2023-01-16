@@ -6,6 +6,8 @@ import os
 import re
 import io
 import numpy
+from mysite.gtexome.models import MutationModel
+
 
 class CheckPLDDT:
 
@@ -23,6 +25,10 @@ class CheckPLDDT:
                     and len(self.CCID) < 13:
                 self.INV = self.CCID[2:5]
                 self.MNV = self.CCID[-3:]
+            else:
+                self.INV = 'error'
+                self.MNV = 'error'
+                print(self.CCID)
             self.alpha_folder = os.path.join('Documents', 'alphafold')
             self.scratch_folder = os.path.join('website_activity')
             self.temp_folder = os.path.join(self.scratch_folder, 'tmp')
@@ -47,7 +53,6 @@ class CheckPLDDT:
             if self.charge_change == 'No swap of positively and negatively charged residues.'\
                     and self.disulfide_check == 'No disulfides disrupted.' \
                     and self.proline_check == 'No cis proline removed'\
-                    and self.plddt_snv >= 90\
                     and not (self.buried.startswith('Charged')) \
                     and not (self.buried.startswith('Lost')) \
                     and not (self.buried.startswith('Buried')):
@@ -62,6 +67,16 @@ class CheckPLDDT:
             self.proline_check = 'error checking structure'
             self.buried = 'error checking structure'
             self.recommendation = 'Alphafold structure not suitable for modeling'
+
+        self.geneID_CCID = self.gene_ID + self.CCID
+        MutationModel.objects.update_or_create(geneID_CCID=self.geneID_CCID,
+                                               plddt_snv=self.plddt_snv,
+                                               charge_change=self.charge_change,
+                                               disulfide_check=self.disulfide_check,
+                                               proline_check=self.proline_check,
+                                               buried=self.buried,
+                                               recommendation=self.recommendation)
+
 
     def get_Pnum(self):
         with open('./pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:

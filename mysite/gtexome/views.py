@@ -1,10 +1,11 @@
 from django.http import HttpResponse
+from django.shortcuts import render
 from django.views import generic
 from .models import GTEx
 import requests
 import json
 from .business.exome import ExomeColumns
-
+from .forms import ProteinForm
 
 class IndexView(generic.ListView):
     model = GTEx
@@ -55,6 +56,10 @@ class RangeResultsView(generic.ListView):
                 filter_non_verbose[tissue_str] = session_filter['range']
         kwargs = {}
         for tissue, filter_range in filter_non_verbose.items():
+            if (filter_range['upper']) is '' or (filter_range['upper']) is None:
+                filter_range['upper'] = 10000000
+            if (filter_range['lower']) is '' or (filter_range['lower']) is None:
+                filter_range['lower'] = 0
             kwargs['{0}__{1}'.format(str(tissue), 'gte')] = float(filter_range['lower'])
             kwargs['{0}__{1}'.format(str(tissue), 'lte')] = float(filter_range['upper'])
         response = []
