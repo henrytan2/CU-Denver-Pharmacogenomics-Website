@@ -12,7 +12,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
-# from mysite import user_accounts
 
 
 EXPIRY_PERIOD = 3    # days
@@ -163,7 +162,7 @@ def send_multi_format_email(template_prefix, template_ctxt, target_email):
 
 
 class AbstractBaseCode(models.Model):
-    user = models.ForeignKey(MyUser, on_delete=models.CASCADE)#MyUser/settings.AUTH_USER_MODEL
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
     code = models.CharField(_('code'), max_length=40, primary_key=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
 

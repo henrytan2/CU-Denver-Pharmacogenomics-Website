@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.views import generic
 from .models import SignupCode, PasswordResetCode
 from datetime import date
@@ -43,11 +44,13 @@ class Profile(generic.View):
             if user:
                 if user.is_verified:
                     if user.is_active:
-                        token, created = Token.objects.get_or_create(user=user)
+                        token_auth, created = Token.objects.get_or_create(user=request.user)
+                        token_auth.save()
+                        cache.set('token', token_auth.key)
                         login(request, user)
                         status = f'Status: logged in as {request.user}'
                         return render(request, './templates/profile.html',
-                                      {'token': token.key,
+                                      {'token': token_auth.key,
                                        'status': status,
                                        'form': form},)
                     else:
@@ -238,7 +241,6 @@ class PasswordResetVerify(generic.View):
         try:
             password_reset_code = PasswordResetCode.objects.get(code=code)
 
-            # Delete password reset code if older than expiry period
             delta = date.today() - password_reset_code.created_at.date()
             if delta.days > PasswordResetCode.objects.get_expiry_period():
                 password_reset_code.delete()

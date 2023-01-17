@@ -36,6 +36,4 @@ class MyUserAdmin(EmailUserAdmin):
         ('Custom info', {'fields': ('date_of_birth',)}),
     )
 
-
-# admin.site.unregister(get_user_model())
 admin.site.register(get_user_model(), MyUserAdmin)

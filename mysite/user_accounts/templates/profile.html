@@ -10,11 +10,11 @@
     </head>
 
     <p>An account is not needed to access this website. To access some APIs you must log in to an active account.
-        Please log in or select create account to create a new account.</p>
+        Please log in or create a new account.</p>
     {% if status != 'User logged out.' %}
-        <p><a href="{% url 'api:best_resolution' %}">Best resolution API</a></p>
+        <p><a href="{% url 'api:public_best_resolution' %}">Best resolution API</a></p>
         <p><a href="{% url 'api:public_find_plddt' %}">Find pLDDT score API</a></p>
-        <p><a href="{% url 'api:faspr_prep' %}">FASPR prep (mutated sequence) API</a></p>
+        <p><a href="{% url 'api:public_faspr_prep' %}">FASPR prep (mutated sequence) API</a></p>
         {% if form.errors %}
             <p>Your username and password didn't match. Please try again.</p>
         {% endif %}
@@ -23,6 +23,9 @@
     {% else %}
     {% endif %}
     <p><b>{{ status }}</b></p>
+    {% if status != 'User logged out.' %}
+        <p><b>Your token is: {{ token }}</b></p>
+    {% endif %}
     <form method="post" action="{% url 'user_accounts:account-welcome' %}">
         {% csrf_token %}
         <table>

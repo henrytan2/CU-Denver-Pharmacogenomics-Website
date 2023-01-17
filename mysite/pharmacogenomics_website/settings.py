@@ -247,7 +247,6 @@ USE_TZ = True
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static/'),
     os.path.join(BASE_DIR, 'rest_framework/static/'),
-    os.path.join('../venv/lib/python3.9/site-packages/rest_framework/static/rest_framework/css'),
     os.path.join('../pharmacogenomics_venv/lib/python3.8/site-packages/rest_framework/static/rest_framework/css/')
 )
 

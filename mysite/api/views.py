@@ -6,20 +6,17 @@ from .business.faspr_run import FasprRun
 from .business.metabolite_gen import MetabPrep
 from .business.best_resolution import FindBestResolution
 from .business.find_plddt import CheckPLDDT
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
-from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.core.cache import cache
 import logging
 from django.shortcuts import redirect
 from datetime import date
-from rest_framework.authtoken.models import Token
-
+from datetime import datetime, timedelta
 
 error_logger = logging.getLogger('django.error')
 
 class FasprPrepAPI(APIView):
 
-    def post(self, request):
+    def post(self, request, **kwargs):
         ccid = request.data['CCID']
         gene_ID = request.data['gene_ID']
         angstroms = request.data['angstroms']
@@ -45,12 +42,14 @@ class FasprPrepAPI(APIView):
         chain_pdb = "".join(chain_pdb)
         cache.set('chain_pdb', chain_pdb)
         protein_location = faspr_prep.protein_location
-
-        return Response({"residue_output": list(residues),
+        response_dict = {"residue_output": list(residues),
                          "sequence_length": sequence_length,
                          "mut_seq": get_mut_seq,
                          "repack_pLDDT": repack_pLDDT,
-                         "protein_location": protein_location})
+                         "protein_location": protein_location}
+        if kwargs:
+            response_dict.update(kwargs)
+        return Response(response_dict)
 
     def get(self, request):
         returned_protein_structure = cache.get('protein_structure')
@@ -120,7 +119,7 @@ class MetabPrepAPI(APIView):
 
 
 class FindResolutionAPI(APIView):
-    def post(self, request):
+    def post(self, request, **kwargs):
         gene_ID = request.data['gene_ID']
         CCID = request.data['CCID']
         find_best_res = FindBestResolution(gene_ID, CCID)
@@ -129,11 +128,13 @@ class FindResolutionAPI(APIView):
         chain_id = find_best_res.chain_id
         if resolution.startswith('Downloading'):
             resolution = 'refresh page'
-        return Response({'resolution': resolution, 'file_location': file_location, 'chain_id': chain_id})
+        response_dict = {'resolution': resolution, 'file_location': file_location, 'chain_id': chain_id}
+        if kwargs:
+            response_dict.update(kwargs)
+        return Response(response_dict)
 
 
 class FindPlddtAPI(APIView):
-
     def post(self, request, **kwargs):
         gene_ID = request.data['gene_ID']
         ccid = request.data['CCID']
@@ -158,10 +159,11 @@ class FindPlddtAPI(APIView):
             response_dict.update(kwargs)
         return Response(response_dict)
 
+    def get(self, request):
+        return Response(request)
 
 class CustomAPIRenderer(BrowsableAPIRenderer):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+
     renderer_classes = [BrowsableAPIRenderer, TemplateHTMLRenderer, JSONRenderer]
 
     def get_default_renderer(self, view):
@@ -170,21 +172,85 @@ class CustomAPIRenderer(BrowsableAPIRenderer):
     @property
     def template(self):
         return 'rest_framework/api.html'
-        # return '../templates/api.html' # csrf error
-
 
 class FindPlddtPublicAPI(APIView):
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
-    renderer_classes = [CustomAPIRenderer]
 
+    renderer_classes = [CustomAPIRenderer]
 
     def post(self, request):
         try:
-            Token.objects.get_or_create(user=request.user)
+            cached_token = cache.get('token')
+            if cached_token == request.user.auth_token.key:
+                pass
+
+            now = datetime.now()
+            created = request.user.auth_token.created.replace(tzinfo=None)
+            expiration = now - timedelta(days=1)
+
+            if created > expiration:
+                pass
+
         except:
-            return redirect('./templates/profile.html')
+            return redirect('user_accounts:account-welcome')
 
         user = request.user.email
         auth = request.user.auth_token.key
         return FindPlddtAPI.post(FindPlddtAPI(), request, user=user, auth=auth)
+
+    def get(self, request):
+        return Response()
+
+
+class FindResolutionPublicAPI(APIView):
+
+    renderer_classes = [CustomAPIRenderer]
+
+    def post(self, request):
+        try:
+            cached_token = cache.get('token')
+            if cached_token == request.user.auth_token.key:
+                pass
+
+            now = datetime.now()
+            created = request.user.auth_token.created.replace(tzinfo=None)
+            expiration = now - timedelta(days=1)
+
+            if created > expiration:
+                pass
+
+        except:
+            return redirect('user_accounts:account-welcome')
+
+        user = request.user.email
+        auth = request.user.auth_token.key
+        return FindResolutionAPI.post(FindResolutionAPI(), request, user=user, auth=auth)
+
+    def get(self, request):
+        return Response()
+
+class FasprPrepPublicAPI(APIView):
+
+    renderer_classes = [CustomAPIRenderer]
+
+    def post(self, request):
+        try:
+            cached_token = cache.get('token')
+            if cached_token == request.user.auth_token.key:
+                pass
+
+            now = datetime.now()
+            created = request.user.auth_token.created.replace(tzinfo=None)
+            expiration = now - timedelta(days=1)
+
+            if created > expiration:
+                pass
+
+        except:
+            return redirect('user_accounts:account-welcome')
+
+        user = request.user.email
+        auth = request.user.auth_token.key
+        return FasprPrepAPI.post(FasprPrepAPI(), request, user=user, auth=auth)
+
+    def get(self, request):
+        return Response(request)
