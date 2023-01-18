@@ -145,7 +145,10 @@ class FindPlddtAPI(APIView):
         disulfide_check = find_plddt.disulfide_check
         proline_check = find_plddt.proline_check
         buried = find_plddt.buried
+        hydrogen_bond = find_plddt.hydrogen_bond
+        salt_bridge = find_plddt.salt_bridge
         recommendation = find_plddt.recommendation
+
         response_dict = {
                 'plddt_snv': plddt_snv,
                 'plddt_avg': plddt_avg,
@@ -153,6 +156,8 @@ class FindPlddtAPI(APIView):
                 'disulfide_check': disulfide_check,
                 'proline_check': proline_check,
                 'buried': buried,
+                'hydrogen_bond': hydrogen_bond,
+                'salt_bridge': salt_bridge,
                 'recommendation': recommendation,
             }
         if kwargs:

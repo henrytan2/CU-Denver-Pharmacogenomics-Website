@@ -2,6 +2,7 @@ import pickle5 as pickle
 from .alderaan import Alderaan
 from Bio.PDB.PDBParser import PDBParser
 from Bio.PDB.ResidueDepth import get_surface
+from Bio.PDB import Selection, NeighborSearch
 import os
 import re
 import io
@@ -52,6 +53,8 @@ class CheckPLDDT:
                     and not (self.buried.startswith('Lost')) \
                     and not (self.buried.startswith('Buried')):
                 self.recommendation = 'Alphafold structure suitable for modeling'
+            self.hydrogen_bond = self.hbond_disruption(self.mutation_position, self.structure, self.chain, self.INV, self.MNV)
+            self.salt_bridge = self.salt_check(self.mutation_position, self.structure, self.chain, self.INV, self.MNV)
 
         except Exception as e:
             print(e)
@@ -62,6 +65,8 @@ class CheckPLDDT:
             self.proline_check = 'error checking structure'
             self.buried = 'error checking structure'
             self.recommendation = 'Alphafold structure not suitable for modeling'
+            self.hbond = 'error checking structure'
+            self.salt_bridge = 'error checking structure'
 
     def get_Pnum(self):
         with open('./pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:
@@ -138,11 +143,11 @@ class CheckPLDDT:
 
         if INV == "Asp" or INV == "Glu":
             if MNV == "Lys" or MNV == "Arg" or MNV == "His":
-                charge_change = "Charge switched from - to +"
+                charge_change = "Charge switched from negative to positive."
 
         if INV == "Lys" or INV == "Arg" or INV == "His":
             if MNV == "Asp" or MNV == "Glu":
-                charge_change = "Charge switched from + to -"
+                charge_change = "Charge switched from positive to negative."
 
         return charge_change
 
@@ -153,7 +158,7 @@ class CheckPLDDT:
 
         elif INV == "Lys" or INV == "Arg" or INV == "His":
             if MNV == "Asp" or MNV == "Glu":
-                buried = "Charge that is buried switched from + to -.  "
+                buried = "Charge that is buried switched from positive to negative.  "
             elif MNV != "Lys" and MNV != "Arg" and MNV != "His":
                 buried = "Lost buried positive charge.  "
             else:
@@ -161,7 +166,7 @@ class CheckPLDDT:
 
         elif INV == "Asp" or INV == "Glu":
             if MNV == "Lys" or MNV == "Arg" or MNV == "His":
-                buried = "Charge that is buried switched from - to +.  "
+                buried = "Charge that is buried switched from negative to positive.  "
             elif MNV != "Asp" and MNV != "Glu":
                 buried = "Lost buried negative charge.  "
             else:
@@ -226,3 +231,85 @@ class CheckPLDDT:
         else:
             buried = "No gain of buried charge, proline, or hydrophilic residue. No loss of buried charge."
             return buried
+
+    def hbond_disruption(self, mutation_position, structure, chain, INV, MNV):
+        hydrogen_bond = "No side chain hydrogen bonds disrupted."
+        if INV != "VAL" and INV != "LEU" and INV != "ILE" and INV != "MET" and INV != "PHE" and INV != "VAL":
+            # if MNV == "LEU" or MNV == "ILE" or MNV == "MET" or MNV == "PHE":
+            INV_residue = chain[mutation_position]
+            INV_atoms = Selection.unfold_entities(INV_residue, chain.id)
+            po = Selection.unfold_entities(structure, chain.id)
+            ns = NeighborSearch(po)
+
+            INV_atom_list = [atom for atom in INV_atoms if
+                             (atom.name.startswith("N") and len(atom.name) > 1) or
+                             (atom.name.startswith("O") and len(atom.name) > 1)]
+            num_atoms = 0
+            if len(INV_atom_list) > 0:
+                INV_coord = INV_atom_list[0].get_coord()
+                hbond_partner = [h for h in ns.search(INV_coord, 10) if
+                                 (h.name.startswith("N") and len(h.name) > 1) or h.name.startswith("O")]
+                num_atoms = len(hbond_partner)
+            if num_atoms != 0:
+                hydrogen_bond = "Possible side chain hydrogen bond disruption."
+
+        return hydrogen_bond
+
+    def check_salt_bridges_pos(self, mutation_position, chain, structure):
+        possible_neg_list = []
+        resi_list = []
+        pos_residue = chain[mutation_position]
+        pos_atoms = Selection.unfold_entities(pos_residue, chain.id)
+        pos_atom_list = [atom for atom in pos_atoms if atom.name.startswith("N") and len(atom.name) > 1]
+        if len(pos_atom_list) > 0:
+            pos_INV_coord = pos_atom_list[0].get_coord()
+            po = Selection.unfold_entities(structure, chain.id)
+            ns = NeighborSearch(po)
+            possible_neg_atoms = [h for h in ns.search(pos_INV_coord, 10.0) if h.name.startswith("O") and len(h.name) > 1]
+            num_atoms = len(possible_neg_atoms)
+            for i in range(num_atoms):
+                possible_neg_resi = possible_neg_atoms[i].get_parent()
+                possible_neg_name = possible_neg_resi.get_resname()
+                possible_neg_list.append(possible_neg_name)
+
+            for resi in possible_neg_list:
+                if resi == "Glu" or resi == "Asp":
+                    resi_list.append(resi)
+        return resi_list
+
+    def check_salt_bridges_neg(self, mutation_position, chain, structure):
+        possible_pos_list = []
+        resi_list = []
+        neg_residue = chain[mutation_position]
+        neg_atoms = Selection.unfold_entities(neg_residue, 'A')
+        neg_atom_list = [atom for atom in neg_atoms if atom.name.startswith("O") and len(atom.name) > 1]
+        if len (neg_atom_list) > 0:
+            neg_INV_coord = neg_atom_list[0].get_coord()
+            po = Selection.unfold_entities(structure, chain)
+            ns = NeighborSearch(po)
+            possible_pos_atoms = [h for h in ns.search(neg_INV_coord, 10.0) if h.name.startswith("N") and len(h.name) > 1]
+            num_atoms_neg = len(possible_pos_atoms)
+            for i in range(num_atoms_neg):
+                possible_pos_resi = possible_pos_atoms[i].get_parent()
+                possible_pos_name = possible_pos_resi.get_resname()
+                possible_pos_list.append(possible_pos_name)
+
+            for resi in possible_pos_list:
+                if resi == "ARG" or resi == "LYS" or resi == "HIS":
+                    resi_list.append(resi)
+        return resi_list
+
+    def salt_check(self, mutation_position, structure, chain, INV, MNV):
+        resi_list = []
+        if INV == "Arg" or INV == "Lys" or INV == "His":
+            if MNV != "Arg" and MNV != "Lys" and MNV != "His":
+                resi_list = self.check_salt_bridges_pos(mutation_position, chain, structure)
+
+        if INV == "Glu" or INV == "Asp":
+            if MNV != "Glu" and MNV != "Asp":
+                resi_list = self.check_salt_bridges_neg(mutation_position, chain, structure)
+
+        if len(resi_list) > 0:
+            return "Possible salt bridge break."
+        else:
+            return "No salt bridges broken."
