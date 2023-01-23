@@ -7,29 +7,34 @@ import os
 import re
 import io
 import numpy
-from mysite.gtexome.models import MutationModel
+from gtexome.models import MutationModel
 
 
 class CheckPLDDT:
 
-    def __init__(self, gene_ID, CCID):
+    def __init__(self, gene_ID, CCID, alleleFreq):
         self.alderaan = Alderaan()
         self.CCID = CCID
+        self.allele_freq = alleleFreq
         try:
+            if len(self.CCID) > 12:
+                raise Exception
+            if self.CCID[-3:] == 'Ter':
+                raise Exception
+            if self.CCID[-3:] == 'del':
+                raise Exception
+            if self.CCID[-3:] == 'dup':
+                raise Exception
+            if self.CCID == 'p.Met1?':
+                raise Exception
             self.mutant_n = str(re.findall(r'\d+', self.CCID))
             self.mutation_str = self.mutant_n.strip("['']")
             self.mutation_position = int(self.mutation_str)
-            if self.CCID.startswith('p.') \
-                    and self.CCID[2:5] != self.CCID[-3:] \
-                    and self.CCID[-3:] != 'del' \
-                    and self.CCID[-3:] != 'Ter' and self.CCID[-3:] != 'dup' \
-                    and len(self.CCID) < 13:
+            if self.CCID.startswith('p.') and self.CCID[2:5] != self.CCID[-3:]:
                 self.INV = self.CCID[2:5]
                 self.MNV = self.CCID[-3:]
             else:
-                self.INV = 'error'
-                self.MNV = 'error'
-                print(self.CCID)
+                raise Exception
             self.alpha_folder = os.path.join('Documents', 'alphafold')
             self.scratch_folder = os.path.join('website_activity')
             self.temp_folder = os.path.join(self.scratch_folder, 'tmp')
@@ -49,39 +54,46 @@ class CheckPLDDT:
                 self.proline_check = self.get_torsion_angle(self.mut_residue, self.structure)
             else:
                 self.proline_check = 'No cis proline removed'
-            self.buried = self.buried_residues(self.structure, self.mutation_position, self.INV, self.MNV)
+
+            self.buried = self.buried_residues(self.INV, self.MNV)
+            self.hydrogen_bond = self.hbond_disruption(self.mutation_position, self.structure, self.chain, self.INV,
+                                                       self.buried)
+            self.salt_bridge = self.salt_check(self.mutation_position, self.structure, self.chain, self.INV, self.MNV,
+                                                self.buried)
+
             self.recommendation = 'Alphafold structure not suitable for modeling'
             if self.charge_change == 'No swap of positively and negatively charged residues.'\
                     and self.disulfide_check == 'No disulfides disrupted.' \
                     and self.proline_check == 'No cis proline removed'\
                     and not (self.buried.startswith('Charged')) \
                     and not (self.buried.startswith('Lost')) \
-                    and not (self.buried.startswith('Buried')):
+                    and not (self.buried.startswith('Buried'))\
+                    and not (self.hydrogen_bond.startswith('Possible'))\
+                    and not (self.salt_bridge.startswith('Possible')):
                 self.recommendation = 'Alphafold structure suitable for modeling'
-            self.hydrogen_bond = self.hbond_disruption(self.mutation_position, self.structure, self.chain, self.INV, self.MNV)
-            self.salt_bridge = self.salt_check(self.mutation_position, self.structure, self.chain, self.INV, self.MNV)
+
+            self.geneID_CCID = self.gene_ID + '_' + self.CCID
+
+            MutationModel.objects.update_or_create(geneID_CCID=self.geneID_CCID,
+                                                   allele_freq=self.allele_freq,
+                                                   plddt_snv=self.plddt_snv,
+                                                   charge_change=self.charge_change,
+                                                   disulfide_check=self.disulfide_check,
+                                                   proline_check=self.proline_check,
+                                                   buried=self.buried,
+                                                   recommendation=self.recommendation)
 
         except Exception as e:
             print(e)
-            self.plddt_snv = 'structure too large'
-            self.plddt_avg = 'structure too large'
+            self.plddt_snv = 'error checking structure'
+            self.plddt_avg = 'error checking structure'
             self.charge_change = 'error checking structure'
             self.disulfide_check = 'error checking structure'
             self.proline_check = 'error checking structure'
             self.buried = 'error checking structure'
             self.recommendation = 'Alphafold structure not suitable for modeling'
-            self.hbond = 'error checking structure'
+            self.hydrogen_bond = 'error checking structure'
             self.salt_bridge = 'error checking structure'
-
-        self.geneID_CCID = self.gene_ID + self.CCID
-        MutationModel.objects.update_or_create(geneID_CCID=self.geneID_CCID,
-                                               plddt_snv=self.plddt_snv,
-                                               charge_change=self.charge_change,
-                                               disulfide_check=self.disulfide_check,
-                                               proline_check=self.proline_check,
-                                               buried=self.buried,
-                                               recommendation=self.recommendation)
-
 
     def get_Pnum(self):
         with open('./pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:
@@ -166,7 +178,7 @@ class CheckPLDDT:
 
         return charge_change
 
-    def buried_residues(self, structure, mut_residue, INV, MNV):
+    def buried_residues(self, INV, MNV):
 
         if INV == "Gly":
             buried = "Buried Glycine replaced.  "
@@ -205,7 +217,7 @@ class CheckPLDDT:
             if INV != "Asp" and INV != "Glu":
                 buried += "Buried negative charge introduced.  "
             else:
-                buried += "No buried charge or hydrophilic residue  introduced.  " # repeated?
+                buried += "No buried charge or hydrophilic residue introduced.  " # repeated?
 
         elif MNV == "Lys" or MNV == "Arg" or MNV == "His":
             if INV == "Asp" or INV == "Glu":
@@ -213,7 +225,7 @@ class CheckPLDDT:
             elif INV != "Lys" and INV != "Arg" and INV != "His":
                 buried += "Buried positive charge introduced.  "
             else:
-                buried += "No buried charge or hydrophilic residue  introduced.  "
+                buried += "No buried charge or hydrophilic residue introduced.  "
 
         else:
             if buried.startswith("No"):
@@ -225,12 +237,15 @@ class CheckPLDDT:
         if buried.startswith("No"):
             return buried
 
+        else:
+            buried = self.measure_depth(self.structure, self.mut_residue, buried)
+            return buried
+
+    def measure_depth(self, structure, mut_residue, buried):
         model = structure[0]
-        chain = model['A']
-        residue = chain[mut_residue]
-        if not residue.has_id("CA"):
-            return None
-        ca = residue["CA"]
+        if not mut_residue.has_id("CA"):
+            return buried
+        ca = mut_residue["CA"]
         coord = ca.get_coord()
         try:
             surface = get_surface(model, MSMS='./msms.x86_64Darwin.2.6.1')
@@ -239,18 +254,15 @@ class CheckPLDDT:
         d = surface - coord
         d2 = numpy.sum(d * d, 1)
         min_dist = numpy.sqrt(min(d2))
-
         if min_dist > 4:
             return buried
-
         else:
-            buried = "No gain of buried charge, proline, or hydrophilic residue. No loss of buried charge."
-            return buried
+            return "No gain of buried charge, proline, or hydrophilic residue. No loss of buried charge."
 
-    def hbond_disruption(self, mutation_position, structure, chain, INV, MNV):
-        hydrogen_bond = "No side chain hydrogen bonds disrupted."
-        if INV != "VAL" and INV != "LEU" and INV != "ILE" and INV != "MET" and INV != "PHE" and INV != "VAL":
-            # if MNV == "LEU" or MNV == "ILE" or MNV == "MET" or MNV == "PHE":
+    def hbond_disruption(self, mutation_position, structure, chain, INV, buried):
+        hydrogen_bond = "No buried side chain hydrogen bonds disrupted."
+        if INV != "Val" and INV != "Leu" and INV != "Ile" and INV != "Met" and INV != "Phe" and INV != "Gly"\
+                and INV != "Pro" and INV != "Ala":
             INV_residue = chain[mutation_position]
             INV_atoms = Selection.unfold_entities(INV_residue, chain.id)
             po = Selection.unfold_entities(structure, chain.id)
@@ -259,14 +271,16 @@ class CheckPLDDT:
             INV_atom_list = [atom for atom in INV_atoms if
                              (atom.name.startswith("N") and len(atom.name) > 1) or
                              (atom.name.startswith("O") and len(atom.name) > 1)]
-            num_atoms = 0
+
             if len(INV_atom_list) > 0:
                 INV_coord = INV_atom_list[0].get_coord()
-                hbond_partner = [h for h in ns.search(INV_coord, 10) if
-                                 (h.name.startswith("N") and len(h.name) > 1) or h.name.startswith("O")]
+                hbond_partner = [h for h in ns.search(INV_coord, 5) if
+                                 (h.name.startswith("N") and len(h.name) > 1) or (h.name.startswith("O")
+                                 and len(h.name) > 1)]
                 num_atoms = len(hbond_partner)
-            if num_atoms != 0:
-                hydrogen_bond = "Possible side chain hydrogen bond disruption."
+                if num_atoms != 0:
+                    if not buried.startswith("No"):
+                        hydrogen_bond = "Possible buried side chain hydrogen bond disruption."
 
         return hydrogen_bond
 
@@ -275,12 +289,13 @@ class CheckPLDDT:
         resi_list = []
         pos_residue = chain[mutation_position]
         pos_atoms = Selection.unfold_entities(pos_residue, chain.id)
+        pos_INV_coord = ''
         pos_atom_list = [atom for atom in pos_atoms if atom.name.startswith("N") and len(atom.name) > 1]
         if len(pos_atom_list) > 0:
             pos_INV_coord = pos_atom_list[0].get_coord()
             po = Selection.unfold_entities(structure, chain.id)
             ns = NeighborSearch(po)
-            possible_neg_atoms = [h for h in ns.search(pos_INV_coord, 10.0) if h.name.startswith("O") and len(h.name) > 1]
+            possible_neg_atoms = [h for h in ns.search(pos_INV_coord, 3.2) if h.name.startswith("O") and len(h.name) > 1]
             num_atoms = len(possible_neg_atoms)
             for i in range(num_atoms):
                 possible_neg_resi = possible_neg_atoms[i].get_parent()
@@ -288,21 +303,22 @@ class CheckPLDDT:
                 possible_neg_list.append(possible_neg_name)
 
             for resi in possible_neg_list:
-                if resi == "Glu" or resi == "Asp":
+                if resi == "GLU" or resi == "ASP":
                     resi_list.append(resi)
-        return resi_list
+        return resi_list, pos_INV_coord
 
     def check_salt_bridges_neg(self, mutation_position, chain, structure):
         possible_pos_list = []
         resi_list = []
         neg_residue = chain[mutation_position]
-        neg_atoms = Selection.unfold_entities(neg_residue, 'A')
+        neg_atoms = Selection.unfold_entities(neg_residue, chain.id)
+        neg_INV_coord = ''
         neg_atom_list = [atom for atom in neg_atoms if atom.name.startswith("O") and len(atom.name) > 1]
-        if len (neg_atom_list) > 0:
+        if len(neg_atom_list) > 0:
             neg_INV_coord = neg_atom_list[0].get_coord()
-            po = Selection.unfold_entities(structure, chain)
+            po = Selection.unfold_entities(structure, chain.id)
             ns = NeighborSearch(po)
-            possible_pos_atoms = [h for h in ns.search(neg_INV_coord, 10.0) if h.name.startswith("N") and len(h.name) > 1]
+            possible_pos_atoms = [h for h in ns.search(neg_INV_coord, 3.2) if h.name.startswith("N") and len(h.name) > 1]
             num_atoms_neg = len(possible_pos_atoms)
             for i in range(num_atoms_neg):
                 possible_pos_resi = possible_pos_atoms[i].get_parent()
@@ -312,19 +328,22 @@ class CheckPLDDT:
             for resi in possible_pos_list:
                 if resi == "ARG" or resi == "LYS" or resi == "HIS":
                     resi_list.append(resi)
-        return resi_list
+        return resi_list, neg_INV_coord
 
-    def salt_check(self, mutation_position, structure, chain, INV, MNV):
+    def salt_check(self, mutation_position, structure, chain, INV, MNV, buried):
         resi_list = []
         if INV == "Arg" or INV == "Lys" or INV == "His":
             if MNV != "Arg" and MNV != "Lys" and MNV != "His":
-                resi_list = self.check_salt_bridges_pos(mutation_position, chain, structure)
+                resi_list, INV_coord = self.check_salt_bridges_pos(mutation_position, chain, structure)
 
         if INV == "Glu" or INV == "Asp":
             if MNV != "Glu" and MNV != "Asp":
-                resi_list = self.check_salt_bridges_neg(mutation_position, chain, structure)
+                resi_list, INV_coord = self.check_salt_bridges_neg(mutation_position, chain, structure)
 
         if len(resi_list) > 0:
-            return "Possible salt bridge break."
+            if not buried.startswith("No"):
+                return "Possible buried salt bridge break."
+            else:
+                return "No buried salt bridges broken."
         else:
-            return "No salt bridges broken."
+            return "No buried salt bridges broken."

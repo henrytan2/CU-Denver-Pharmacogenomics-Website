@@ -743,10 +743,42 @@
 
                     render: function (data, type) {
                         var hgvsp = data['hgvsp'];
+                        if (data.exome["populations"] !== null) {
+                            var AlleleFreqAF = data.exome["populations"][0].ac / data.exome["populations"][0].an;
+                            var AlleleFreqAM = data.exome["populations"][1].ac / data.exome["populations"][1].an;
+                            var AlleleFreqAJ = data.exome["populations"][2].ac / data.exome["populations"][2].an;
+                            var AlleleFreqEA = data.exome["populations"][3].ac / data.exome["populations"][3].an;
+                            var AlleleFreqFN = data.exome["populations"][4].ac / data.exome["populations"][4].an;
+                            var AlleleFreqEU = data.exome["populations"][5].ac / data.exome["populations"][5].an;
+                            var AlleleFreqOT = data.exome["populations"][6].ac / data.exome["populations"][6].an;
+                            var AlleleFreqSA = data.exome["populations"][7].ac / data.exome["populations"][7].an;
+                        }
                         if (hgvsp == null) {
                             return 'null';
                         }
-                        if (hgvsp.lastIndexOf(hgvsp.slice(2, 5)) !== 2) {
+                        else if (hgvsp.slice(-3) === 'Ter' || hgvsp.slice(-3) === 'del' || hgvsp.slice(-3) === 'dup') {
+                            return 'bad seq';
+                        } else if (AlleleFreqAF < .01 &&
+                            AlleleFreqAM < 0.01 &&
+                            AlleleFreqAJ < 0.01 &&
+                            AlleleFreqEA < 0.01 &&
+                            AlleleFreqFN < 0.01 &&
+                            AlleleFreqEU < 0.01 &&
+                            AlleleFreqOT < 0.01 &&
+                            AlleleFreqSA < 0.01
+                        ) {
+                            return 'too small';
+                        } else if (AlleleFreqAF === undefined || 0 ||
+                            AlleleFreqAM === undefined || 0 ||
+                            AlleleFreqAJ === undefined || 0 ||
+                            AlleleFreqEA === undefined || 0 ||
+                            AlleleFreqFN === undefined || 0 ||
+                            AlleleFreqEU === undefined || 0 ||
+                            AlleleFreqOT === undefined || 0 ||
+                            AlleleFreqSA === undefined || 0
+                        ) {
+                            return 'AF is zero';
+                        } else if (hgvsp.lastIndexOf(hgvsp.slice(2, 5)) !== 2) {
                             return 'synonymous mutation'
                         } else {
                             var currentURLString = window.location.href;
@@ -755,12 +787,14 @@
                             var requestPLDDT = {
                                 gene_ID: geneID,
                                 CCID: data['hgvsp'],
+                                alleleFreq: data.exome.af,
                             }
                             var recommendation;
                             var buried;
+                            var alleleFreq = data.exome.af;
                             $.ajax({
                                 type: 'POST',
-                                url: '{% url 'api:find_plddt' %}',
+                                url: '{% url 'api:public_find_plddt' %}',
                                 data: requestPLDDT,
                                 success: function (response) {
                                     plddt_snv = response.plddt_snv;
@@ -769,15 +803,16 @@
                                     disulfide_check = response.disulfide_check;
                                     proline_check = response.proline_check;
                                     buried = response.buried;
+                                    hydrogen_bond = response.hydrogen_bond;
+                                    salt_bridge = response.salt_bridge;
                                     fetchingpLDDT = false;
                                     recommendation = response.recommendation;
                                     plddt = this.plddt_snv;
-                                    console.log(requestPLDDT, plddt_snv, plddt_avg, charge_change,
-                                        disulfide_check, buried, recommendation);
+                                    console.log(alleleFreq, requestPLDDT, buried);
                                 }
                             })
                         }
-                        return {buried: buried, recommendation: recommendation};
+                        {#return {buried: buried, recommendation: recommendation};#}
                     },
                 },
                 {

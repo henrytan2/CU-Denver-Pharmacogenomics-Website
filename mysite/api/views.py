@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer,  TemplateHTMLRenderer
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -138,7 +139,11 @@ class FindPlddtAPI(APIView):
     def post(self, request, **kwargs):
         gene_ID = request.data['gene_ID']
         ccid = request.data['CCID']
-        find_plddt = CheckPLDDT(gene_ID, ccid)
+        try:
+            alleleFreq = request.data['alleleFreq']
+        except:
+            alleleFreq = ''
+        find_plddt = CheckPLDDT(gene_ID, ccid, alleleFreq)
         plddt_snv = find_plddt.plddt_snv
         plddt_avg = find_plddt.plddt_avg
         charge_change = find_plddt.charge_change
@@ -162,7 +167,7 @@ class FindPlddtAPI(APIView):
             }
         if kwargs:
             response_dict.update(kwargs)
-        return Response(response_dict)
+        return HttpResponse(response_dict)
 
     def get(self, request):
         return Response(request)

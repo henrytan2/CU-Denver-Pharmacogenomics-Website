@@ -72,12 +72,13 @@ class MutationModel(models.Model):
         managed = True
         db_table = 'gtexome_mutations'
 
-    geneID_CCID = models.CharField(label='geneID_CCID', max_length=40)
-    # CCID = models.CharField(label='CCID', max_length=20)
-    # geneID = models.CharField(label='geneID', max_length=20)
-    plddt_snv = models.DecimalField(label='plddt_snv', max_value=100, min_value=0)
-    charge_change = models.CharField(label='charge_change', max_length=55)
-    disulfide_check = models.CharField(label='disulfide_check', max_length=28)
-    proline_check = models.CharField(label='proline_check', max_length=25)
-    buried = models.CharField(label='buried', max_length=80)
-    recommendation = models.CharField(label='recommendation', max_length=50)
+    geneID_CCID = models.CharField(verbose_name='geneID_CCID', primary_key=True, max_length=40)
+    allele_freq = models.DecimalField(verbose_name='allele_freq', max_digits=19, decimal_places=18)
+    plddt_snv = models.DecimalField(verbose_name='plddt_snv', max_digits=4, decimal_places=1)
+    charge_change = models.CharField(verbose_name='charge_change', max_length=55)
+    disulfide_check = models.CharField(verbose_name='disulfide_check', max_length=28)
+    proline_check = models.CharField(verbose_name='proline_check', max_length=25)
+    buried = models.CharField(verbose_name='buried', max_length=150)
+    hydrogen_bond = models.CharField(verbose_name='hydrogen_bond', max_length=60)
+    salt_bridge = models.CharField(verbose_name='salt_bridge', max_length=40)
+    recommendation = models.CharField(verbose_name='recommendation', max_length=50)
