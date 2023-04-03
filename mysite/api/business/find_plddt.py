@@ -16,7 +16,14 @@ class CheckPLDDT:
         self.alderaan = Alderaan()
         self.CCID = CCID
         self.allele_freq = alleleFreq
+        self.gene_ID = gene_ID
+        self.geneID_CCID = self.gene_ID + '_' + self.CCID
+
         try:
+            if self.geneID_CCID.startswith('ENSG00000160202_p.Arg43Pro'):
+                print('a')
+            # if MutationModel.objects.filter(geneID_CCID=self.geneID_CCID).exists():
+            #     raise Exception
             if len(self.CCID) > 12:
                 raise Exception
             if self.CCID[-3:] == 'Ter':
@@ -75,13 +82,16 @@ class CheckPLDDT:
             self.geneID_CCID = self.gene_ID + '_' + self.CCID
 
             MutationModel.objects.update_or_create(geneID_CCID=self.geneID_CCID,
-                                                   allele_freq=self.allele_freq,
-                                                   plddt_snv=self.plddt_snv,
-                                                   charge_change=self.charge_change,
-                                                   disulfide_check=self.disulfide_check,
-                                                   proline_check=self.proline_check,
-                                                   buried=self.buried,
-                                                   recommendation=self.recommendation)
+                                                   defaults={
+                                                   "allele_freq":self.allele_freq,
+                                                   "plddt_snv":self.plddt_snv,
+                                                   "charge_change":self.charge_change,
+                                                   "disulfide_check":self.disulfide_check,
+                                                   "proline_check":self.proline_check,
+                                                   "buried":self.buried,
+                                                   "hydrogen_bond":self.hydrogen_bond,
+                                                   "salt_bridge":self.salt_bridge,
+                                                   "recommendation":self.recommendation})
 
         except Exception as e:
             print(e)

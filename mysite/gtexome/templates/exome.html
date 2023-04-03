@@ -790,6 +790,7 @@
                                 alleleFreq: data.exome.af,
                             }
                             var recommendation;
+                            var proline_check;
                             var buried;
                             var alleleFreq = data.exome.af;
                             $.ajax({
@@ -802,17 +803,18 @@
                                     charge_change = response.charge_change;
                                     disulfide_check = response.disulfide_check;
                                     proline_check = response.proline_check;
-                                    buried = response.buried;
+                                    this.buried = response.buried;
                                     hydrogen_bond = response.hydrogen_bond;
                                     salt_bridge = response.salt_bridge;
                                     fetchingpLDDT = false;
                                     recommendation = response.recommendation;
-                                    plddt = this.plddt_snv;
-                                    console.log(alleleFreq, requestPLDDT, buried);
-                                }
+                                    var plddt = this.plddt_snv;
+                                    console.log(alleleFreq, requestPLDDT, buried, response.plddt_snv);
+                                }.bind(this)
                             })
                         }
-                        {#return {buried: buried, recommendation: recommendation};#}
+                        {#console.log(alleleFreq, requestPLDDT, this.buried);#}
+                        {#return {recommendation: recommendation};#}
                     },
                 },
                 {
