@@ -44,7 +44,7 @@ class Profile(generic.View):
             if user:
                 if user.is_verified:
                     if user.is_active:
-                        token_auth, created = Token.objects.get_or_create(user=request.user)
+                        token_auth, created = Token.objects.get_or_create(user=user)
                         token_auth.save()
                         cache.set('token', token_auth.key)
                         login(request, user)
