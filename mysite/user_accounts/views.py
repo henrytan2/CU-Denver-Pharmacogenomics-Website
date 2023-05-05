@@ -40,7 +40,6 @@ class Profile(generic.View):
             email = serializer.data['email']
             password = serializer.data['password']
             user = authenticate(email=email, password=password)
-
             if user:
                 if user.is_verified:
                     if user.is_active:
@@ -48,7 +47,7 @@ class Profile(generic.View):
                         token_auth.save()
                         cache.set('token', token_auth.key)
                         login(request, user)
-                        status = f'Status: logged in as {request.user}'
+                        status = f'Status: logged in as {user}'
                         return render(request, './templates/profile.html',
                                       {'token': token_auth.key,
                                        'status': status,
@@ -124,7 +123,6 @@ class Signup(generic.View):
             user.save()
 
             if must_validate_email:
-                # Create and associate signup code
                 ipaddr = self.request.META.get('REMOTE_ADDR', '0.0.0.0')
                 signup_code = SignupCode.objects.create_signup_code(user, ipaddr)
                 signup_code.send_signup_email()
@@ -164,13 +162,18 @@ class Logout(generic.View):
         """
         Remove all auth tokens owned by request.user.
         """
-        tokens = Token.objects.filter(user=self.request.user)
-        for token in tokens:
-            token.delete()
-        status = 'User logged out.'
-        form = UserCreationForm()
-        return render(request, './templates/profile.html', {'form': form, 'status': status})
+        try:
+            tokens = Token.objects.filter(user=request.user)
+            for token in tokens:
+                token.delete()
+            status = 'User logged out.'
+            form = UserCreationForm()
+            return render(request, './templates/profile.html', {'form': form, 'status': status})
 
+        except:
+            form = UserCreationForm()
+            status = 'Not currently logged in.'
+            return render(request, './templates/profile.html', {'form':form, 'status': status})
 
 class PasswordReset(generic.View):
     permission_classes = (AllowAny,)
@@ -178,26 +181,19 @@ class PasswordReset(generic.View):
 
     def get(self, request):
         self.serializer_class = LoginSerializer
-        email = request.user.email
-        serializer = self.serializer_class(data={'email': email})
         form = UserCreationForm()
-        if serializer.is_valid():
-            email = serializer.data['email']
 
-            try:
-                user = get_user_model().objects.get(email=email)
-                if user.is_verified and user.is_active:
-                    status = 'User active and verified.'
-                    return render(request, './templates/account_management.html', {'status': status,
-                                                                                   'form': form})
-            except get_user_model().DoesNotExist:
-                status = 'Account does not exist.'
+        try:
+            email = request.user.email
+            user = get_user_model().objects.get(email=email)
+            if user.is_verified and user.is_active:
+                status = 'User active and verified.'
                 return render(request, './templates/account_management.html', {'status': status,
-                                                                               'form': form})
-        else:
-            status = 'Invalid email.'
+                                                                                   'form': form})
+        except:
+            status = 'Account does not exist.'
             return render(request, './templates/account_management.html', {'status': status,
-                                                                           'form': form})
+                                                                               'form': form})
 
     def post(self, request):
 
@@ -247,7 +243,7 @@ class PasswordResetVerify(generic.View):
                 raise PasswordResetCode.DoesNotExist()
 
             status = 'Email address verified.'
-            return render(request, './templates/account_management.html', {'status': status})
+            return render(request, './templates/change_password.html', {'status': status})
         except PasswordResetCode.DoesNotExist:
             status = 'Unable to verify user.'
             return render(request, './templates/account_management.html', {'status': status})
@@ -291,7 +287,10 @@ class PasswordChange(generic.View):
         return render(request, './templates/account_management.html', {'status': status})
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
+        pw = request.POST['password']
+        pw2 = request.POST['password2']
+
+        serializer = self.serializer_class(data={'password': pw,'password2': pw2})
 
         if serializer.is_valid():
             user = request.user

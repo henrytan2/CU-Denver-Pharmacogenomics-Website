@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer,  TemplateHTMLRenderer
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,10 +12,12 @@ import logging
 from django.shortcuts import redirect
 from datetime import date
 from datetime import datetime, timedelta
+from rest_framework.permissions import AllowAny
 
 error_logger = logging.getLogger('django.error')
 
 class FasprPrepAPI(APIView):
+    permission_classes = (AllowAny,)
 
     def post(self, request, **kwargs):
         ccid = request.data['CCID']
@@ -119,6 +122,8 @@ class MetabPrepAPI(APIView):
 
 
 class FindResolutionAPI(APIView):
+    permission_classes = (AllowAny,)
+
     def post(self, request, **kwargs):
         gene_ID = request.data['gene_ID']
         CCID = request.data['CCID']
@@ -135,9 +140,15 @@ class FindResolutionAPI(APIView):
 
 
 class FindPlddtAPI(APIView):
+    permission_classes = (AllowAny,)
+
     def post(self, request, **kwargs):
         gene_ID = request.data['gene_ID']
         ccid = request.data['CCID']
+        # try:
+        #     alleleFreq = request.data['alleleFreq']
+        # except:
+        #     alleleFreq = ''
         find_plddt = CheckPLDDT(gene_ID, ccid)
         plddt_snv = find_plddt.plddt_snv
         plddt_avg = find_plddt.plddt_avg
@@ -145,8 +156,8 @@ class FindPlddtAPI(APIView):
         disulfide_check = find_plddt.disulfide_check
         proline_check = find_plddt.proline_check
         buried = find_plddt.buried
-        hydrogen_bond = find_plddt.hydrogen_bond
-        salt_bridge = find_plddt.salt_bridge
+        # hydrogen_bond = find_plddt.hydrogen_bond
+        # salt_bridge = find_plddt.salt_bridge
         recommendation = find_plddt.recommendation
 
         response_dict = {
@@ -156,13 +167,13 @@ class FindPlddtAPI(APIView):
                 'disulfide_check': disulfide_check,
                 'proline_check': proline_check,
                 'buried': buried,
-                'hydrogen_bond': hydrogen_bond,
-                'salt_bridge': salt_bridge,
+                # 'hydrogen_bond': hydrogen_bond,
+                # 'salt_bridge': salt_bridge,
                 'recommendation': recommendation,
             }
         if kwargs:
             response_dict.update(kwargs)
-        return Response(response_dict)
+        return HttpResponse(response_dict)
 
     def get(self, request):
         return Response(request)
