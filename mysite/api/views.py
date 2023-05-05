@@ -12,10 +12,12 @@ import logging
 from django.shortcuts import redirect
 from datetime import date
 from datetime import datetime, timedelta
+from rest_framework.permissions import AllowAny
 
 error_logger = logging.getLogger('django.error')
 
 class FasprPrepAPI(APIView):
+    permission_classes = (AllowAny,)
 
     def post(self, request, **kwargs):
         ccid = request.data['CCID']
@@ -120,6 +122,8 @@ class MetabPrepAPI(APIView):
 
 
 class FindResolutionAPI(APIView):
+    permission_classes = (AllowAny,)
+
     def post(self, request, **kwargs):
         gene_ID = request.data['gene_ID']
         CCID = request.data['CCID']
@@ -136,6 +140,8 @@ class FindResolutionAPI(APIView):
 
 
 class FindPlddtAPI(APIView):
+    permission_classes = (AllowAny,)
+
     def post(self, request, **kwargs):
         gene_ID = request.data['gene_ID']
         ccid = request.data['CCID']

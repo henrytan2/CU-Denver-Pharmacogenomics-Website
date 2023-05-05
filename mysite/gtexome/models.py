@@ -55,7 +55,7 @@ class GTEx(models.Model):
     skin_not_sun_exposed_suprapubic = models.FloatField('Skin-NotSunExposed(Suprapubic)', max_length=10)
     skin_sun_exposed_lower_leg = models.FloatField('Skin-SunExposed(Lowerleg)', max_length=10)
     small_intestine_terminal_ileum = models.FloatField('SmallIntestine-TerminalIleum', max_length=10)
-    spleen = models.FloatField('SmallIntestine-TerminalIleum', max_length=10)
+    spleen = models.FloatField('Spleen', max_length=10)
     stomach = models.FloatField('Stomach', max_length=10)
     testis = models.FloatField('Testis', max_length=10)
     thyroid = models.FloatField('Thyroid', max_length=10)
