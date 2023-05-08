@@ -1,4 +1,3 @@
-from django.http import HttpResponse
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer,  TemplateHTMLRenderer
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -60,6 +59,8 @@ class FasprPrepAPI(APIView):
 
 
 class FasprRunAPI(APIView):
+    permission_classes = (AllowAny,)
+
     def post(self, request):
         mutated_sequence = request.data['mutated_sequence']
         protein_location = request.data['protein_location']
@@ -71,6 +72,8 @@ class FasprRunAPI(APIView):
 
 
 class CacheCCIDAPI(APIView):
+    permission_classes = (AllowAny,)
+
     def post(self, request):
         ccid = request.data['CCID']
         cache.set('CCID', ccid)
@@ -82,6 +85,8 @@ class CacheCCIDAPI(APIView):
 
 
 class CachePositionsAPI(APIView):
+    permission_classes = (AllowAny,)
+
     def post(self, request):
         positions = request.POST.getlist('positions[]')
         cache.set('positions', positions)
@@ -92,6 +97,8 @@ class CachePositionsAPI(APIView):
         return Response(returned_positions)
 
 class CacheLengthAPI(APIView):
+    permission_classes = (AllowAny,)
+
     def post(self, request):
         sequence_length = request.data['sequence_length']
         cache.set('sequence_length', sequence_length)
@@ -103,6 +110,8 @@ class CacheLengthAPI(APIView):
 
 
 class CacheProteinAPI(APIView):
+    permission_classes = (AllowAny,)
+
     def post(self, request):
         protein_structure = request.data['protein_structure']
         cache.set('protein_structure', protein_structure)
@@ -114,6 +123,8 @@ class CacheProteinAPI(APIView):
 
 
 class MetabPrepAPI(APIView):
+    permission_classes = (AllowAny,)
+
     def post(self, request):
         smiles_code = request.data['smiles']
         metabolites = MetabPrep(smiles_code)
@@ -145,10 +156,6 @@ class FindPlddtAPI(APIView):
     def post(self, request, **kwargs):
         gene_ID = request.data['gene_ID']
         ccid = request.data['CCID']
-        # try:
-        #     alleleFreq = request.data['alleleFreq']
-        # except:
-        #     alleleFreq = ''
         find_plddt = CheckPLDDT(gene_ID, ccid)
         plddt_snv = find_plddt.plddt_snv
         plddt_avg = find_plddt.plddt_avg
@@ -156,8 +163,8 @@ class FindPlddtAPI(APIView):
         disulfide_check = find_plddt.disulfide_check
         proline_check = find_plddt.proline_check
         buried = find_plddt.buried
-        # hydrogen_bond = find_plddt.hydrogen_bond
-        # salt_bridge = find_plddt.salt_bridge
+        hydrogen_bond = find_plddt.hydrogen_bond
+        salt_bridge = find_plddt.salt_bridge
         recommendation = find_plddt.recommendation
 
         response_dict = {
@@ -167,13 +174,13 @@ class FindPlddtAPI(APIView):
                 'disulfide_check': disulfide_check,
                 'proline_check': proline_check,
                 'buried': buried,
-                # 'hydrogen_bond': hydrogen_bond,
-                # 'salt_bridge': salt_bridge,
+                'hydrogen_bond': hydrogen_bond,
+                'salt_bridge': salt_bridge,
                 'recommendation': recommendation,
             }
         if kwargs:
             response_dict.update(kwargs)
-        return HttpResponse(response_dict)
+        return Response(response_dict)
 
     def get(self, request):
         return Response(request)

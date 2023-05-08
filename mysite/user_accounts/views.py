@@ -123,7 +123,10 @@ class Signup(generic.View):
             user.save()
 
             if must_validate_email:
-                ipaddr = self.request.META.get('REMOTE_ADDR', '0.0.0.0')
+                try:
+                    ipaddr = self.request.META.get('REMOTE_ADDR')
+                except:
+                    ipaddr = '0.0.0.0'
                 signup_code = SignupCode.objects.create_signup_code(user, ipaddr)
                 signup_code.send_signup_email()
 
