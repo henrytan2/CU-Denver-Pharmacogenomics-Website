@@ -29,7 +29,7 @@ class CheckPLDDT:
             self.temp_folder = os.path.join(self.scratch_folder, 'tmp')
             self.gene_ID = gene_ID
             self.specificPnum = self.get_Pnum()
-            self.AF_residues, self.model, self.structure, self.pdb_text = self.get_sequence_unmut_af(self.alpha_folder, self.get_Pnum) #
+            self.AF_residues, self.model, self.structure, self.pdb_text, self.file_location = self.get_sequence_unmut_af(self.alpha_folder, self.get_Pnum) #
             self.chain = self.model['A']
             self.mut_residue = self.chain[self.mutation_position]
             pLDDT = []
@@ -67,6 +67,7 @@ class CheckPLDDT:
             self.recommendation = 'Alphafold structure not suitable for modeling'
             self.hbond = 'error checking structure'
             self.salt_bridge = 'error checking structure'
+            self.file_location = 'no file'
 
     def get_Pnum(self):
         with open('./pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:
@@ -89,13 +90,14 @@ class CheckPLDDT:
                     gunzip_command = f'gunzip -c {pdb_file[:-1]} > {self.temp_folder}/{self.protein_short_name[:-4]}/{self.protein_short_name}'
                     self.alderaan.run_command(gunzip_command)
                 open_command = f"cat {self.temp_folder}/{self.protein_short_name[:-4]}/{self.protein_short_name}"# | tee {self.temp_folder}/pdb_temporary.txt"
+                file_location = self.protein_short_name
                 pdb_text, success = self.alderaan.run_command(open_command)
                 p = PDBParser(PERMISSIVE=1)
                 pdb_stream = io.StringIO(pdb_text)
                 structure = p.get_structure(id='_', file=pdb_stream)
                 model = structure[0]
                 residues = model.get_residues()
-                return residues, model, structure, pdb_text
+                return residues, model, structure, pdb_text, file_location
             else:
                 self.plddt_avg = 'structure too large'
                 self.plddt_snv = 'structure too large'

@@ -242,6 +242,9 @@
                     file_location: 'empty',
                     chain_id: 'empty',
                     recommendation: '',
+                    reported_location: 'unknown',
+                    exp_file_location: 'not set yet',
+                    af_file_location: 'not set yet',
                 }
             },
             beforeMount:
@@ -302,6 +305,7 @@
                     data: mutationData,
                     success: function (response) {
                         this.bestResolution = response.resolution;
+                        this.exp_file_location = response.file_location;
                         this.file_location = response.file_location;
                         this.chain_id = response.chain_id;
                         this.fetchingResolution = false;
@@ -314,6 +318,7 @@
                     success: function (response) {
                         this.plddt_snv = response.plddt_snv;
                         this.plddt_avg = response.plddt_avg;
+                        this.af_file_location = response.af_file_location;
                         this.charge_change = response.charge_change;
                         this.disulfide_check = response.disulfide_check;
                         this.proline_check = response.proline_check;
@@ -341,6 +346,7 @@
                         this.toggleAlphaFoldOn = true;
                         this.toggleProteinOn = false;
                     }
+                    this.reported_location = this.af_file_location;
                 },
                 changeSourceToExp: function () {
                     if (this.toggleAlphaFoldOn) {
@@ -348,11 +354,15 @@
                         this.toggleProteinOn = true;
                     } else {
                     }
+                    this.reported_location = this.exp_file_location;
                 },
                 check: function () {
                     this.checkClicked = true;
                     if (this.selectAllClicked == true) {
                         this.angstroms = 1000000000;
+                    }
+                    if (typeof this.reported_location == 'undefined' || this.reported_location === null) {
+                        this.reported_location = 'undefined file location'
                     }
                     var request = {
                         CCID: this.CCID,
@@ -361,6 +371,7 @@
                         toggleAlphaFoldOn: this.toggleAlphaFoldOn,
                         file_location: this.file_location,
                         chain_id: this.chain_id,
+                        reported_location: this.reported_location,
                     }
                     $.ajax({
                         type: 'POST',
@@ -372,6 +383,7 @@
                             this.mut_seq = response.mut_seq;
                             this.repack_pLDDT = response.repack_pLDDT;
                             this.protein_location = response.protein_location;
+                            this.reported_location = response.reported_location;
                             $.ajax({
                                 type: 'POST',
                                 url: '{% url 'api:cache_CCID' %}',
@@ -459,7 +471,7 @@
                         data: requestResolution,
                         success: function (response) {
                             this.bestResolution = response.resolution;
-                            this.file_location = response.file_location;
+                            this.exp_file_location = response.file_location;
                             this.chain_id = response.chain_id;
                             this.fetchingResolution = false;
                         }.bind(this)
@@ -475,6 +487,7 @@
                         success: function (response) {
                             this.plddt_snv = response.plddt_snv;
                             this.plddt_avg = response.plddt_avg;
+                            this.af_file_location = response.af_file_location;
                             this.fetchingpLDDT = false;
                         }.bind(this)
                     })

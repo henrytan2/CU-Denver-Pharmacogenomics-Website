@@ -16,7 +16,7 @@ class FasprPrep:
     alpha_folder = os.path.join('Documents', 'alphafold')
     temp_folder = os.path.join(scratch_folder, 'tmp')
 
-    def __init__(self, CCID, gene_ID, angstroms, use_alphafold, file_location, chain_id):
+    def __init__(self, CCID, gene_ID, angstroms, use_alphafold, file_location, chain_id, reported_location):
         self.alderaan = Alderaan()
         self.CCID = CCID
         self.mutant_n = str(re.findall(r'\d+', self.CCID))
@@ -29,6 +29,7 @@ class FasprPrep:
         self.protein_location = file_location
         self.chain_id = chain_id
         self.chain_pdb = 'empty'
+        self.reported_location = reported_location
 
         if self.use_alphafold == 'false':
             try:

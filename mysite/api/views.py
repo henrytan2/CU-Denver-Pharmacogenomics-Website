@@ -25,15 +25,17 @@ class FasprPrepAPI(APIView):
         useAlphafold = request.data['toggleAlphaFoldOn']
         file_location = request.data['file_location']
         chain_id = request.data['chain_id']
-        faspr_prep = FasprPrep(ccid, gene_ID, angstroms, useAlphafold, file_location, chain_id)
+        reported_location = request.data['reported_location']
+        faspr_prep = FasprPrep(ccid, gene_ID, angstroms, useAlphafold, file_location, chain_id, reported_location)
         sequence_length = faspr_prep.sequence_length
         residues = faspr_prep.positions
         get_mut_seq = faspr_prep.get_mut_seq
         repack_pLDDT = faspr_prep.repack_pLDDT
+        reported_location = faspr_prep.reported_location
         header = str(f'REMARK created on GTExome (https://pharmacogenomics.clas.ucdenver.edu/gtexome/)')
         header += (f'\nREMARK created on: {date.today()}')
         header += (f'\nREMARK using gene ID: {gene_ID}')
-        header += (f'\nREMARK from file: {file_location[-20:]}')
+        header += (f'\nREMARK from file: {reported_location}')
         header += (f'\nREMARK introducing mutation: {ccid}')
         header += ('\nREMARK FASPR Repacked these residues:')
         header += (str(residues))
@@ -142,9 +144,14 @@ class FindResolutionAPI(APIView):
         resolution = find_best_res.best_resolution
         file_location = find_best_res.file_location
         chain_id = find_best_res.chain_id
+        exp_file_location = find_best_res.file_location
         if resolution.startswith('Downloading'):
             resolution = 'refresh page'
-        response_dict = {'resolution': resolution, 'file_location': file_location, 'chain_id': chain_id}
+        response_dict = {'resolution': resolution,
+                         'file_location': file_location,
+                         'chain_id': chain_id,
+                         'exp_file_location':exp_file_location,
+                         }
         if kwargs:
             response_dict.update(kwargs)
         return Response(response_dict)
@@ -166,6 +173,7 @@ class FindPlddtAPI(APIView):
         hydrogen_bond = find_plddt.hydrogen_bond
         salt_bridge = find_plddt.salt_bridge
         recommendation = find_plddt.recommendation
+        af_file_location = find_plddt.file_location
 
         response_dict = {
                 'plddt_snv': plddt_snv,
@@ -177,6 +185,7 @@ class FindPlddtAPI(APIView):
                 'hydrogen_bond': hydrogen_bond,
                 'salt_bridge': salt_bridge,
                 'recommendation': recommendation,
+                'af_file_location': af_file_location,
             }
         if kwargs:
             response_dict.update(kwargs)
