@@ -91,10 +91,9 @@
                             type: 'POST',
                             url: '{% url 'user_accounts:authemail-signup' %}',
                             data: request,
-                            success: function (response) {
-                                if (response === "True")
-                                    console.log('account created');
-
+                            success: function () {
+                                console.log('account created')
+                                window.location = "{% url 'user_accounts:authemail-signup-verify' %}";
                             }
 
                         })

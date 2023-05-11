@@ -14,6 +14,7 @@ from .models import send_multi_format_email
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render
+from django.http import HttpResponse
 
 EXPIRY_PERIOD = 3    # days
 
@@ -101,7 +102,7 @@ class Signup(generic.View):
                 user = get_user_model().objects.get(email=email)
                 if user.is_verified:
                     status = 'Email address already taken.'
-                    return render(request, './templates/create_account.html', {'form': form, 'status': status})
+                    return HttpResponse('user_accounts:authemail-signup-verify', {'form': form, 'status': status})
 
                 try:
                     signup_code = SignupCode.objects.get(user=user)
@@ -117,18 +118,42 @@ class Signup(generic.View):
             user.last_name = last_name
             if not must_validate_email:
                 user.is_verified = True
-                send_multi_format_email('welcome_email',
-                                        {'email': user.email, },
-                                        target_email=user.email)
-            user.save()
+                status = 'account created'
+                user.save()
+                token_text = 'no token available'
+                try:
+                    send_multi_format_email('welcome_email',
+                                            {'email': user.email, },
+                                            target_email=user.email)
+                    user = authenticate(email=email, password=password)
+                    if user:
+                        if user.is_verified:
+                            if user.is_active:
+                                token_auth, created = Token.objects.get_or_create(user=user)
+                                token_auth.save()
+                                cache.set('token', token_auth.key)
+                                login(request, user)
+                                status = f'Status: logged in as {user}'
+                                token_text = token_auth.key
+                except:
+                    status = 'failed to send email'
 
+                return render(request, './templates/profile.html',
+                                              {'token': token_text,
+                                               'status': status,
+                                               'form': form}, )
             if must_validate_email:
                 try:
                     ipaddr = self.request.META.get('REMOTE_ADDR')
                 except:
                     ipaddr = '0.0.0.0'
                 signup_code = SignupCode.objects.create_signup_code(user, ipaddr)
-                signup_code.send_signup_email()
+                user.save()
+                status = 'account saved'
+                send_multi_format_email('welcome_email',
+                                        {'email': user.email, },
+                                        target_email=user.email)
+                return render(request, './templates/create_account.html', {'form': form, 'status': status})
 
             status = 'Email address already taken.'
             return render(request, './templates/create_account.html', {'form': form, 'status': status})
@@ -141,20 +166,10 @@ class SignupVerify(generic.View):
     permission_classes = (AllowAny,)
 
     def get(self, request):
-        code = request.GET.get('code', '')
-        verified = SignupCode.objects.set_user_is_verified(code)
+        status = 'Email address verified. Please log in'
+        form = UserCreationForm()
 
-        if verified:
-            try:
-                signup_code = SignupCode.objects.get(code=code)
-                signup_code.delete()
-            except SignupCode.DoesNotExist:
-                pass
-            status = 'Email address verified.'
-            return render(request, './templates/create_account.html', {'status': status})
-        else:
-            status = 'Unable to verify user.'
-            return render(request, './templates/create_account.html', {'status': status})
+        return render(request, './templates/profile.html', {'form': form, 'status': status})
 
 
 class Logout(generic.View):
@@ -208,14 +223,20 @@ class PasswordReset(generic.View):
 
             try:
                 user = get_user_model().objects.get(email=email)
+
+                # Delete all unused password reset codes
                 PasswordResetCode.objects.filter(user=user).delete()
 
                 if user.is_verified and user.is_active:
                     password_reset_code = \
                         PasswordResetCode.objects.create_password_reset_code(user)
                     password_reset_code.send_password_reset_email()
+                    content = {'email': email}
                     return render(request, './templates/account_management.html',
                                   {'form': form})
+
+            except get_user_model().DoesNotExist:
+                pass
 
             except get_user_model().DoesNotExist:
                 pass

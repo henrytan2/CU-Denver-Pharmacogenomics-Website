@@ -192,7 +192,7 @@ class CheckPLDDT:
             if INV != "Asp" and INV != "Glu":
                 buried += "Buried negative charge introduced.  "
             else:
-                buried += "No buried charge or hydrophilic residue  introduced.  " # repeated?
+                buried += "No buried charge or hydrophilic residue  introduced.  "
 
         elif MNV == "Lys" or MNV == "Arg" or MNV == "His":
             if INV == "Asp" or INV == "Glu":

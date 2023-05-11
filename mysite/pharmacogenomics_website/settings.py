@@ -63,7 +63,7 @@ INSTALLED_APPS = [
 LOGIN_URL = 'user_accounts.account-welcome'
 
 AUTH_USER_MODEL = 'user_accounts.MyUser'
-AUTH_EMAIL_VERIFICATION = True
+AUTH_EMAIL_VERIFICATION = False
 
 EMAIL_FROM = os.environ.get('AUTHEMAIL_DEFAULT_EMAIL_FROM') or '<YOUR DEFAULT_EMAIL_FROM HERE>'
 
