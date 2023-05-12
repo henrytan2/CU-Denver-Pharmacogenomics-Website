@@ -276,6 +276,7 @@ PLOTLY_COMPONENTS = [
 ]
 
 STATIC_URL = '/static/'
+STATIC_ROOT = '../static/'
 
 CACHES = {
     'default': {
