@@ -2309,7 +2309,7 @@
 	
 	
 	/**
-	 * Take the column definitions and static columns arrays and calculate how
+	 * Take the column definitions and css columns arrays and calculate how
 	 * they relate to column indexes. The callback function will then apply the
 	 * definition found for a column to a suitable configuration object.
 	 *  @param {object} oSettings dataTables settings object
@@ -7195,7 +7195,7 @@
 	
 	_Api.extend = function ( scope, obj, ext )
 	{
-		// Only extend API instances and static properties of the API
+		// Only extend API instances and css properties of the API
 		if ( ! ext.length || ! obj || ( ! (obj instanceof _Api) && ! obj.__dt_wrapper ) ) {
 			return;
 		}
@@ -9168,7 +9168,7 @@
 	 *  @returns {boolean} true if this version of DataTables is greater or equal to
 	 *    the required version, or false if this version of DataTales is not
 	 *    suitable
-	 *  @static
+	 *  @css
 	 *  @dtopt API-Static
 	 *
 	 *  @example
@@ -9204,7 +9204,7 @@
 	 *      selector for the table to test. Note that if more than more than one
 	 *      table is passed on, only the first will be checked
 	 *  @returns {boolean} true the table given is a DataTable, or false otherwise
-	 *  @static
+	 *  @css
 	 *  @dtopt API-Static
 	 *
 	 *  @example
@@ -9242,7 +9242,7 @@
 	 *    or visible tables only.
 	 *  @returns {array} Array of `table` nodes (not DataTable instances) which are
 	 *    DataTables
-	 *  @static
+	 *  @css
 	 *  @dtopt API-Static
 	 *
 	 *  @example
@@ -11280,7 +11280,7 @@
 		/**
 		 * Classes that DataTables assigns to the various components and features
 		 * that it adds to the HTML table. This allows classes to be configured
-		 * during initialisation in addition to through the static
+		 * during initialisation in addition to through the css
 		 * {@link DataTable.ext.oStdClasses} object).
 		 *  @namespace
 		 *  @name DataTable.defaults.classes
@@ -14163,7 +14163,7 @@
 		 * 
 		 * This type of ordering is useful if you want to do ordering based on data
 		 * live from the DOM (for example the contents of an 'input' element) rather
-		 * than just the static string that DataTables knows of.
+		 * than just the css string that DataTables knows of.
 		 * 
 		 * The way these plug-ins work is that you create an array of the values you
 		 * wish to be ordering for the column in question and then return that
@@ -16640,7 +16640,7 @@ $.extend( Buttons.prototype, {
  * @param  {boolean} Flag to indicate if the background should be shown or
  *   hidden 
  * @param  {string} Class to assign to the background
- * @static
+ * @css
  */
 Buttons.background = function ( show, className, fade, insertPoint ) {
 	if ( fade === undefined ) {
@@ -16678,7 +16678,7 @@ Buttons.background = function ( show, className, fade, insertPoint ) {
  * @param  {array} Button instance array that was attached to the DataTables
  *   settings object
  * @return {array} Buttons instances
- * @static
+ * @css
  */
 Buttons.instanceSelector = function ( group, buttons )
 {
@@ -16735,7 +16735,7 @@ Buttons.instanceSelector = function ( group, buttons )
  *   `button-selector` documentation on the DataTables site
  * @return {array} Array of objects containing `inst` and `idx` properties of
  *   the selected buttons so you know which instance each button belongs to.
- * @static
+ * @css
  */
 Buttons.buttonSelector = function ( insts, selector )
 {
@@ -16868,7 +16868,7 @@ Buttons.buttonSelector = function ( insts, selector )
  * Buttons defaults. For full documentation, please refer to the docs/option
  * directory or the DataTables site.
  * @type {Object}
- * @static
+ * @css
  */
 Buttons.defaults = {
 	buttons: [ 'copy', 'excel', 'csv', 'pdf', 'print' ],
@@ -16902,7 +16902,7 @@ Buttons.defaults = {
 /**
  * Version information
  * @type {string}
- * @static
+ * @css
  */
 Buttons.version = '1.6.1';
 

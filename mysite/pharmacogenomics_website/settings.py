@@ -246,8 +246,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static/'),
-    os.path.join(BASE_DIR, 'rest_framework/static/'),
-    os.path.join('../pharmacogenomics_venv/lib/python3.8/site-packages/rest_framework/static/rest_framework/css/')
+    os.path.join(BASE_DIR, 'rest_framework/css/'),
+    os.path.join('../pharmacogenomics_venv/lib/python3.8/site-packages/rest_framework/css/rest_framework/css/')
 )
 
 STATICFILES_FINDERS = [
@@ -265,7 +265,7 @@ PLOTLY_COMPONENTS = [
     # Common components (ie within dash itself) are automatically added
     # django-plotly-dash components
     'dpd_components',
-    # static support if serving local assets
+    # css support if serving local assets
     'dpd_static_support',
 
     # Other components, as needed
@@ -275,7 +275,7 @@ PLOTLY_COMPONENTS = [
     'dash_bio',
 ]
 
-STATIC_URL = '/static/'
+STATIC_URL = '/css/'
 STATIC_ROOT = '../static/'
 
 CACHES = {

@@ -1106,7 +1106,7 @@ $.extend( Buttons.prototype, {
  * @param  {boolean} Flag to indicate if the background should be shown or
  *   hidden 
  * @param  {string} Class to assign to the background
- * @static
+ * @css
  */
 Buttons.background = function ( show, className, fade, insertPoint ) {
 	if ( fade === undefined ) {
@@ -1144,7 +1144,7 @@ Buttons.background = function ( show, className, fade, insertPoint ) {
  * @param  {array} Button instance array that was attached to the DataTables
  *   settings object
  * @return {array} Buttons instances
- * @static
+ * @css
  */
 Buttons.instanceSelector = function ( group, buttons )
 {
@@ -1201,7 +1201,7 @@ Buttons.instanceSelector = function ( group, buttons )
  *   `button-selector` documentation on the DataTables site
  * @return {array} Array of objects containing `inst` and `idx` properties of
  *   the selected buttons so you know which instance each button belongs to.
- * @static
+ * @css
  */
 Buttons.buttonSelector = function ( insts, selector )
 {
@@ -1334,7 +1334,7 @@ Buttons.buttonSelector = function ( insts, selector )
  * Buttons defaults. For full documentation, please refer to the docs/option
  * directory or the DataTables site.
  * @type {Object}
- * @static
+ * @css
  */
 Buttons.defaults = {
 	buttons: [ 'copy', 'excel', 'csv', 'pdf', 'print' ],
@@ -1368,7 +1368,7 @@ Buttons.defaults = {
 /**
  * Version information
  * @type {string}
- * @static
+ * @css
  */
 Buttons.version = '1.6.1';
 
