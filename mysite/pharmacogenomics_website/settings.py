@@ -275,7 +275,7 @@ PLOTLY_COMPONENTS = [
     'dash_bio',
 ]
 
-STATIC_URL = '/css/'
+STATIC_URL = '/static/'
 STATIC_ROOT = '../static/'
 
 CACHES = {
