@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from django.core.exceptions import ObjectDoesNotExist
 from django.views import generic
 from .models import SignupCode, PasswordResetCode
 from datetime import date
@@ -15,6 +16,7 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.contrib.auth import logout
 
 EXPIRY_PERIOD = 3    # days
 
@@ -183,7 +185,11 @@ class Logout(generic.View):
         try:
             tokens = Token.objects.filter(user=request.user)
             for token in tokens:
-                token.delete()
+                try:
+                    token.delete()
+                    logout(request)
+                except (AttributeError, ObjectDoesNotExist):
+                    pass
             status = 'User logged out.'
             form = UserCreationForm()
             return render(request, './templates/profile.html', {'form': form, 'status': status})
