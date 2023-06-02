@@ -129,6 +129,9 @@
                                 <ul><b class="text-danger"
                                        style="display:inline">{% verbatim %}{{ recommendation }}{% endverbatim %} </b>
                                 </ul>
+                                <ul><b class="text-primary"
+                                       style="display:inline">SNV adjacent pocket: {% verbatim %}{{ pocket_info }}{% endverbatim %}</b>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -245,6 +248,7 @@
                     reported_location: 'unknown',
                     exp_file_location: 'not set yet',
                     af_file_location: 'not set yet',
+                    pocket_info: 'no pockets identified',
                 }
             },
             beforeMount:
@@ -325,6 +329,7 @@
                         this.buried = response.buried;
                         this.fetchingpLDDT = false;
                         this.recommendation = response.recommendation;
+                        this.pocket_info = response.pocket_info;
                     }.bind(this)
                 })
             },
@@ -488,7 +493,13 @@
                             this.plddt_snv = response.plddt_snv;
                             this.plddt_avg = response.plddt_avg;
                             this.af_file_location = response.af_file_location;
+                            this.charge_change = response.charge_change;
+                            this.disulfide_check = response.disulfide_check;
+                            this.proline_check = response.proline_check;
+                            this.buried = response.buried;
                             this.fetchingpLDDT = false;
+                            this.recommendation = response.recommendation;
+                            this.pocket_info = response.pocket_info;
                         }.bind(this)
                     })
                 }

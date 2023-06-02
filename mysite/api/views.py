@@ -174,6 +174,16 @@ class FindPlddtAPI(APIView):
         salt_bridge = find_plddt.salt_bridge
         recommendation = find_plddt.recommendation
         af_file_location = find_plddt.file_location
+        pocket_input = find_plddt.pocket_info
+        pocket_info = []
+        if pocket_input == 'No Adjacent Pockets':
+            pocket_info = 'No Adjacent Pockets'
+        else:
+            for key, value in pocket_input.items():
+                pocket_number = key
+                volume = value[0]
+                druggability = value[1]
+                pocket_info.append(f"pocket # {pocket_number} with volume {volume} Å\u00b3 and druggability {druggability}")
 
         response_dict = {
                 'plddt_snv': plddt_snv,
@@ -186,6 +196,7 @@ class FindPlddtAPI(APIView):
                 'salt_bridge': salt_bridge,
                 'recommendation': recommendation,
                 'af_file_location': af_file_location,
+                'pocket_info': pocket_info,
             }
         if kwargs:
             response_dict.update(kwargs)

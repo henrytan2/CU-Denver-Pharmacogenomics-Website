@@ -1,3 +1,4 @@
+import json
 import pickle5 as pickle
 from .alderaan import Alderaan
 from Bio.PDB.PDBParser import PDBParser
@@ -55,6 +56,7 @@ class CheckPLDDT:
                 self.recommendation = 'Alphafold structure suitable for modeling'
             self.hydrogen_bond = self.hbond_disruption(self.mutation_position, self.structure, self.chain, self.INV, self.MNV)
             self.salt_bridge = self.salt_check(self.mutation_position, self.structure, self.chain, self.INV, self.MNV)
+            self.pocket_info = self.pocket_check(self.mutation_position)
 
         except Exception as e:
             print(e)
@@ -315,3 +317,27 @@ class CheckPLDDT:
             return "Possible salt bridge break."
         else:
             return "No salt bridges broken."
+
+    def pocket_check(self, mutation_position):
+
+        json_load = f'cat {self.temp_folder}/{self.file_location[:-4]}/{self.file_location[:-4]}_out/{self.file_location[:-4]}.json'
+        json_file, success = self.alderaan.run_command(json_load)
+        if success:
+            with open('./json_pocket_dict', 'w+') as f:
+                f.write(json_file)
+            with open('./json_pocket_dict', 'r') as f:
+                fpocket_dict = json.load(f)
+            pocket_info = {}
+
+            for pocket in fpocket_dict:
+                pocket_num = pocket['Pocket']
+                residue_list = pocket['Residues']
+                volume = pocket['Volume']
+                druggability = pocket['Druggability Score']
+
+                if str(mutation_position) in residue_list:
+                    pocket_info[f'{pocket_num}'] = (volume, druggability)
+        else:
+            pocket_info = 'No Adjacent Pockets'
+
+        return pocket_info
