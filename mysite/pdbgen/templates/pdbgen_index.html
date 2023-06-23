@@ -126,9 +126,6 @@
                                 <ul><b class="text-primary"
                                        style="display:inline">{% verbatim %}{{ buried }}{% endverbatim %} </b>
                                 </ul>
-                                <ul><b class="text-danger"
-                                       style="display:inline">{% verbatim %}{{ recommendation }}{% endverbatim %} </b>
-                                </ul>
                                 <ul><b class="text-primary"
                                        style="display:inline">SNV adjacent pocket: {% verbatim %}{{ pocket_info }}{% endverbatim %}</b>
                                 </ul>
@@ -249,6 +246,7 @@
                     exp_file_location: 'not set yet',
                     af_file_location: 'not set yet',
                     pocket_info: 'no pockets identified',
+                    mutated_sequence: 'no structure'
                 }
             },
             beforeMount:
@@ -425,86 +423,113 @@
                 submit: function () {
                     var _this = this;
                     this.submitClicked = true;
-                    var fasprData = {
+                    var proteinData = {
                         mutated_sequence: this.mutated_sequence,
                         protein_location: this.protein_location,
                     }
+                    var fasprData = {
+                        mutated_sequence: this.mutated_sequence,
+                        protein_location: this.af_file_location,
+                    }
                     console.log(this.protein_location);
+                    console.log(this.af_file_location);
                     $.ajax({
                         type: 'POST',
                         url: '{% url 'api:faspr_run' %}',
-                        data: fasprData,
+                        data: proteinData,
                         success: function (response) {
                             _this.FASPR_pdb_text = response.protein_structure;
-                            if (response.protein_structure === 'error') {
-                                window.alert('Experimental Structure Missing residues. Using AF.');
+                            if (response.protein_structure === 'error with structure') {
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{% url 'api:faspr_run' %}',
+                                    data: fasprData,
+                                    success: function (response) {
+                                        _this.FASPR_pdb_text = response.protein_structure;
+                                                                        $.ajax({
+                                    type: 'POST',
+                                    url: '{% url 'api:cache_protein_structure' %}',
+                                    data: {protein_structure: _this.FASPR_pdb_text},
+                                    success: function (response) {
+                                        this.protein_structure = response;
+                                        $.ajax({
+                                            success: function (response) {
+                                                window.location = '{% url 'pdbgen:pdbgen-results.html' %}'
+                                            }
+                                        })
+                                    }
+                                }).bind(this);
+                                    }
+                                });
+                                window.alert('Experimental Structure Missing residues. Using AF.')
+
+                            } else {
+                                $.ajax({
+                                    type: 'POST',
+                                    url: '{% url 'api:cache_protein_structure' %}',
+                                    data: {protein_structure: _this.FASPR_pdb_text},
+                                    success: function (response) {
+                                        this.protein_structure = response;
+                                        $.ajax({
+                                            success: function (response) {
+                                                window.location = '{% url 'pdbgen:pdbgen-results.html' %}'
+                                            }
+                                        })
+                                    }
+                                }).bind(this);
+                            }
+                        },
+                    })
+                },
+                        prefillForm: function () {
+                            var currentURLString = window.location.href;
+                            var currentURL = new URL(currentURLString);
+                            this.geneID = currentURL.searchParams.get("gene_ID");
+                            this.CCID = currentURL.searchParams.get("CCID");
+                            this.angstroms = currentURL.searchParams.get("angstroms");
+                        },
+                        reload: function () {
+                            var requestResolution = {
+                                gene_ID: this.geneID,
+                            }
+                            this.bestResolution = 'searching';
+                            this.plddt_snv = 'searching';
+                            this.plddt_avg = 'searching';
+                            $.ajax({
+                                type: 'POST',
+                                url: '{% url 'api:best_resolution' %}',
+                                data: requestResolution,
+                                success: function (response) {
+                                    this.bestResolution = response.resolution;
+                                    this.exp_file_location = response.file_location;
+                                    this.chain_id = response.chain_id;
+                                    this.fetchingResolution = false;
+                                }.bind(this)
+                            })
+                            var requestPLDDT = {
+                                gene_ID: this.geneID,
+                                CCID: this.CCID,
                             }
                             $.ajax({
                                 type: 'POST',
-                                url: '{% url 'api:cache_protein_structure' %}',
-                                data: {protein_structure: _this.FASPR_pdb_text},
+                                url: '{% url 'api:find_plddt' %}',
+                                data: requestPLDDT,
                                 success: function (response) {
-                                    this.protein_structure = response;
-                                    $.ajax({
-                                        success: function (response) {
-                                            window.location = '{% url 'pdbgen:pdbgen-results.html' %}'
-                                        }
-                                    })
-                                }
+                                    this.plddt_snv = response.plddt_snv;
+                                    this.plddt_avg = response.plddt_avg;
+                                    this.af_file_location = response.af_file_location;
+                                    this.charge_change = response.charge_change;
+                                    this.disulfide_check = response.disulfide_check;
+                                    this.proline_check = response.proline_check;
+                                    this.buried = response.buried;
+                                    this.fetchingpLDDT = false;
+                                    this.recommendation = response.recommendation;
+                                    this.pocket_info = response.pocket_info;
+                                }.bind(this)
                             })
-                        }.bind(this)
-                    })
-
-                },
-                prefillForm: function () {
-                    var currentURLString = window.location.href;
-                    var currentURL = new URL(currentURLString);
-                    this.geneID = currentURL.searchParams.get("gene_ID");
-                    this.CCID = currentURL.searchParams.get("CCID");
-                    this.angstroms = currentURL.searchParams.get("angstroms");
-                },
-                reload: function () {
-                    var requestResolution = {
-                        gene_ID: this.geneID,
+                        }
                     }
-                    this.bestResolution = 'searching';
-                    this.plddt_snv = 'searching';
-                    this.plddt_avg = 'searching';
-                    $.ajax({
-                        type: 'POST',
-                        url: '{% url 'api:best_resolution' %}',
-                        data: requestResolution,
-                        success: function (response) {
-                            this.bestResolution = response.resolution;
-                            this.exp_file_location = response.file_location;
-                            this.chain_id = response.chain_id;
-                            this.fetchingResolution = false;
-                        }.bind(this)
-                    })
-                    var requestPLDDT = {
-                        gene_ID: this.geneID,
-                        CCID: this.CCID,
-                    }
-                    $.ajax({
-                        type: 'POST',
-                        url: '{% url 'api:find_plddt' %}',
-                        data: requestPLDDT,
-                        success: function (response) {
-                            this.plddt_snv = response.plddt_snv;
-                            this.plddt_avg = response.plddt_avg;
-                            this.af_file_location = response.af_file_location;
-                            this.charge_change = response.charge_change;
-                            this.disulfide_check = response.disulfide_check;
-                            this.proline_check = response.proline_check;
-                            this.buried = response.buried;
-                            this.fetchingpLDDT = false;
-                            this.recommendation = response.recommendation;
-                            this.pocket_info = response.pocket_info;
-                        }.bind(this)
-                    })
-                }
-            }
-        })
+                })
     </script>
 {% endblock %}
 

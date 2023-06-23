@@ -69,7 +69,8 @@ class FasprRunAPI(APIView):
         faspr_output = FasprRun(mutated_sequence, protein_location)
         if 'error' in faspr_output.FASPR_pdb_text:
             error_logger.error(faspr_output.FASPR_pdb_text)
-            raise ValueError
+            faspr_output.FASPR_pdb_text = 'error with structure'
+            # raise ValueError
         return Response({'protein_structure': faspr_output.FASPR_pdb_text})
 
 
