@@ -46,16 +46,18 @@ class CheckPLDDT:
                 self.proline_check = 'No cis proline removed'
             self.buried = self.buried_residues(self.structure, self.mutation_position, self.INV, self.MNV)
             self.recommendation = 'Alphafold structure not suitable for modeling'
+            self.hydrogen_bond = self.hbond_disruption(self.mutation_position, self.structure, self.chain, self.INV, self.MNV)
+            self.salt_bridge = self.salt_check(self.mutation_position, self.structure, self.chain, self.INV, self.MNV)
             if self.charge_change == 'No swap of positively and negatively charged residues.'\
                     and self.disulfide_check == 'No disulfides disrupted.' \
                     and self.proline_check == 'No cis proline removed'\
                     and self.plddt_snv >= 90\
-                    and not (self.buried.startswith('Charged')) \
+                    and self.salt_bridge == "No salt bridges broken."\
+                    and self.hydrogen_bond == "No side chain hydrogen bonds disrupted."\
+                    and not (self.buried.startswith('Charge')) \
                     and not (self.buried.startswith('Lost')) \
                     and not (self.buried.startswith('Buried')):
                 self.recommendation = 'Alphafold structure suitable for modeling'
-            self.hydrogen_bond = self.hbond_disruption(self.mutation_position, self.structure, self.chain, self.INV, self.MNV)
-            self.salt_bridge = self.salt_check(self.mutation_position, self.structure, self.chain, self.INV, self.MNV)
             self.pocket_info = self.pocket_check(self.mutation_position)
 
         except Exception as e:
