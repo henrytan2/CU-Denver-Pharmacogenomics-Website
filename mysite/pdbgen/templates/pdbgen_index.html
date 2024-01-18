@@ -8,6 +8,40 @@
         repack amino acids (<a href="https://zhanggroup.org/FASPR/" target="_blank">using FASPR</a>)
         surrounding the SNV by entering a diameter (in Angstroms)
     </h1>
+        <button class="btn btn-secondary"
+            data-toggle="modal"
+            data-target="#directionsModal" style="margin:10px;text-align: right;">
+        Info
+    </button>
+    <div class="modal fade" id="directionsModal" tabindex="-1" role="dialog" aria-labelledby="directionsModal"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="directionsModalTitle">Info</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    You will arrive at this page with a geneID and mutation (CCID) populated.
+                    A search for experimental and AlphaFold2 structures starts automatically.
+                    In some cases, these searches will time out and a page refresh may be necessary.
+                    When the searches are complete, you can decide how much of the protein to
+                    repack by setting a radius in Angstroms surrounding the mutation. Clicking <b>Check</b> will
+                    return a list of residues that will be repacked. Clicking <b>Submit</b> will generate the structure
+                    and provide a preview of the 3D structure. You can change the mutation (CCID) or the repack radius
+                    and hit return to update the information provided. To change the geneID and restart a search for
+                    experimental
+                    structures it is necessary to change the URL with the new geneID or return to the previous page
+                    and start your search over. A bad geneID will return no information.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <index></index>
     <script id="index-template"
             type="text-html-template">
@@ -62,6 +96,7 @@
                             <input class="form-control col-10"
                                    v-model="geneID"
                                    v-on:keyup.enter="reload"
+                                   tooltip="enter edits and reload URL"
                                    type="text"/>
                         </div>
                         <div class="row mb-1">
@@ -93,7 +128,7 @@
                                        class="text-primary">{% verbatim %}{{ bestResolution }}{% endverbatim %}</b>
                                     <p class="text" style="display:inline">Angstrom resolution</p>
                                 {% else %}
-                                    {% verbatim %}not available{% endverbatim %}
+                                    {% verbatim %} not available {% endverbatim %}
                                 {% endif %}
                             </div>
                         </div>
@@ -127,7 +162,7 @@
                                        style="display:inline">{% verbatim %}{{ buried }}{% endverbatim %} </b>
                                 </ul>
                                 <ul><b class="text-primary"
-                                       style="display:inline">SNV adjacent pocket: {% verbatim %}{{ pocket_info }}{% endverbatim %}</b>
+                                       style="display:inline">list of SNV adjacent pockets: {% verbatim %}{{ pocket_info }}{% endverbatim %}</b>
                                 </ul>
                             </div>
                         </div>

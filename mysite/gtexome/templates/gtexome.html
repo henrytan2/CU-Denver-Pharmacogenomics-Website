@@ -3,11 +3,17 @@
 {% block content %}
     <body style="background:none">
     <h1 style="margin-left: 10px">GTExome</h1>
-    <button class="btn btn-secondary"
-            data-toggle="modal"
-            data-target="#directionsModal" style="margin:10px;text-align: right;">
-        Info
-    </button>
+    <div class="row">
+        <button class="btn btn-secondary"
+                data-toggle="modal"
+                data-target="#directionsModal" style="margin:10px;text-align: right;">
+            Info
+        </button>
+        <h3 class="lead">
+            Details in our <a href="https://www.biorxiv.org/content/10.1101/2023.11.14.567143v1" target="_blank">
+            preprint</a>
+        </h3>
+    </div>
     <div class="modal fade" id="directionsModal" tabindex="-1" role="dialog" aria-labelledby="directionsModal"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -22,16 +28,18 @@
                     GTExome is a tool to connect genotype expression data to exome data by filtering the
                     <a href="https://gtexportal.org/home/">GTEx database</a> for specific TPM ranges in different
                     tissue types to get a list of genes. From the list of genes, you can view the exome data
-                    sourced from <a href="https://gnomad.broadinstitute.org">gnomAD/ExAC</a>.<br>
-                    <b>Directions:</b><br>
+                    sourced from <a href="https://gnomad.broadinstitute.org">gnomAD/ExAC</a>.<br> To go directly to
+                    <b>refold</b> a protein you must have an Ensemble ENSG number and mutation info (CCID). To get a list of
+                    mutations for a protein use the <b>exac</b> tab and enter a gnomad valid protein name.<br>
+                    <b>GTEX Directions:</b><br>
                     1. Select 'Filter By TPM Ratio' or 'Filter By TPM Range'.<br>
                     2. Add tissue types from the left list by clicking the plus button.<br>
-                    &emsp;a. If 'Filter By TPM Ratio' is selected. Choose a ratio range to filter by or leave blank for
-                    unbounded lower/upper range.<br>
+                    &emsp;a. If 'Filter By TPM Ratio' is selected. Choose a lower and upper bound for the ratio to filter by
+                    or leave blank for unbounded lower/upper range.<br>
                     &emsp;Ratio calculated by summing the TPM of selected tissues as the numerator and the sum of
                     non-selected tissues as the denominator.<br>
-                    &emsp;b. If 'Filter By TPM Range' is selected. For each selected tissue, enter a range for median
-                    TPM.<br>
+                    &emsp;b. If 'Filter By TPM Range' is selected. For each selected tissue, enter a lower and upper bound
+                    for the expression in TPM.<br>
                     4. Hit the Submit button once you are done.<br>
                     5. You will be redirected to a results page with a list of genes available in csv format.<br>
                     6. Each Gene ID is a link to exome data available in csv format.<br>
@@ -112,11 +120,13 @@
                                         <label>
                                             <input type="number"
                                                    v-model.number="lowerRatio"
+                                                   placeholder="e.g. .05"
                                                    style="margin-right: 10px"> ≤
                                         </label>
                                         <label>
                                             <input type="number"
                                                    v-model.number="upperRatio"
+                                                   placeholder="e.g. .5"
                                                    style="margin-left:10px">
                                         </label>
                                     </div>
@@ -157,8 +167,10 @@
                                             <span v-text="tissue.tissue"></span>
                                             <span class="float-right">
                                                 <input class="lower" type="number"
+                                                       placeholder="lower bound"
                                                        v-model.number="tissue.range.lower"> to
                                                 <input class="upper" type="number"
+                                                       placeholder="upper bound"
                                                        v-model.number="tissue.range.upper">
                                             </span>
                                         </span>
@@ -187,7 +199,7 @@
                                 <div class="form-group">
                                     <label for="exampleGene">Gene</label>
                                     <input type="text"
-                                           placeholder="Search by gene name"
+                                           placeholder="e.g. ENPP4"
                                            v-model="exacInput">
                                     <small class="form-text text-muted">must be valid gnomad v2.1
                                         (https://gnomad.broadinstitute.org/) name.
@@ -222,6 +234,7 @@
                                         <input class="form-control col-5"
                                                v-on:keyup.enter="viewRefolderResults"
                                                v-model="geneID"
+                                               placeholder="e.g. ENSG00000001561"
                                                type="text"/>
                                     </div>
                                     <div class="row mb-1">
@@ -231,6 +244,7 @@
                                         <input class="form-control col-5"
                                                v-on:keyup.enter="viewRefolderResults"
                                                v-model="CCID"
+                                               placeholder="e.g. p.His144Gln"
                                                type="text"/>
                                     </div>
                                 </div>
