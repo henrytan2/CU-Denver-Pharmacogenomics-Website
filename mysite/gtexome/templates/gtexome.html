@@ -3,11 +3,18 @@
 {% block content %}
     <body style="background:none">
     <h1 style="margin-left: 10px">GTExome</h1>
-    <button class="btn btn-secondary"
-            data-toggle="modal"
-            data-target="#directionsModal" style="margin:10px;text-align: right;">
-        Info
-    </button>
+    <div class="row">
+        <button class="btn btn-secondary"
+                data-toggle="modal"
+                data-target="#directionsModal" style="margin:10px;text-align: right;">
+            Info
+        </button>
+        <h3 class="lead">
+            Details in our <a href="https://www.biorxiv.org/content/10.1101/2023.11.14.567143v1" target="_blank">
+            preprint and </a>
+            walkthough  <a href="https://youtu.be/GQHd-mfWrM4" target="_blank"> VIDEO </a>
+        </h3>
+    </div>
     <div class="modal fade" id="directionsModal" tabindex="-1" role="dialog" aria-labelledby="directionsModal"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -22,16 +29,18 @@
                     GTExome is a tool to connect genotype expression data to exome data by filtering the
                     <a href="https://gtexportal.org/home/">GTEx database</a> for specific TPM ranges in different
                     tissue types to get a list of genes. From the list of genes, you can view the exome data
-                    sourced from <a href="https://gnomad.broadinstitute.org">gnomAD/ExAC</a>.<br>
-                    <b>Directions:</b><br>
+                    sourced from <a href="https://gnomad.broadinstitute.org">gnomAD/ExAC</a>.<br> To go directly to
+                    <b>refold</b> a protein you must have an Ensemble ENSG number and mutation info (CCID). To get a list of
+                    mutations for a protein use the <b>exac</b> tab and enter a gnomad valid protein name.<br>
+                    <b>GTEX Directions:</b><br>
                     1. Select 'Filter By TPM Ratio' or 'Filter By TPM Range'.<br>
                     2. Add tissue types from the left list by clicking the plus button.<br>
-                    &emsp;a. If 'Filter By TPM Ratio' is selected. Choose a ratio range to filter by or leave blank for
-                    unbounded lower/upper range.<br>
+                    &emsp;a. If 'Filter By TPM Ratio' is selected. Choose a lower and upper bound for the ratio to filter by
+                    or leave blank for unbounded lower/upper range.<br>
                     &emsp;Ratio calculated by summing the TPM of selected tissues as the numerator and the sum of
                     non-selected tissues as the denominator.<br>
-                    &emsp;b. If 'Filter By TPM Range' is selected. For each selected tissue, enter a range for median
-                    TPM.<br>
+                    &emsp;b. If 'Filter By TPM Range' is selected. For each selected tissue, enter a lower and upper bound
+                    for the expression in TPM.<br>
                     4. Hit the Submit button once you are done.<br>
                     5. You will be redirected to a results page with a list of genes available in csv format.<br>
                     6. Each Gene ID is a link to exome data available in csv format.<br>
@@ -48,21 +57,32 @@
             type="x-html-template">
         <div id="table-wrapper">
             <ul class="nav nav-tabs"
-                v-on:click="changeTabs">
-                <li class="nav-item">
+            >
+                <li class="nav-item"
+                    title="select protein by tissue expression"
+                    v-on:click="changeToGtex">
                     <a class="nav-link"
                        v-bind:class="{active: gtexTabIsActive}"
-                       ref="gtexTab"
                        href="#">
                         gtex
                     </a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item"
+                    title="select protein directly"
+                    v-on:click="changeToExac">
                     <a class="nav-link"
                        v-bind:class="{active: exacTabIsActive}"
-                       ref="exacTab"
                        href="#">
                         exac
+                    </a>
+                </li>
+                <li class="nav-item"
+                    title="directly to refolding"
+                    v-on:click="changeToRefolder">
+                    <a class="nav-link"
+                       v-bind:class="{active: refolderTabIsActive}"
+                       href="#">
+                        refold
                     </a>
                 </li>
             </ul>
@@ -101,11 +121,13 @@
                                         <label>
                                             <input type="number"
                                                    v-model.number="lowerRatio"
+                                                   placeholder="e.g. .05"
                                                    style="margin-right: 10px"> ≤
                                         </label>
                                         <label>
                                             <input type="number"
                                                    v-model.number="upperRatio"
+                                                   placeholder="e.g. .5"
                                                    style="margin-left:10px">
                                         </label>
                                     </div>
@@ -146,8 +168,10 @@
                                             <span v-text="tissue.tissue"></span>
                                             <span class="float-right">
                                                 <input class="lower" type="number"
+                                                       placeholder="lower bound"
                                                        v-model.number="tissue.range.lower"> to
                                                 <input class="upper" type="number"
+                                                       placeholder="upper bound"
                                                        v-model.number="tissue.range.upper">
                                             </span>
                                         </span>
@@ -176,7 +200,7 @@
                                 <div class="form-group">
                                     <label for="exampleGene">Gene</label>
                                     <input type="text"
-                                           placeholder="Search by gene name"
+                                           placeholder="e.g. ENPP4"
                                            v-model="exacInput">
                                     <small class="form-text text-muted">must be valid gnomad v2.1
                                         (https://gnomad.broadinstitute.org/) name.
@@ -197,6 +221,49 @@
                     </div>
                 </div>
             </div>
+            <div v-show="refolderTabIsActive">
+                <div class="row">
+                    <div class="col">
+                        <div class="card">
+                            <p>
+                            <form>
+                                <div class="col-5">
+                                    <div class="row mb-1">
+                                        <label class="col-4">
+                                            GeneID
+                                        </label>
+                                        <input class="form-control col-5"
+                                               v-on:keyup.enter="viewRefolderResults"
+                                               v-model="geneID"
+                                               placeholder="e.g. ENSG00000001561"
+                                               type="text"/>
+                                    </div>
+                                    <div class="row mb-1">
+                                        <label class="col-4">
+                                            CCID
+                                        </label>
+                                        <input class="form-control col-5"
+                                               v-on:keyup.enter="viewRefolderResults"
+                                               v-model="CCID"
+                                               placeholder="e.g. p.His144Gln"
+                                               type="text"/>
+                                    </div>
+                                </div>
+                            </form>
+                            <div style="text-align: right; margin-top: 10px">
+                                <button type="submit"
+                                        id="refolder-submit"
+                                        v-bind:disabled="refolderSubmitButtonDisabled"
+                                        v-on:click="viewRefolderResults"
+                                        class="btn btn-primary submit-btn">
+                                    Submit to refolder
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </script>
 
@@ -209,6 +276,7 @@
                     return {
                         gtexTabIsActive: true,
                         exacTabIsActive: false,
+                        refolderTabIsActive: false,
                         lowerRatio: null,
                         upperRatio: null,
                         filterList: [],
@@ -217,6 +285,9 @@
                         selectedTissuesRange: [],
                         filterByRatio: true,
                         exacInput: null,
+                        CCID: null,
+                        gene_ID: null,
+                        geneID: null,
                     }
                 },
                 template: "#index-template",
@@ -243,7 +314,12 @@
                         if (input.length > 0) {
                             enabled = "exacSubmitButtonDisabled";
                         }
-
+                    },
+                    refolderSubmitButtonDisabled: function () {
+                        var input = 'exacInput'
+                        if (input.length > 0) {
+                            enabled = "refolderSubmitButtonDisabled";
+                        }
                     }
                 },
                 methods: {
@@ -271,15 +347,40 @@
                             }
                         }
                     },
-                    changeTabs: function () {
+                    changeToGtex: function () {
                         if (this.gtexTabIsActive) {
-                            this.gtexTabIsActive = false;
-                            this.exacTabIsActive = true;
                         } else {
                             this.gtexTabIsActive = true;
                             this.exacTabIsActive = false;
+                            this.refolderTabIsActive = false;
                         }
                     },
+                    changeToExac: function () {
+                        if (this.exacTabIsActive) {
+                        } else {
+                            this.exacTabIsActive = true;
+                            this.gtexTabIsActive = false;
+                            this.refolderTabIsActive = false;
+                        }
+                    },
+                    changeToRefolder: function () {
+                        if (this.refolderTabIsActive) {
+                        } else {
+                            this.refolderTabIsActive = true;
+                            this.exacTabIsActive = false;
+                            this.gtexTabIsActive = false;
+                        }
+                    },
+                    viewRefolderResults: function () {
+                        $.ajax({
+                            var: _CCID = this.CCID,
+                            var2: _gene_ID = this.geneID,
+                            success: function (response) {
+                                window.location = '{% url 'pdbgen:pdbgen_index' %}?CCID=' + _CCID + '&gene_ID=' + _gene_ID + '&neighbors=null';
+                            }
+                        })
+                    }
+                    ,
                     toggleFilter: function () {
                         if (this.filterByRatio) {
                             this.selectedTissuesRatio = [];
@@ -288,7 +389,8 @@
                             this.selectedTissuesRange = [];
                             this.filterByRatio = true;
                         }
-                    },
+                    }
+                    ,
                     viewResults: function () {
                         if (this.filterByRatio) {
                             let filterRatioDict = {};
@@ -327,7 +429,8 @@
                                 }
                             });
                         }
-                    },
+                    }
+                    ,
                     viewExacResults: function () {
                         axios({
                             url: "https://gnomad.broadinstitute.org/api/",
@@ -342,9 +445,10 @@
                                 return;
                             }
                             var gene_id = response.data.data.gene.gene_id;
-                             window.location = `{% url 'gtexome:exome' %}?gene_id=${gene_id}`;
+                            window.location = `{% url 'gtexome:exome' %}?gene_id=${gene_id}`;
                         });
-                    },
+                    }
+                    ,
                     GetAllFilters: function () {
                         if (filterByRatio) {
                             let filterRatioDict = {};
@@ -383,7 +487,8 @@
                                 }
                             });
                         }
-                    },
+                    }
+                    ,
                 }
             }
         )

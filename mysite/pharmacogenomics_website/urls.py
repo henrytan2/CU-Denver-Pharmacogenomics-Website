@@ -16,9 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from . import views
+from rest_framework.authtoken import views as rest_views
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),
     path('', views.IndexView.as_view(), name='index'),
     path('people/', views.PeopleView.as_view(), name='people'),
     path('contact/', views.ContactView.as_view(), name='contact'),
@@ -26,5 +29,10 @@ urlpatterns = [
     path('pharmacogenomics/', include('pharmacogenomics.urls')),
     path('gtexome/', include('gtexome.urls')),
     path('metabolites/', include('metabolites.urls')),
-    path('precursors/', include('precursors.urls'))
-]
+    path('precursors/', include('precursors.urls')),
+    path('pdbgen/', include('pdbgen.urls')),
+    path('django_plotly_dash/', include('django_plotly_dash.urls')),
+    path('api-token-auth/', rest_views.obtain_auth_token),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('user_accounts/', include('user_accounts.urls')),
+    ]

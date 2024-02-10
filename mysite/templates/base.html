@@ -38,12 +38,12 @@
             <a class="nav-link" href="{% url 'pharmacogenomics:side-effect' %}">
                 Metabolovigilance
             </a>
-        <!-- </li>
+        </li>
         <li class="nav-item">
             <a class="nav-link" href="{% url 'gtexome:gtexome' %}">
                 GTExome
             </a>
-        </li> -->
+        </li>
         <li class="nav-item">
             <a class="nav-link" href="{% url 'people' %}">
                 People
@@ -52,6 +52,11 @@
         <li class="nav-item">
             <a class="nav-link" href="{% url 'contact' %}">
                 Contact
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'user_accounts:account-welcome' %}">
+                API Access
             </a>
         </li>
     </ul>
@@ -133,7 +138,7 @@
 <script type="application/javascript">
     new Vue({
         el:'#vue-wrapper',
-        props: ['column', 'lastUpdated', 'drugName']
+        props: ['column', 'lastUpdated', 'drugName', 'mut_seq']
     });
 </script>
 </html>

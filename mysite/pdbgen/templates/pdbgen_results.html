@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+    <index></index>
+    <script id="index-template"
+            type="text-html-template">
+        <div class="container">
+
+            <div>
+                <h2>
+                    PDB Generator
+                </h2>
+                <div class="row">
+                    <button class="btn btn-primary float-right margin:50px"
+                            v-on:click="edit">
+                        Edit Protein Data
+                    </button>
+                    <div class="col-sm-1">
+                    </div>
+                    <button class="btn btn-primary float-right margin:50px"
+                            v-on:click="downloadProtein">
+                        Download Protein
+                    </button>
+
+                </div>
+                <div class="row justify-content-start">
+                    <div class="col-1">
+                    </div>
+
+                    <div class="col">
+                        {% load plotly_dash %}
+                        {% plotly_app name="MutationViewer" ratio=1.5 %}
+                    </div>
+
+                </div>
+                <div class="col">
+
+                </div>
+            </div>
+        </div>
+
+    </script>
+
+
+    <script type="application/javascript">
+        Vue.component('index', {
+            template: "#index-template",
+
+            methods: {
+                downloadProtein() {
+                    var _this = this;
+                    $.ajax({
+                        type: 'GET',
+                        url: '{% url 'api:cache_protein_structure' %}',
+                        data: '',
+                        success: function (protein_structure) {
+                            const pdb_blob = new Blob(
+                                [protein_structure],
+                                {
+                                    type: "text/plain;charset=utf-8"
+                                }
+                            );
+                            const url = window.URL.createObjectURL(pdb_blob);
+                            const a = document.createElement('a');
+                            a.style.display = 'none';
+                            a.href = url;
+                            a.download = 'repacked_protein.pdb';
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                        }
+                    })
+
+                },
+                edit: function () {
+                    history.back();
+                },
+            }
+        })
+    </script>
+
+{% endblock %}
+{% plotly_message_pipe %}

@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
+    <p class="lead">
+        Select the <b class="text-primary">HGVSp</b> link to create a pdb file for that mutation
+    </p>
     <body style="background-image:none;">
     <index></index>
     </body>
@@ -18,10 +21,16 @@
                         v-on:click="toggleFilters">
                     Show Filters
                 </button>
+                <button id="toggle-missense"
+                        class="btn btn-secondary"
+                        v-on:click="addMissenseFilter">
+                    Missense Only
+                </button>
             </div>
 
             <div v-if="geneNotFound">
                 <h1>Gene not found in ExAC</h1>
+                <p>Unamed genes (staring with RP11), long noncoding RNA (starting with LINC), mitochondrial genes (starting with MT), and others will not appear in ExAC</p>
             </div>
 
             <div class="container-fluid">
@@ -150,6 +159,21 @@
                         useSmartSearch: true,
                     }],
                     hiddenColumns: [
+                        exomeColumns['Flags'],
+                        exomeColumns['Chrom'],
+                        exomeColumns['Pos'],
+                        exomeColumns['Alt'],
+                        exomeColumns['lof_filter'],
+                        exomeColumns['lof_flags'],
+                        exomeColumns['verdict'],
+                        exomeColumns['ConsequenceInCanonicalTranscript'],
+                        exomeColumns['AlleleNumber'],
+                        exomeColumns['AlleleCount'],
+                        exomeColumns['AlleleCountHemi'],
+                        exomeColumns['AlleleCountHomozygote'],
+                        exomeColumns['Filters'],
+                        exomeColumns['VariantID'],
+                        exomeColumns['AlleleCount'],
                         exomeColumns['AfricanAlleleCount'],
                         exomeColumns['AfricanAlleleNumber'],
                         exomeColumns['AfricanAlleleFreq'],
@@ -207,11 +231,23 @@
                         useSmartSearch: true,
                     });
                 },
+                addMissenseFilter: function () {
+                    var _this = this;
+                    var d = _this.dtTable
+                    _this.filters.push({
+                        columnIndex: 36,
+                        searchText: "missense",
+                        useRegex: false,
+                        useSmartSearch: false,
+                    });
+                    this.doFilter();
+                },
                 removeFilter: function (filterIndex) {
                     var columnIndex = this.filters[filterIndex].columnIndex;
                     this.dtTable.column(columnIndex).search("").draw();
                     this.filters.splice(filterIndex, 1);
-                },
+                }
+                ,
                 doFilter: function () {
                     var _this = this;
                     var d = _this.dtTable
@@ -260,13 +296,13 @@
                     ],
                     order: [[this.exomeColumns["AlleleFrequency"], "desc"]],
                     stateSave: true,
-                    stateSaveParams: function(settings, data) {
+                    stateSaveParams: function (settings, data) {
                         data.stateVariables = {
                             hiddenColumns: _this.hiddenColumns,
                             filters: _this.filters,
                         };
                     },
-                    stateLoadParams: function(settings, data) {
+                    stateLoadParams: function (settings, data) {
                         if (data && data.stateVariables) {
                             _this.hiddenColumns = (data.stateVariables.hiddenColumns || _this.hiddenColumns);
                             _this.filters = (data.stateVariables.filters || _this.filters);
@@ -669,10 +705,20 @@
                     defaultContent: "",
                 },
                 {
-                    data: "hgvsp",
+                    data: null,
                     title: "HGVSp",
                     className: "text-center",
                     defaultContent: "",
+
+                    render: function (data, type) {
+                        var hgvsp = data['hgvsp'];
+                        var gene_ID = data['gene_ID'];
+                        if (hgvsp == null) {
+                            return '';
+                        }
+                        var response = '<a href="{% url 'pdbgen:pdbgen_index' %}?CCID=' + hgvsp + '&gene_ID=' + geneID + '&neighbors=null">' + hgvsp + '</a>';
+                        return response;
+                    }
                 },
                 {
                     data: "lof",
@@ -689,6 +735,12 @@
                 {
                     data: "lof_flags",
                     title: "lof_flags",
+                    className: "text-center",
+                    defaultContent: "",
+                },
+                {
+                    data: "verdict",
+                    title: "lof_curated",
                     className: "text-center",
                     defaultContent: "",
                 },

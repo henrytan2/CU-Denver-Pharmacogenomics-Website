@@ -1,0 +1,2 @@
+Verify your email address by clicking on this link:
+    https://pharmacogenomics.clas.ucdenver.edu/user_accounts/signup/verify/?code={{ code }}

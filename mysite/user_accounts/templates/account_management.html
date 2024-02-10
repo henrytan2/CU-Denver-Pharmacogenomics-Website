@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Pharmacogenomics Account Page</title>
+    </head>
+
+
+    <p><b>{{ status }}</b></p>
+            <form method="post" action="{% url 'user_accounts:authemail-password-reset' %}">
+                {% csrf_token %}
+                <table>
+                    <tr>
+                        <td>{{ form.username.label_tag }}</td>
+                        <td>{{ form.username }}</td>
+                    </tr>
+                </table>
+
+                <input type="submit" value="Send reset email">
+                <input type="hidden" name="next" value="{{ next }}">
+            </form>
+    <p><a href="{% url 'api:public_best_resolution' %}">Best resolution API</a></p>
+    <p><a href="{% url 'api:public_find_plddt' %}">Find pLDDT score API</a></p>
+    <p><a href="{% url 'api:public_faspr_prep' %}">FASPR prep (mutated sequence) API</a></p>
+
+    ------------
+
+    <p><a href="{% url 'user_accounts:authemail-password-reset' %}">Reset Password</a></p>
+    <p><a href="{% url 'user_accounts:authemail-signup' %}">Create Account</a></p>
+    <p><a href="{% url 'user_accounts:authemail-logout' %}">Logout</a></p>
+
+{% endblock %}

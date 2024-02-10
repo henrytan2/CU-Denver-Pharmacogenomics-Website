@@ -3094,7 +3094,7 @@
    * - `bottom` (on bottom, centered)
    * - `auto-end` (on the side with more space available, alignment depends by placement)
    *
-   * @static
+   * @css
    * @type {Array}
    * @enum {String}
    * @readonly
@@ -3970,7 +3970,7 @@
    * })
    * ```
    * @type {Object}
-   * @static
+   * @css
    * @memberof Popper
    */
   var Defaults = {
@@ -4153,7 +4153,7 @@
        * and will be removed in v2! Use the PopperUtils module directly instead.
        * Due to the high instability of the methods contained in Utils, we can't
        * guarantee them to follow semver. Use them at your own risk!
-       * @static
+       * @css
        * @private
        * @type {Object}
        * @deprecated since version 1.8
@@ -4233,7 +4233,7 @@
     DROPLEFT: 'dropleft',
     MENURIGHT: 'dropdown-menu-right',
     MENULEFT: 'dropdown-menu-left',
-    POSITION_STATIC: 'position-static'
+    POSITION_STATIC: 'position-css'
   };
   var Selector$4 = {
     DATA_TOGGLE: '[data-toggle="dropdown"]',
@@ -4349,7 +4349,7 @@
           if (typeof this._config.reference.jquery !== 'undefined') {
             referenceElement = this._config.reference[0];
           }
-        } // If boundary is not `scrollParent`, then set position to `static`
+        } // If boundary is not `scrollParent`, then set position to `css`
         // to allow the menu to "escape" the scroll parent's boundaries
         // https://github.com/twbs/bootstrap/issues/24251
 
@@ -4508,7 +4508,7 @@
             boundariesElement: this._config.boundary
           }
         }
-      }; // Disable Popper.js if we have a static display
+      }; // Disable Popper.js if we have a css display
 
       if (this._config.display === 'static') {
         popperConfig.modifiers.applyStyle = {
@@ -4769,7 +4769,7 @@
     OPEN: 'modal-open',
     FADE: 'fade',
     SHOW: 'show',
-    STATIC: 'modal-static'
+    STATIC: 'modal-css'
   };
   var Selector$5 = {
     DIALOG: '.modal-dialog',

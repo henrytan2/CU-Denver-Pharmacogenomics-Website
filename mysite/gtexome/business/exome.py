@@ -39,10 +39,11 @@ class ExomeColumns:
         'Consequence': 36,
         'ConsequenceInCanonicalTranscript': 37,
         'HGVS': 38,
-        'HGVSVc': 39,
-        'HGVSVp': 40,
+        'HGVSc': 39,
+        'HGVSp': 40,
         'lof': 41,
         'lof_filter': 42,
         'lof_flags': 43,
-        'rsid': 44
+        'rsid': 44,
+        'verdict': 45,
     }
