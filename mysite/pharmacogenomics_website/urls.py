@@ -26,5 +26,6 @@ urlpatterns = [
     path('pharmacogenomics/', include('pharmacogenomics.urls')),
     path('gtexome/', include('gtexome.urls')),
     path('metabolites/', include('metabolites.urls')),
-    path('precursors/', include('precursors.urls'))
+    path('precursors/', include('precursors.urls')),
+    path('adrdock/', include('adrdock.urls'))
 ]
