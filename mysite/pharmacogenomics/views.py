@@ -2,11 +2,18 @@ from django.db.models import Count
 from django.http import HttpResponse, JsonResponse
 from django.views import generic
 from .models import SideEffect
-from precursors.models import Precursors
 from drug_name_precursor_map.models import DrugNamePrecursorMap
 import requests
-import json
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
+
+class GetSideEffects(APIView):
+    model = SideEffect
+    def get(self, request):
+        side_effects = self.model.objects.values('side_effect').distinct()
+        response = list(side_effects)
+        return Response(response)
 
 class SideEffectView(generic.ListView):
     model = SideEffect
