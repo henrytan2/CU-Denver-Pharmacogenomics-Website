@@ -8,7 +8,7 @@ from rest_framework.response import Response
 class FetchAllPrecursorsAPI(APIView):
     model = Precursors
 
-    def post(self, request):
+    def get(self, request):
         response = list(self.model.objects.all().values())
         return Response(response)
 

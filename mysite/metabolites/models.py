@@ -17,7 +17,7 @@ class Metabolite(models.Model):
     enzyme = models.CharField("Enzyme", max_length=45)
     biosystem = models.CharField("Biosystem", max_length=45)
     precursor_smiles = models.CharField("PrecursorSmiles", max_length=250)
-    precursor_InChi = models.CharField("PrecursorInchi", max_length=400, unique=True)
+    precursor_InChi = models.CharField("PrecursorInchi", max_length=255, unique=True)
     precursor_InChiKey = models.CharField("PrecursorInchiKey", max_length=27)
     logp = models.DecimalField("logp", max_digits=22, decimal_places=20, default=None)
     max_rmsd = models.DecimalField("max_rmsd", max_digits=22, decimal_places=20, default=None)

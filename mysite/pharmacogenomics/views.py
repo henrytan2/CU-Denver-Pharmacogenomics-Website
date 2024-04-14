@@ -15,15 +15,53 @@ class GetSideEffects(APIView):
         response = list(side_effects)
         return Response(response)
 
+class GetDrugsFromSelectedSideEffects(APIView):
+    model = SideEffect
+
+    def post(self, request, format=None):
+        request_parsed = dict(self.request.data)
+        selected_side_effects = request_parsed["selectedSideEffects"]
+        drugs = self.model.objects.filter(side_effect__in=selected_side_effects).values()
+        drug_ids = []
+        for drug in drugs:
+            drug_ids.append(drug['drug_id'])
+        precursors = DrugNamePrecursorMap.objects.filter(precursor_DrugID__in=drug_ids)
+        precursor_dict = {}
+        for precursor in precursors:
+            precursor_dict[precursor.precursor_DrugID] = precursor
+        for drug in drugs:
+            drug['UUID'] = precursor_dict[drug['drug_id']].precursor_UUID
+        return Response(drugs)
+
+class DrugsRankedAPI(APIView):
+    model = SideEffect
+
+    def post(self, request, format=None):
+        request_parsed = dict(self.request.data)
+        selected_side_effects = request_parsed["selectedSideEffects"]
+        drugs = self.model.objects.filter(side_effect__in=selected_side_effects) \
+            .values('drug_name', 'drug_id').annotate(dcount=Count('drug_name'))
+        drug_ids = []
+        for drug in drugs:
+            drug_ids.append(drug['drug_id'])
+        precursors = DrugNamePrecursorMap.objects.filter(precursor_DrugID__in=drug_ids)
+        precursor_dict = {}
+        for precursor in precursors:
+            precursor_dict[precursor.precursor_DrugID] = precursor
+        response = []
+        for drug in drugs:
+            response.append({
+                'UUID': precursor_dict[drug['drug_id']].precursor_UUID,
+                'drug_name': drug['drug_name'],
+                'drug_id': drug['drug_id'],
+                'dcount': drug['dcount'],
+            })
+        return Response(response)
+
 class SideEffectView(generic.ListView):
     model = SideEffect
     template_name = 'side-effect.html'
     side_effect_list = []
-
-    def get_queryset(self):
-        side_effects = self.model.objects.values('side_effect').distinct()
-        response = list(side_effects)
-        return response
 
     def post(self, request):
         if request.method == 'POST':

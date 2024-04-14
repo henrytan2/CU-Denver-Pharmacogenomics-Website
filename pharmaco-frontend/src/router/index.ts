@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import { PATH_NAME, paths } from '@/constants/paths'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -7,15 +7,37 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: () => import('../views/HomeView.vue')
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
+      path: '/contact',
+      name: 'contact',
+      component: () => import('../views/ContactView.vue')
+    },
+    {
+      path: '/people',
+      name: 'people',
+      component: () => import('../views/PeopleView.vue')
+    },
+    {
+      path: '/pharmacogenomics/side-effects',
+      name: 'metabolovigilance-side-effects',
+      component: () => import('../views/Metabolovigilance/SideEffects.vue')
+    },
+    {
+      path: '/pharmacogenomics/side-effects/results',
+      name: 'metabolovigilance-side-effects-results',
+      component: () => import('../views/Metabolovigilance/SideEffectsResults.vue')
+    },
+    {
+      path: '/pharmacogenomics/side-effects/fda',
+      name: 'metabolovigilance-side-effects-fda',
+      component: () => import('../views/Metabolovigilance/FDA.vue')
+    },
+    {
+      path: paths[PATH_NAME.METABOLOVIGILANCE_DRUGS_RANKED],
+      name: 'metabolovigilance-side-effects-drugs-ranked',
+      component: () => import('../views/Metabolovigilance/DrugsRanked.vue')
     }
   ]
 })

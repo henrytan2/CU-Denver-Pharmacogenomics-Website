@@ -12,6 +12,8 @@
     }
   ],
   "compilerOptions": {
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
     "module": "NodeNext",
     "paths": {
       "@/*": [
