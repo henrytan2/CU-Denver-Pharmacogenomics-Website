@@ -11,6 +11,26 @@ import json
 from django.core.cache import cache
 
 
+class GetMetabolitesViewForOnePrecursor(APIView):
+    model = Metabolite
+    precursors_to_metabolites = {}
+
+    def post(self, request):
+        self.precursors_to_metabolites.clear()
+        request_parsed = dict(self.request.data)
+        precursor_uuids = request_parsed["precursorUUIDs"]
+        drug_name, logp = Precursors.objects.filter(UUID__in=precursor_uuids).values_list('DrugName', 'logp').first()
+        precursor = PrecursorForMetaboliteView(precursor_uuids, drug_name, logp)
+        full_metabolite_maps = get_metabolite_Maps(precursor_uuids)
+        metabolites_UUIDs = [o.metabolite_UUID for o in full_metabolite_maps]
+        if metabolites_UUIDs is not None:
+            metabolites = self.model.objects \
+                .filter(UUID__in=metabolites_UUIDs)
+            self.precursors_to_metabolites[precursor] = build_metabolite_for_template(metabolites)
+
+        metabolites = map_metabolites_to_precursors(self.precursors_to_metabolites)
+        return Response(metabolites)
+
 class MetaboliteView(generic.ListView):
     model = Metabolite
     template_name = 'metabolite.html'
@@ -67,7 +87,6 @@ class CheckMetabolites(APIView):
     def get(self, request):
         response = cache.get('precursors_to_metabolites_filled')
         return Response(response)
-
 
 class MetaboliteSingleView(generic.ListView):
     model = Metabolite

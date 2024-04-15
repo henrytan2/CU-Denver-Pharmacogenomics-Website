@@ -43,7 +43,9 @@ const columns = [
   },
   {
     title: 'Metabolites',
-    defaultContent: ''
+    data: 'UUID',
+    defaultContent: '',
+    render: '#action'
   }
 ]
 onMounted(() => {
@@ -64,6 +66,11 @@ const options = ref({
     }
   ]
 })
+
+const fetchMetabolitesForPrecursor = (row: any) => {
+  const precursorUUID = row.UUID
+  metabolovigilanceStore.fetchMetabolites([precursorUUID])
+}
 
 let drugsRankedDt: any
 let drugsRankedTable = ref()
@@ -86,6 +93,14 @@ let drugsRankedTable = ref()
       ref="drugsRankedTable"
       class="display nowrap"
       :options="options"
-    ></DataTable>
+    >
+      <template #action="props">
+        <Button
+          :className="'btn btn-secondary'"
+          :onClick="() => fetchMetabolitesForPrecursor(props.rowData)"
+          :buttonText="'View Metabolites'"
+        />
+      </template>
+    </DataTable>
   </div>
 </template>

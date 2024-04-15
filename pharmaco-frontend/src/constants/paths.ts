@@ -3,6 +3,7 @@ const enum PATH_NAME {
   METABOLOVIGILANCE_SIDE_EFFECT_RESULTS,
   METABOLOVIGILANCE_SIDE_EFFECT_FDA,
   METABOLOVIGILANCE_DRUGS_RANKED,
+  METABOLOVIGILANCE_METABOLITES,
   GTEXOME,
   PEOPLE,
   CONTACT,
@@ -14,7 +15,8 @@ const enum API_URL_NAME {
   GET_DRUGS_BY_SELECTED_SIDE_EFFECTS,
   GET_DRUGS,
   FDA,
-  GET_RANKED_DRUGS
+  GET_RANKED_DRUGS,
+  METABOLITES_FOR_ONE_PRECURSOR
 }
 
 const paths: { [key in PATH_NAME]: string } = {
@@ -22,6 +24,7 @@ const paths: { [key in PATH_NAME]: string } = {
   [PATH_NAME.METABOLOVIGILANCE_SIDE_EFFECT_RESULTS]: '/pharmacogenomics/side-effects/results',
   [PATH_NAME.METABOLOVIGILANCE_SIDE_EFFECT_FDA]: '/pharmacogenomics/side-effects/fda',
   [PATH_NAME.METABOLOVIGILANCE_DRUGS_RANKED]: '/pharmacogenomics/side-effects/drugs-ranked',
+  [PATH_NAME.METABOLOVIGILANCE_METABOLITES]: '/metabolites',
   [PATH_NAME.GTEXOME]: '/gtexome',
   [PATH_NAME.PEOPLE]: '/people',
   [PATH_NAME.CONTACT]: '/contact',
@@ -35,7 +38,8 @@ const apiUrls: { [key in API_URL_NAME]: string | ((...args: any[]) => string) } 
   [API_URL_NAME.GET_DRUGS]: '/precursors/fetchall',
   [API_URL_NAME.FDA]: (drugName: string) =>
     `https://api.fda.gov/drug/event.json?search=patient.drug.openfda.generic_name:${drugName}&count=patient.reaction.reactionmeddrapt.exact`,
-  [API_URL_NAME.GET_RANKED_DRUGS]: '/pharmacogenomics/ranked-drugs'
+  [API_URL_NAME.GET_RANKED_DRUGS]: '/pharmacogenomics/ranked-drugs',
+  [API_URL_NAME.METABOLITES_FOR_ONE_PRECURSOR]: '/metabolites/get-metabolites-for-one-precursor'
 }
 
 export { PATH_NAME, API_URL_NAME, paths, apiUrls }

@@ -38,6 +38,11 @@ const router = createRouter({
       path: paths[PATH_NAME.METABOLOVIGILANCE_DRUGS_RANKED],
       name: 'metabolovigilance-side-effects-drugs-ranked',
       component: () => import('../views/Metabolovigilance/DrugsRanked.vue')
+    },
+    {
+      path: paths[PATH_NAME.METABOLOVIGILANCE_METABOLITES],
+      name: 'metabolovigilance-metabolites',
+      component: () => import('../views/Metabolovigilance/Metabolites.vue')
     }
   ]
 })

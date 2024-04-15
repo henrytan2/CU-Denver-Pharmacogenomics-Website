@@ -4,6 +4,7 @@ import axios from 'axios'
 import { API_URL_NAME, apiUrls, PATH_NAME, paths } from '@/constants/paths'
 import { ApiLoadingState, MetabolovigilanceTab } from '@/constants/enums'
 import router from '@/router'
+import type { Metabolite } from '@/models/metabolite'
 
 export const useMetabolovigilanceStore = defineStore('metabolovigilance', {
   state: () => {
@@ -18,7 +19,9 @@ export const useMetabolovigilanceStore = defineStore('metabolovigilance', {
       drugsFromSelectedSideEffects: [] as Drug[],
       drugsFromSelectedSideEffectsLoadingState: ApiLoadingState.Idle,
       rankedDrugs: [] as RankedDrug[],
-      rankedDrugsLoadingState: ApiLoadingState.Idle
+      rankedDrugsLoadingState: ApiLoadingState.Idle,
+      metabolites: [] as Metabolite[],
+      metabolitesLoadingState: ApiLoadingState.Idle
     }
   },
   actions: {
@@ -146,6 +149,35 @@ export const useMetabolovigilanceStore = defineStore('metabolovigilance', {
         })
         .catch((error) => {
           this.rankedDrugsLoadingState = ApiLoadingState.Failed
+          console.log(error)
+        })
+    },
+    fetchMetabolites: function (precursorUUIDs: string[]) {
+      const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.METABOLITES_FOR_ONE_PRECURSOR]}`
+      this.metabolitesLoadingState = ApiLoadingState.Pending
+      const request = {
+        precursorUUIDs: precursorUUIDs
+      }
+      axios
+        .post(url, JSON.stringify(request), {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+          }
+        })
+        .then(async (response) => {
+          if (response.status == 200) {
+            this.metabolitesLoadingState = ApiLoadingState.Success
+            const json = response.data
+            this.metabolites = json
+            router.push(paths[PATH_NAME.METABOLOVIGILANCE_METABOLITES])
+          } else {
+            this.metabolitesLoadingState = ApiLoadingState.Failed
+            throw Error('Get Metabolites failed.')
+          }
+        })
+        .catch((error) => {
+          this.metabolitesLoadingState = ApiLoadingState.Failed
           console.log(error)
         })
     }
