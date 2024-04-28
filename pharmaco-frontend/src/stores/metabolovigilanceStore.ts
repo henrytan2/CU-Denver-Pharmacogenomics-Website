@@ -152,8 +152,10 @@ export const useMetabolovigilanceStore = defineStore('metabolovigilance', {
           console.log(error)
         })
     },
-    fetchMetabolites: function (precursorUUIDs: string[]) {
-      const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.METABOLITES_FOR_ONE_PRECURSOR]}`
+    fetchMetabolites: function (precursorUUIDs: string[], isMultiple?: boolean) {
+      const url = isMultiple
+        ? `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.METABOLITES_FOR_MULTIPLE_PRECURSORS]}`
+        : `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.METABOLITES_FOR_ONE_PRECURSOR]}`
       this.metabolitesLoadingState = ApiLoadingState.Pending
       const request = {
         precursorUUIDs: precursorUUIDs

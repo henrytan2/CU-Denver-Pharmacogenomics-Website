@@ -16,7 +16,8 @@ const enum API_URL_NAME {
   GET_DRUGS,
   FDA,
   GET_RANKED_DRUGS,
-  METABOLITES_FOR_ONE_PRECURSOR
+  METABOLITES_FOR_ONE_PRECURSOR,
+  METABOLITES_FOR_MULTIPLE_PRECURSORS
 }
 
 const paths: { [key in PATH_NAME]: string } = {
@@ -39,7 +40,9 @@ const apiUrls: { [key in API_URL_NAME]: string | ((...args: any[]) => string) } 
   [API_URL_NAME.FDA]: (drugName: string) =>
     `https://api.fda.gov/drug/event.json?search=patient.drug.openfda.generic_name:${drugName}&count=patient.reaction.reactionmeddrapt.exact`,
   [API_URL_NAME.GET_RANKED_DRUGS]: '/pharmacogenomics/ranked-drugs',
-  [API_URL_NAME.METABOLITES_FOR_ONE_PRECURSOR]: '/metabolites/get-metabolites-for-one-precursor'
+  [API_URL_NAME.METABOLITES_FOR_ONE_PRECURSOR]: '/metabolites/get-metabolites-for-one-precursor',
+  [API_URL_NAME.METABOLITES_FOR_MULTIPLE_PRECURSORS]:
+    '/metabolites/get-metabolites-for-multiple-precursors'
 }
 
 export { PATH_NAME, API_URL_NAME, paths, apiUrls }

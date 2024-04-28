@@ -8,6 +8,7 @@ import 'datatables.net-responsive'
 import Button from '@/components/button/button.vue'
 import { useMetabolovigilanceStore } from '@/stores/metabolovigilanceStore'
 import { paths, PATH_NAME } from '@/constants/paths'
+import { ApiLoadingState } from '@/constants/enums'
 
 DataTable.use(DataTableCore)
 const metabolovigilanceStore = useMetabolovigilanceStore()
@@ -69,7 +70,7 @@ const options = ref({
 
 const fetchMetabolitesForPrecursor = (row: any) => {
   const precursorUUID = row.UUID
-  metabolovigilanceStore.fetchMetabolites([precursorUUID])
+  metabolovigilanceStore.fetchMetabolites([precursorUUID], false)
 }
 
 let drugsRankedDt: any
@@ -85,6 +86,22 @@ let drugsRankedTable = ref()
       <a href="https://zinc15.docking.org/substances/home/">ZINC15</a>
       if the link below does not download the 3D structure.
     </p>
+    <p style="color: red" class="d-flex flex-row-reverse">
+      Viewing all metabolites for the list below can take a long period if the list is long
+    </p>
+  </div>
+  <div class="d-flex flex-row-reverse">
+    <Button
+      :className="'btn btn-primary'"
+      :showSpinner="metabolovigilanceStore.metabolitesLoadingState == ApiLoadingState.Pending"
+      :onClick="
+        () => {
+          const precursors = metabolovigilanceStore.rankedDrugs.map((p) => p.UUID)
+          metabolovigilanceStore.fetchMetabolites(precursors, false)
+        }
+      "
+      :buttonText="'View All Metabolites'"
+    />
   </div>
   <div>
     <DataTable

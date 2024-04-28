@@ -10,27 +10,27 @@ const router = createRouter({
       component: () => import('../views/HomeView.vue')
     },
     {
-      path: '/contact',
+      path: paths[PATH_NAME.CONTACT],
       name: 'contact',
       component: () => import('../views/ContactView.vue')
     },
     {
-      path: '/people',
+      path: paths[PATH_NAME.PEOPLE],
       name: 'people',
       component: () => import('../views/PeopleView.vue')
     },
     {
-      path: '/pharmacogenomics/side-effects',
+      path: paths[PATH_NAME.METABOLOVIGILANCE],
       name: 'metabolovigilance-side-effects',
       component: () => import('../views/Metabolovigilance/SideEffects.vue')
     },
     {
-      path: '/pharmacogenomics/side-effects/results',
+      path: paths[PATH_NAME.METABOLOVIGILANCE_SIDE_EFFECT_RESULTS],
       name: 'metabolovigilance-side-effects-results',
       component: () => import('../views/Metabolovigilance/SideEffectsResults.vue')
     },
     {
-      path: '/pharmacogenomics/side-effects/fda',
+      path: paths[PATH_NAME.METABOLOVIGILANCE_SIDE_EFFECT_FDA],
       name: 'metabolovigilance-side-effects-fda',
       component: () => import('../views/Metabolovigilance/FDA.vue')
     },
