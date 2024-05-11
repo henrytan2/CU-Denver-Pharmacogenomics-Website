@@ -43,6 +43,11 @@ const router = createRouter({
       path: paths[PATH_NAME.METABOLOVIGILANCE_METABOLITES],
       name: 'metabolovigilance-metabolites',
       component: () => import('../views/Metabolovigilance/Metabolites.vue')
+    },
+    {
+      path: paths[PATH_NAME.GTEXOME],
+      name: 'gtexome',
+      component: () => import('../views/GTExome/GTExome.vue')
     }
   ]
 })
