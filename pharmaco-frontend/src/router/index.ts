@@ -45,9 +45,29 @@ const router = createRouter({
       component: () => import('../views/Metabolovigilance/Metabolites.vue')
     },
     {
+      path: paths[PATH_NAME.GTEXOME_EXOME],
+      name: 'gtexome-exome',
+      component: () => import('../views/GTExome/gtex/Exome.vue')
+    },
+    {
       path: paths[PATH_NAME.GTEXOME],
       name: 'gtexome',
       component: () => import('../views/GTExome/GTExome.vue')
+    },
+    {
+      path: paths[PATH_NAME.GTEXOME_RANGE_RESULTS],
+      name: 'gtexome-range-results',
+      component: () => import('../views/GTExome/gtex/RangeResults.vue')
+    },
+    {
+      path: paths[PATH_NAME.GTEXOME_RATIO_RESULTS],
+      name: 'gtexome-ratio-results',
+      component: () => import('../views/GTExome/gtex/RatioResults.vue')
+    },
+    {
+      path: paths[PATH_NAME.PDBGEN_REFOLD],
+      name: 'gtexome-pdbgen',
+      component: () => import('../views/Pdbgen/Pdbgen.vue')
     }
   ]
 })

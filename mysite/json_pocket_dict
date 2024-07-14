@@ -1,0 +1,523 @@
+[
+    {
+        "Pocket": "1",
+        "Residues": [
+            "154",
+            "104",
+            "71",
+            "152",
+            "135",
+            "137",
+            "136",
+            "184",
+            "107",
+            "140",
+            "138",
+            "108",
+            "105",
+            "70"
+        ],
+        "Druggability Score": "0.497",
+        "Total SASA": "153.670",
+        "Polar SASA": "54.644",
+        "Apolar SASA": "99.026",
+        "Volume": "4.429",
+        "Mean Local Hydrophobic Density": "24.828"
+    },
+    {
+        "Pocket": "2",
+        "Residues": [
+            "197",
+            "43",
+            "37",
+            "39",
+            "44",
+            "40",
+            "198",
+            "200"
+        ],
+        "Druggability Score": "0.000",
+        "Total SASA": "56.952",
+        "Polar SASA": "27.969",
+        "Apolar SASA": "28.983",
+        "Volume": "5.000",
+        "Mean Local Hydrophobic Density": "4.000"
+    },
+    {
+        "Pocket": "3",
+        "Residues": [
+            "307",
+            "301",
+            "300",
+            "306",
+            "299",
+            "304",
+            "305",
+            "84"
+        ],
+        "Druggability Score": "0.001",
+        "Total SASA": "56.602",
+        "Polar SASA": "22.788",
+        "Apolar SASA": "33.814",
+        "Volume": "4.625",
+        "Mean Local Hydrophobic Density": "2.000"
+    },
+    {
+        "Pocket": "4",
+        "Residues": [
+            "329",
+            "265",
+            "324",
+            "330",
+            "266",
+            "332",
+            "335",
+            "323",
+            "325",
+            "91",
+            "193",
+            "69",
+            "189",
+            "70",
+            "264",
+            "336"
+        ],
+        "Druggability Score": "0.004",
+        "Total SASA": "125.656",
+        "Polar SASA": "60.444",
+        "Apolar SASA": "65.212",
+        "Volume": "3.625",
+        "Mean Local Hydrophobic Density": "10.000"
+    },
+    {
+        "Pocket": "5",
+        "Residues": [
+            "309",
+            "115",
+            "95",
+            "307",
+            "308",
+            "310",
+            "111",
+            "97",
+            "98"
+        ],
+        "Druggability Score": "0.000",
+        "Total SASA": "87.787",
+        "Polar SASA": "41.898",
+        "Apolar SASA": "45.890",
+        "Volume": "4.111",
+        "Mean Local Hydrophobic Density": "2.000"
+    },
+    {
+        "Pocket": "6",
+        "Residues": [
+            "358",
+            "227",
+            "55",
+            "352",
+            "228",
+            "354",
+            "353"
+        ],
+        "Druggability Score": "0.000",
+        "Total SASA": "76.592",
+        "Polar SASA": "47.609",
+        "Apolar SASA": "28.983",
+        "Volume": "4.286",
+        "Mean Local Hydrophobic Density": "3.000"
+    },
+    {
+        "Pocket": "7",
+        "Residues": [
+            "332",
+            "331",
+            "244",
+            "245",
+            "248",
+            "325",
+            "329",
+            "323",
+            "330"
+        ],
+        "Druggability Score": "0.008",
+        "Total SASA": "61.918",
+        "Polar SASA": "26.897",
+        "Apolar SASA": "35.021",
+        "Volume": "3.556",
+        "Mean Local Hydrophobic Density": "11.000"
+    },
+    {
+        "Pocket": "8",
+        "Residues": [
+            "339",
+            "319",
+            "292",
+            "318",
+            "317",
+            "294",
+            "302",
+            "303",
+            "320",
+            "342"
+        ],
+        "Druggability Score": "0.000",
+        "Total SASA": "60.549",
+        "Polar SASA": "29.151",
+        "Apolar SASA": "31.398",
+        "Volume": "4.400",
+        "Mean Local Hydrophobic Density": "0.000"
+    },
+    {
+        "Pocket": "9",
+        "Residues": [
+            "82",
+            "63",
+            "64",
+            "366",
+            "304",
+            "340",
+            "368",
+            "65",
+            "367"
+        ],
+        "Druggability Score": "0.002",
+        "Total SASA": "35.707",
+        "Polar SASA": "15.177",
+        "Apolar SASA": "20.530",
+        "Volume": "4.667",
+        "Mean Local Hydrophobic Density": "6.000"
+    },
+    {
+        "Pocket": "10",
+        "Residues": [
+            "187",
+            "185",
+            "209",
+            "213",
+            "212",
+            "206",
+            "210"
+        ],
+        "Druggability Score": "0.101",
+        "Total SASA": "95.908",
+        "Polar SASA": "16.205",
+        "Apolar SASA": "79.703",
+        "Volume": "5.000",
+        "Mean Local Hydrophobic Density": "19.000"
+    },
+    {
+        "Pocket": "11",
+        "Residues": [
+            "220",
+            "223",
+            "165",
+            "216",
+            "161",
+            "164",
+            "213",
+            "160",
+            "219"
+        ],
+        "Druggability Score": "0.004",
+        "Total SASA": "120.834",
+        "Polar SASA": "55.959",
+        "Apolar SASA": "64.875",
+        "Volume": "4.667",
+        "Mean Local Hydrophobic Density": "14.000"
+    },
+    {
+        "Pocket": "12",
+        "Residues": [
+            "227",
+            "222",
+            "228",
+            "55",
+            "225"
+        ],
+        "Druggability Score": "0.001",
+        "Total SASA": "77.806",
+        "Polar SASA": "45.200",
+        "Apolar SASA": "32.606",
+        "Volume": "4.600",
+        "Mean Local Hydrophobic Density": "11.000"
+    },
+    {
+        "Pocket": "13",
+        "Residues": [
+            "42",
+            "39",
+            "38",
+            "60",
+            "343",
+            "61",
+            "341",
+            "346"
+        ],
+        "Druggability Score": "0.013",
+        "Total SASA": "92.695",
+        "Polar SASA": "23.860",
+        "Apolar SASA": "68.835",
+        "Volume": "3.500",
+        "Mean Local Hydrophobic Density": "12.000"
+    },
+    {
+        "Pocket": "14",
+        "Residues": [
+            "446",
+            "445",
+            "447"
+        ],
+        "Druggability Score": "0.001",
+        "Total SASA": "49.543",
+        "Polar SASA": "19.353",
+        "Apolar SASA": "30.191",
+        "Volume": "3.333",
+        "Mean Local Hydrophobic Density": "2.000"
+    },
+    {
+        "Pocket": "15",
+        "Residues": [
+            "43",
+            "44",
+            "45",
+            "42",
+            "50",
+            "46",
+            "41"
+        ],
+        "Druggability Score": "0.000",
+        "Total SASA": "82.847",
+        "Polar SASA": "52.656",
+        "Apolar SASA": "30.191",
+        "Volume": "5.000",
+        "Mean Local Hydrophobic Density": "1.000"
+    },
+    {
+        "Pocket": "16",
+        "Residues": [
+            "381",
+            "383",
+            "382",
+            "384"
+        ],
+        "Druggability Score": "0.000",
+        "Total SASA": "36.230",
+        "Polar SASA": "10.869",
+        "Apolar SASA": "25.360",
+        "Volume": "4.000",
+        "Mean Local Hydrophobic Density": "3.000"
+    },
+    {
+        "Pocket": "17",
+        "Residues": [
+            "58",
+            "60",
+            "41",
+            "361",
+            "50",
+            "42"
+        ],
+        "Druggability Score": "0.007",
+        "Total SASA": "54.827",
+        "Polar SASA": "27.052",
+        "Apolar SASA": "27.775",
+        "Volume": "5.000",
+        "Mean Local Hydrophobic Density": "13.000"
+    },
+    {
+        "Pocket": "18",
+        "Residues": [
+            "307",
+            "309",
+            "296",
+            "297",
+            "306"
+        ],
+        "Druggability Score": "0.002",
+        "Total SASA": "72.854",
+        "Polar SASA": "37.833",
+        "Apolar SASA": "35.021",
+        "Volume": "4.200",
+        "Mean Local Hydrophobic Density": "9.000"
+    },
+    {
+        "Pocket": "19",
+        "Residues": [
+            "94",
+            "101",
+            "272",
+            "261",
+            "263"
+        ],
+        "Druggability Score": "0.004",
+        "Total SASA": "53.759",
+        "Polar SASA": "24.776",
+        "Apolar SASA": "28.983",
+        "Volume": "4.800",
+        "Mean Local Hydrophobic Density": "15.000"
+    },
+    {
+        "Pocket": "20",
+        "Residues": [
+            "101",
+            "93",
+            "263",
+            "262",
+            "106",
+            "103",
+            "102",
+            "92",
+            "261"
+        ],
+        "Druggability Score": "0.000",
+        "Total SASA": "95.693",
+        "Polar SASA": "47.388",
+        "Apolar SASA": "48.305",
+        "Volume": "3.889",
+        "Mean Local Hydrophobic Density": "1.000"
+    },
+    {
+        "Pocket": "21",
+        "Residues": [
+            "363",
+            "60",
+            "362",
+            "361"
+        ],
+        "Druggability Score": "0.000",
+        "Total SASA": "46.289",
+        "Polar SASA": "25.759",
+        "Apolar SASA": "20.530",
+        "Volume": "4.000",
+        "Mean Local Hydrophobic Density": "5.000"
+    },
+    {
+        "Pocket": "22",
+        "Residues": [
+            "326",
+            "252",
+            "328",
+            "327",
+            "257"
+        ],
+        "Druggability Score": "0.000",
+        "Total SASA": "65.384",
+        "Polar SASA": "38.816",
+        "Apolar SASA": "26.568",
+        "Volume": "3.800",
+        "Mean Local Hydrophobic Density": "9.000"
+    },
+    {
+        "Pocket": "23",
+        "Residues": [
+            "372",
+            "382",
+            "389",
+            "376",
+            "380"
+        ],
+        "Druggability Score": "0.004",
+        "Total SASA": "60.360",
+        "Polar SASA": "10.847",
+        "Apolar SASA": "49.513",
+        "Volume": "4.200",
+        "Mean Local Hydrophobic Density": "12.000"
+    },
+    {
+        "Pocket": "24",
+        "Residues": [
+            "290",
+            "289",
+            "288",
+            "322",
+            "250",
+            "248",
+            "253",
+            "287",
+            "249",
+            "254"
+        ],
+        "Druggability Score": "0.001",
+        "Total SASA": "100.374",
+        "Polar SASA": "39.755",
+        "Apolar SASA": "60.619",
+        "Volume": "3.800",
+        "Mean Local Hydrophobic Density": "3.000"
+    },
+    {
+        "Pocket": "25",
+        "Residues": [
+            "24",
+            "226",
+            "229",
+            "27",
+            "25",
+            "26",
+            "230",
+            "354",
+            "231"
+        ],
+        "Druggability Score": "0.014",
+        "Total SASA": "140.736",
+        "Polar SASA": "45.333",
+        "Apolar SASA": "95.403",
+        "Volume": "4.000",
+        "Mean Local Hydrophobic Density": "16.667"
+    },
+    {
+        "Pocket": "26",
+        "Residues": [
+            "309",
+            "96",
+            "97",
+            "313",
+            "272",
+            "312",
+            "311",
+            "95",
+            "296"
+        ],
+        "Druggability Score": "0.002",
+        "Total SASA": "96.346",
+        "Polar SASA": "21.473",
+        "Apolar SASA": "74.873",
+        "Volume": "3.889",
+        "Mean Local Hydrophobic Density": "5.000"
+    },
+    {
+        "Pocket": "27",
+        "Residues": [
+            "364",
+            "391",
+            "63",
+            "366",
+            "365"
+        ],
+        "Druggability Score": "0.001",
+        "Total SASA": "64.760",
+        "Polar SASA": "14.040",
+        "Apolar SASA": "50.720",
+        "Volume": "4.200",
+        "Mean Local Hydrophobic Density": "3.000"
+    },
+    {
+        "Pocket": "28",
+        "Residues": [
+            "394",
+            "362",
+            "402",
+            "390",
+            "391",
+            "403",
+            "404",
+            "405"
+        ],
+        "Druggability Score": "0.000",
+        "Total SASA": "105.939",
+        "Polar SASA": "36.629",
+        "Apolar SASA": "69.310",
+        "Volume": "3.500",
+        "Mean Local Hydrophobic Density": "1.000"
+    }
+]

@@ -11,7 +11,6 @@ from Bio.PDB import PDBIO
 
 
 class FasprPrep:
-
     scratch_folder = os.path.join('website_activity')
     alpha_folder = os.path.join('Documents', 'alphafold')
     temp_folder = os.path.join(scratch_folder, 'tmp')
@@ -24,7 +23,13 @@ class FasprPrep:
         self.mutation_position = int(self.mutation_str)
         self.gene_ID = gene_ID
         self.get_Pnum()
-        self.mut_pos, self.single_nucleotide, self.single_nucleotide_variation = self.get_mutation_position(self.CCID)
+        mut_position = self.get_mutation_position(self.CCID)
+        if mut_position is not None:
+            self.mut_pos, self.single_nucleotide, self.single_nucleotide_variation = mut_position
+        else:
+            self.mut_pos = None
+            self.single_nucleotide = None
+            self.single_nucleotide = None
         self.use_alphafold = use_alphafold
         self.protein_location = file_location
         self.chain_id = chain_id
@@ -117,7 +122,7 @@ class FasprPrep:
             self.P_num = ENSG_Pnum_dict[f'{self.gene_ID}']
 
     def get_sequence_unmut(self, protein_location):
-        open_command = f"cat {protein_location} "# | tee {self.temp_folder}/pdb_temporary.txt"
+        open_command = f"cat {protein_location} "  # | tee {self.temp_folder}/pdb_temporary.txt"
         pdb_text, success = self.alderaan.run_command(open_command)
         pdb_stream = io.StringIO(pdb_text)
         header = []
@@ -163,7 +168,6 @@ class FasprPrep:
             else:
                 print('protein in multiple files. Skipped.')
 
-
     def get_peptide_properties(self, structure):
         ppb = PPBuilder()
         peptides = ppb.build_peptides(structure)
@@ -173,12 +177,12 @@ class FasprPrep:
         return unmutated_sequence, sequence_length
 
     def get_mutation_position(self, mutation):
-        if mutation.startswith('p.') \
-                and mutation[2:5] != mutation[-3:] \
-                and mutation[-3:] != 'del' \
-                and mutation[-3:] != 'Ter' and mutation[-3:] != 'dup' \
-                and len(mutation) < 13:
-
+        try:
+            if mutation.startswith('p.') \
+                    and mutation[2:5] != mutation[-3:] \
+                    and mutation[-3:] != 'del' \
+                    and mutation[-3:] != 'Ter' and mutation[-3:] != 'dup' \
+                    and len(mutation) < 13:
                 INV = mutation[2:5]
                 MNV = mutation[-3:]
                 single_nucleotide = SeqUtils.IUPACData.protein_letters_3to1[INV].lower()
@@ -186,24 +190,27 @@ class FasprPrep:
                 getVals = list([val for val in mutation if val.isnumeric()])
                 mutation_position = int("".join(getVals))
                 return mutation_position, single_nucleotide, single_nucleotide_variation
+            else:
+                return None
+        except:
+            return None
 
     def get_mutated_sequence3d(self, structure, mutation_position, chain_id, angstroms):
         chain = structure[0][chain_id]
-        center_residues = [chain[resi] for resi in [mutation_position]] #start exp vs AF separation
+        center_residues = [chain[resi] for resi in [mutation_position]]  # start exp vs AF separation
         center_atoms = Selection.unfold_entities(center_residues, chain_id)
         atom_list = [atom for atom in structure.get_atoms() if atom.name == 'CA']
         ns = NeighborSearch(atom_list)
         nearby_residues = {res for center_atom in center_atoms for res in ns.search(center_atom.coord, angstroms, 'R')}
-        positions = sorted(int(res.id[1]) for res in nearby_residues)# int?
+        positions = sorted(int(res.id[1]) for res in nearby_residues)  # int?
         return positions
-
 
     def capitalize(self, mutatedsequence, positions):
         split_mutatedsequence = list(mutatedsequence)
         for res in positions:
             res_p = int(res)
             try:
-                split_mutatedsequence[res_p-1] = split_mutatedsequence[res_p-1].upper()
+                split_mutatedsequence[res_p - 1] = split_mutatedsequence[res_p - 1].upper()
             except IndexError:
-                print('Index out of range : ', res_p-1)
+                print('Index out of range : ', res_p - 1)
         return "".join(split_mutatedsequence)

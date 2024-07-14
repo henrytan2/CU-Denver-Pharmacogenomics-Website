@@ -171,13 +171,13 @@ class FindPlddtAPI(APIView):
         disulfide_check = find_plddt.disulfide_check
         proline_check = find_plddt.proline_check
         buried = find_plddt.buried
-        hydrogen_bond = find_plddt.hydrogen_bond
+        hydrogen_bond = find_plddt.hbond
         salt_bridge = find_plddt.salt_bridge
         recommendation = find_plddt.recommendation
         af_file_location = find_plddt.file_location
         pocket_input = find_plddt.pocket_info
         pocket_info = []
-        if pocket_input == 'No Adjacent Pockets':
+        if pocket_input == 'No Adjacent Pockets' or pocket_input == 'no pocket info':
             pocket_info = 'No Adjacent Pockets'
         else:
             for key, value in pocket_input.items():

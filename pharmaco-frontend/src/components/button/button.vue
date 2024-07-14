@@ -10,7 +10,7 @@ defineProps<{
 </script>
 <template>
   <button type="button" :class="className" @click="onClick" :disabled="disabled">
-    <div v-if="showSpinner" class="spinner-border" role="status">
+    <div v-if="showSpinner" class="spinner-border" role="status" data-testid="button-spinner">
       <span class="visually-hidden">Loading...</span>
     </div>
     <div v-else>

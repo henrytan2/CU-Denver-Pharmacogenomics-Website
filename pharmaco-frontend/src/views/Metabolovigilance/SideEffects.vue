@@ -176,6 +176,7 @@ let drugsTable = ref()
         >
           <template #action="props">
             <GridAddButton
+              :data-test-id="`grid-add-button-${props.rowIndex}`"
               :onAdd="() => onAddSideEffect(props.rowData)"
               :onRemove="() => onRemoveSideEffect(props.rowData)"
             />
@@ -208,6 +209,7 @@ let drugsTable = ref()
         >
           <template #action="props">
             <GridAddButton
+              :data-test-id="`grid-add-button-${props.rowIndex}`"
               :onAdd="() => onAddDrug(props.rowData)"
               :onRemove="() => onRemoveDrug(props.rowData)"
             />

@@ -19,7 +19,7 @@ const columns = [
     defaultContent: '',
     render: (data: any) => {
       const url = `${paths[PATH_NAME.METABOLOVIGILANCE_SIDE_EFFECT_FDA]}?drugName=${data}`
-      let response = `<a href="${url}"">${data}</a>`
+      let response = `<a href="${url}">${data}</a>`
       return response
     }
   },
