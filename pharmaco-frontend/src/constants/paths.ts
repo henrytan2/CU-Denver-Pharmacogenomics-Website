@@ -12,7 +12,8 @@ const enum PATH_NAME {
   PEOPLE,
   CONTACT,
   API_ACCESS,
-  PDBGEN_REFOLD
+  PDBGEN_REFOLD,
+  PDBGEN_RESULTS
 }
 
 const enum API_URL_NAME {
@@ -29,7 +30,9 @@ const enum API_URL_NAME {
   GTEXOME_GENE_SEARCH_RESULTS,
   FIND_RESOLUTION,
   FIND_PLDDT,
-  FASPR_PREP
+  FASPR_PREP,
+  FASPR_RUN,
+  STORE_PDB_GEN_DATA
 }
 
 const paths: { [key in PATH_NAME]: string } = {
@@ -46,7 +49,8 @@ const paths: { [key in PATH_NAME]: string } = {
   [PATH_NAME.CONTACT]: '/contact',
   [PATH_NAME.API_ACCESS]: '/user_accounts/profile/',
   [PATH_NAME.GTEXOME_EXAC]: '/gtexome/exac',
-  [PATH_NAME.PDBGEN_REFOLD]: '/pdbgen'
+  [PATH_NAME.PDBGEN_REFOLD]: '/pdbgen',
+  [PATH_NAME.PDBGEN_RESULTS]: '/pdbgen/results'
 }
 
 const apiUrls: { [key in API_URL_NAME]: string | ((...args: any[]) => string) } = {
@@ -66,7 +70,9 @@ const apiUrls: { [key in API_URL_NAME]: string | ((...args: any[]) => string) } 
   [API_URL_NAME.GTEXOME_GENE_SEARCH_RESULTS]: 'https://gnomad.broadinstitute.org/api',
   [API_URL_NAME.FIND_RESOLUTION]: '/api/best-resolution',
   [API_URL_NAME.FIND_PLDDT]: '/api/plddt-score',
-  [API_URL_NAME.FASPR_PREP]: '/api/faspr-prep'
+  [API_URL_NAME.FASPR_PREP]: '/api/faspr-prep',
+  [API_URL_NAME.FASPR_RUN]: '/api/faspr-run',
+  [API_URL_NAME.STORE_PDB_GEN_DATA]: '/pdbgen/save-data'
 }
 
 export { PATH_NAME, API_URL_NAME, paths, apiUrls }

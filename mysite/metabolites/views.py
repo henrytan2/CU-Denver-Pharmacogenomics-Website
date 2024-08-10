@@ -1,7 +1,6 @@
 from django.http import HttpResponse
 from django.views import generic
 from .models import Metabolite
-from precursor_metabolite_map.models import PrecursorMetaboliteMap
 from precursors.models import Precursors
 from full_metabolite_map.models import FullMetaboliteMap
 from rest_framework.views import APIView

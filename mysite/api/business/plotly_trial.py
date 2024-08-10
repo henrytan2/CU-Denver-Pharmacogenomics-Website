@@ -1,5 +1,5 @@
 from django_plotly_dash import DjangoDash
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import dash_bio as dashbio
 from dash_bio.utils import PdbParser, create_mol3d_style
 from dash import html
@@ -11,7 +11,6 @@ import re
 import os
 import hashlib
 import logging
-
 error_logger = logging.getLogger('django.error')
 
 
@@ -33,6 +32,10 @@ mutation_app = DjangoDash('MutationViewer')
 mutation_app.layout = html.Div(
     [
         html.Div(id="output_text"),
+        html.Div(id="ccid", hidden=True),
+        html.Div(id="length", hidden=True),
+        html.Div(id="pdb", hidden=True),
+        html.Div(id="positions", hidden=True),
         dcc.Slider(
             id="mutation_slider",
             min=1,
@@ -65,14 +68,22 @@ mutation_app.layout = html.Div(
     Output(component_id="molecule3d-zoomto", component_property='modelData'),
     Output(component_id="mutation_slider", component_property='marks'),
     Output(component_id="output_text_footer", component_property="children"),
-    [Input(component_id="mutation_slider", component_property='value')],
+    Input(component_id="mutation_slider", component_property='value'),
+    Input(component_id="ccid", component_property="children"),
+    Input(component_id="length", component_property="children"),
+    Input(component_id="pdb", component_property="children"),
+    Input(component_id="positions", component_property="children"),
     prevent_initial_call=False
 )
-
-def residue(value):
-    CCID = cache.get('CCID')
-    length = int(cache.get('sequence_length'))
-    pdb_cached = cache.get('protein_structure') # failing here
+def residue(value,
+            ccid,
+            length,
+            pdb,
+            positions
+            ):
+    CCID = ccid
+    length = length
+    pdb_cached = pdb
     with open('./FASPR_output_cached.pdb', 'w+') as f:
         f.write(pdb_cached)
     os.chmod('./FASPR_output_cached.pdb', 0o775)
@@ -101,7 +112,7 @@ def residue(value):
     row = df.iloc[[value]]
     row['positions'] = row['positions'].apply(lambda x: [float(x) for x in x.split(',')])
 
-    repacked = cache.get('positions')
+    repacked = positions
     residue_numerical = int(str(re.findall(r'\d+', CCID)[0]))
     if value is None:
         print('value is none')

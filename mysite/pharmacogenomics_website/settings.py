@@ -131,6 +131,8 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'
 DCS_SESSION_COOKIE_SAMESITE = 'None'
 DCS_SESSION_COOKIE_SAMESITE_FORCE_ALL = True
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 1209600
 
 MIDDLEWARE_CLASSES = [
     'django_cookies_samesite.middleware.CookiesSameSite',

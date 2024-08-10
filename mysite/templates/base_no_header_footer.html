@@ -1,0 +1,97 @@
+{% load static %}
+{% csrf_token %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Reed Lab|Pharmacogenomics|Organic Chemistry</title>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N0N36Q8SHE"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-N0N36Q8SHE');
+    </script>
+    <link rel="icon" type="image/icon" href="{% static 'favicon.ico' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'datatables/css/datatables.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'datatables/css/dataTables.bootstrap4.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'datatable-buttons-1.6.1/css/buttons.bootstrap4.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'datatable-buttons-1.6.1/css/buttons.foundation.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'datatable-buttons-1.6.1/css/buttons.semanticui.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'datatable-buttons-1.6.1/css/buttons.dataTables.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'font-awesome/css/all.min.css' %}">
+</head>
+<br>
+<script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'datatables/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'datatables/js/dataTables.bootstrap.min.js' %}"></script>
+<script src="{% static 'font-awesome/js/all.min.js' %}"></script>
+<script src="{% static 'datatables/js/datatables.min.js' %}"></script>
+<script src="{% static 'datatable-buttons-1.6.1/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'datatable-buttons-1.6.1/js/buttons.colVis.min.js' %}"></script>
+<script src="{% static 'datatable-buttons-1.6.1/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'datatable-buttons-1.6.1/js/buttons.foundation.min.js' %}"></script>
+<script src="{% static 'datatable-buttons-1.6.1/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'datatable-buttons-1.6.1/js/buttons.jqueryui.min.js' %}"></script>
+<script src="{% static 'designer/js/jquery.cookie.js' %}"></script>
+<script src="{% static 'vue/vue.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    var csrftoken = $.cookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        return (/(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+</script>
+{% block css %}
+    <style>
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            margin: 0;
+        }
+
+        .multi-column {
+            -moz-column-count: 3;
+            -moz-column-gap: 10px;
+            -moz-column-fill: auto;
+            -webkit-column-count: 3;
+            -webkit-column-gap: 10px;
+            column-count: 3;
+            column-gap: 10px;
+            column-fill: auto;
+            list-style-position: inside;
+        }
+
+        .form-check-input {
+            position: static;
+            margin-right: 0.3rem;
+        }
+    </style>
+{% endblock css %}
+<div id="vue-wrapper">
+{% block content %}
+{% endblock content %}
+</div>
+<hr>
+<script type="application/javascript">
+    new Vue({
+        el:'#vue-wrapper',
+        props: ['column', 'lastUpdated', 'drugName', 'mut_seq']
+    });
+</script>
+</html>

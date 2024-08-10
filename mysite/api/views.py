@@ -49,6 +49,7 @@ class FasprPrepAPI(APIView):
         response_dict = {"residue_output": list(residues),
                          "sequence_length": sequence_length,
                          "mut_seq": get_mut_seq,
+                         "header": header,
                          "repack_pLDDT": repack_pLDDT,
                          "protein_location": protein_location}
         if kwargs:
@@ -64,15 +65,18 @@ class FasprRunAPI(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
-        mutated_sequence = request.data['mutated_sequence']
-        protein_location = request.data['protein_location']
-        faspr_output = FasprRun(mutated_sequence, protein_location)
-        if 'error' in faspr_output.FASPR_pdb_text:
-            error_logger.error(faspr_output.FASPR_pdb_text)
-            faspr_output.FASPR_pdb_text = 'error with structure'
-            # raise ValueError
-        return Response({'protein_structure': faspr_output.FASPR_pdb_text})
-
+        try:
+            mutated_sequence = request.data['mutated_sequence']
+            protein_location = request.data['protein_location']
+            header = request.data['header']
+            faspr_output = FasprRun(mutated_sequence, protein_location, header)
+            if 'error' in faspr_output.FASPR_pdb_text:
+                error_logger.error(faspr_output.FASPR_pdb_text)
+                faspr_output.FASPR_pdb_text = 'error with structure'
+                # raise ValueError
+            return Response({'protein_structure': faspr_output.FASPR_pdb_text})
+        except:
+            return Response()
 
 class CacheCCIDAPI(APIView):
     permission_classes = (AllowAny,)

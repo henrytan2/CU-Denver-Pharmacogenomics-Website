@@ -3,8 +3,6 @@
 import InfoModal from '@/components/info-modal/info-modal.vue'
 import { Multiselect } from 'vue-multiselect'
 import { useRefoldStore } from '@/stores/refoldStore'
-import type { GeneIdAndCCID } from '@/models/refold'
-import type { ExacGeneSearchResponse } from '@/models/exac'
 import { useRouter } from 'vue-router'
 import { computed, ref, watchEffect } from 'vue'
 import { usePdbgenStore } from '@/stores/PdbgenStore'
@@ -210,10 +208,19 @@ const highlightedText = computed(() => {
             Repack all residues on chain
           </label>
           <div class="mb-3">
-            <Button :className="'btn btn-primary'" :buttonText="'Check'" :on-click="check" />
+            <Button
+              :className="'btn btn-primary'"
+              :buttonText="'Check'"
+              :show-spinner="pdbgenStore.fasprPrepLoadingState == ApiLoadingState.Pending"
+              :on-click="check"
+            />
           </div>
           <div>
-            <Button :className="'btn btn-primary'" :buttonText="'Submit'" />
+            <Button
+              :className="'btn btn-primary'"
+              :buttonText="'Submit'"
+              :on-click="pdbgenStore.fasprRun"
+            />
           </div>
           <div>
             <span

@@ -10,10 +10,11 @@ class FasprRun:
     scratch_folder = os.path.join('website_activity')
     temp_folder = os.path.join(scratch_folder, 'tmp')
 
-    def __init__(self, mutated_sequence, protein_location):
+    def __init__(self, mutated_sequence, protein_location, header):
         self.alderaan = Alderaan()
         self.mutated_sequence = mutated_sequence
         self.protein_location = protein_location
+        self.header = header
         self.save_mutatedseq_file(self.mutated_sequence)
         self.FASPR_pdb_text, self.chain_pdb = self.run_faspr(self.protein_location)
 

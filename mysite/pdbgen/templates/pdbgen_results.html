@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% extends 'base.html' %}
+{% extends 'base_no_header_footer.html' %}
 {% load static %}
 {% block content %}
 
@@ -13,10 +13,6 @@
                     PDB Generator
                 </h2>
                 <div class="row">
-                    <button class="btn btn-primary float-right margin:50px"
-                            v-on:click="edit">
-                        Edit Protein Data
-                    </button>
                     <div class="col-sm-1">
                     </div>
                     <button class="btn btn-primary float-right margin:50px"
@@ -31,7 +27,7 @@
 
                     <div class="col">
                         {% load plotly_dash %}
-                        {% plotly_app name="MutationViewer" ratio=1.5 %}
+                        {% plotly_app name="MutationViewer" initial_arguments=dash_context ratio=1.5 %}
                     </div>
 
                 </div>
