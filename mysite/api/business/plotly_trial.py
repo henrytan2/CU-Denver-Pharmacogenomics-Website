@@ -15,8 +15,8 @@ import logging
 error_logger = logging.getLogger('django.error')
 
 
-parser = PdbParser('./pharmacogenomics_website/glygly.pdb')
-# parser = PdbParser('https://git.io/4K8X.pdb')
+# parser = PdbParser('./pharmacogenomics_website/glygly.pdb')
+parser = PdbParser('https://git.io/4K8X.pdb')
 
 data = parser.mol3d_data()
 styles = create_mol3d_style(

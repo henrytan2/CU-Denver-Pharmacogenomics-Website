@@ -35,4 +35,5 @@ urlpatterns = [
     path('api-token-auth/', rest_views.obtain_auth_token),
     path('accounts/', include('django.contrib.auth.urls')),
     path('user_accounts/', include('user_accounts.urls')),
+    path('esnuel', include('esnuel.urls'))
     ]

@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'precursor_metabolite_map.apps.PrecursorMetaboliteMapConfig',
     'drug_name_precursor_map.apps.DrugNamePrecursorMapConfig',
     'full_metabolite_map.apps.FullMetaboliteMapConfig',
+    'esnuel.apps.EsnuelConfig',
     'api.apps.ApiConfig',
     'user_accounts.apps.UserAccountsConfig',
     'django.contrib.admin',
@@ -276,7 +277,6 @@ PLOTLY_COMPONENTS = [
 ]
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '../static/'
 
 CACHES = {
     'default': {
