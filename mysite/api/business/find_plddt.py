@@ -1,5 +1,5 @@
 import json
-import pickle
+import pickle5 as pickle
 from .alderaan import Alderaan
 from Bio.PDB.PDBParser import PDBParser
 from Bio.PDB.ResidueDepth import get_surface

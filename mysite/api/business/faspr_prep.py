@@ -1,4 +1,4 @@
-import pickle
+import pickle5 as pickle
 from .alderaan import Alderaan
 from Bio import SeqUtils
 from Bio.PDB import Selection
