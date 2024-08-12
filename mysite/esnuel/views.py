@@ -1,6 +1,4 @@
 from django.forms import model_to_dict
-from django.shortcuts import render
-from jupyter_lsp.specs import json
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
