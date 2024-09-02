@@ -88,21 +88,23 @@ let FDADt: any
 let FDATable = ref()
 </script>
 <template>
-  <PageSpinner :showSpinner="!dataLoaded" />
-  <div style="margin-top: 40px">
-    <p>Last updated: {{ lastUpdated }}</p>
-  </div>
-  <div id="fda-info">
-    <h2>FDA Side Effect Data for {{ drugName }}</h2>
-  </div>
-  <div v-show="dataLoaded" style="margin-top: 40px; margin-bottom: 40px" class="container-fluid">
-    <DataTable
-      :columns="columns"
-      :data="results.value"
-      :options="options"
-      class="display nowrap"
-      width="100%"
-      ref="FDATable"
-    ></DataTable>
+  <div class="w-100">
+    <PageSpinner :showSpinner="!dataLoaded" />
+    <div style="margin-top: 40px">
+      <p>Last updated: {{ lastUpdated }}</p>
+    </div>
+    <div id="fda-info">
+      <h2>FDA Side Effect Data for {{ drugName }}</h2>
+    </div>
+    <div v-show="dataLoaded" style="margin-top: 40px; margin-bottom: 40px" class="container-fluid">
+      <DataTable
+        :columns="columns"
+        :data="results.value"
+        :options="options"
+        class="display nowrap"
+        width="100%"
+        ref="FDATable"
+      ></DataTable>
+    </div>
   </div>
 </template>

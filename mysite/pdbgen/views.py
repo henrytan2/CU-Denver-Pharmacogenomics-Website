@@ -6,12 +6,15 @@ from django.shortcuts import render
 from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import AllowAny
 
 
 class IndexView(generic.TemplateView):
     template_name = 'pdbgen_index.html'
 
 
+@permission_classes([AllowAny])
 @csrf_exempt
 @require_http_methods(["POST"])
 def store_pdbgen_data(request):
@@ -40,6 +43,7 @@ def store_pdbgen_data(request):
         return JsonResponse({"success": False, "error": str(e)}, status=500)
 
 
+@permission_classes([AllowAny])
 @csrf_exempt
 @require_http_methods(["GET"])
 def read_CCID(request):

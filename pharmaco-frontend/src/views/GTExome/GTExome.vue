@@ -13,7 +13,7 @@ if (GTExomeStore.tissueLoadingState != ApiLoadingState.Success) {
 }
 </script>
 <template>
-  <div style="margin-top: 40px; margin-bottom: 40px" class="container-fluid">
+  <div style="margin-top: 40px; margin-bottom: 40px" class="flex-col w-100">
     <h3 class="lead">
       Details in our
       <a href="https://www.biorxiv.org/content/10.1101/2023.11.14.567143v1" target="_blank">
@@ -59,11 +59,10 @@ if (GTExomeStore.tissueLoadingState != ApiLoadingState.Success) {
         </button>
       </li>
     </ul>
+    <div v-show="GTExomeStore.selectedTab === GTExomeTab.gtex">
+      <GTEx />
+    </div>
+    <div v-show="GTExomeStore.selectedTab === GTExomeTab.exac"><Exac /></div>
+    <div v-show="GTExomeStore.selectedTab === GTExomeTab.refold"><Refold /></div>
   </div>
-
-  <div v-show="GTExomeStore.selectedTab === GTExomeTab.gtex">
-    <GTEx />
-  </div>
-  <div v-show="GTExomeStore.selectedTab === GTExomeTab.exac"><Exac /></div>
-  <div v-show="GTExomeStore.selectedTab === GTExomeTab.refold"><Refold /></div>
 </template>

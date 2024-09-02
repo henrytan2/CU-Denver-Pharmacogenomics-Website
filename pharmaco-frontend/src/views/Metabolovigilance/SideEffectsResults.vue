@@ -76,20 +76,22 @@ const handleViewDrugsRankedClick = () => {
 }
 </script>
 <template>
-  <div style="margin-top: 40px; margin-bottom: 40px" class="container-fluid">
-    <div class="d-flex justify-content-end">
-      <Button
-        :buttonText="'View Drugs Ranked'"
-        :className="'btn btn-primary'"
-        :onClick="handleViewDrugsRankedClick"
-      />
+  <div>
+    <div style="margin-top: 40px; margin-bottom: 40px" class="container-fluid">
+      <div class="d-flex justify-content-end">
+        <Button
+          :buttonText="'View Drugs Ranked'"
+          :className="'btn btn-primary'"
+          :onClick="handleViewDrugsRankedClick"
+        />
+      </div>
+      <DataTable
+        :columns="columns"
+        :data="metabolovigilanceStore.drugsFromSelectedSideEffects"
+        class="display"
+        ref="sideEffectResultTable"
+      >
+      </DataTable>
     </div>
-    <DataTable
-      :columns="columns"
-      :data="metabolovigilanceStore.drugsFromSelectedSideEffects"
-      class="display"
-      ref="sideEffectResultTable"
-    >
-    </DataTable>
   </div>
 </template>

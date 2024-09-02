@@ -1,6 +1,11 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer,  TemplateHTMLRenderer
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+
 from .business.faspr_prep import FasprPrep
 from .business.faspr_run import FasprRun
 from .business.metabolite_gen import MetabPrep
@@ -211,7 +216,6 @@ class FindPlddtAPI(APIView):
         return Response(request)
 
 class CustomAPIRenderer(BrowsableAPIRenderer):
-
     renderer_classes = [BrowsableAPIRenderer, TemplateHTMLRenderer, JSONRenderer]
 
     def get_default_renderer(self, view):
@@ -221,29 +225,19 @@ class CustomAPIRenderer(BrowsableAPIRenderer):
     def template(self):
         return 'rest_framework/api.html'
 
+
 class FindPlddtPublicAPI(APIView):
 
     renderer_classes = [CustomAPIRenderer]
 
     def post(self, request):
         try:
-            cached_token = cache.get('token')
-            if cached_token == request.user.auth_token.key:
-                pass
-
-            now = datetime.now()
-            created = request.user.auth_token.created.replace(tzinfo=None)
-            expiration = now - timedelta(days=1)
-
-            if created > expiration:
-                pass
-
-        except:
-            return redirect('user_accounts:account-welcome')
-
-        user = request.user.email
-        auth = request.user.auth_token.key
-        return FindPlddtAPI.post(FindPlddtAPI(), request, user=user, auth=auth)
+            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+            if auth_header.startswith('Bearer '):
+                jwt = auth_header.split()[1]
+                AccessToken(jwt)
+        except TokenError as e:
+            return FindPlddtAPI.post(FindPlddtAPI(), request)
 
     def get(self, request):
         return Response()
@@ -255,50 +249,35 @@ class FindResolutionPublicAPI(APIView):
 
     def post(self, request):
         try:
-            cached_token = cache.get('token')
-            if cached_token == request.user.auth_token.key:
-                pass
-
-            now = datetime.now()
-            created = request.user.auth_token.created.replace(tzinfo=None)
-            expiration = now - timedelta(days=1)
-
-            if created > expiration:
-                pass
-
-        except:
+            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+            if auth_header.startswith('Bearer '):
+                jwt = auth_header.split()[1]
+                AccessToken(jwt)
+        except TokenError as e:
             return redirect('user_accounts:account-welcome')
 
-        user = request.user.email
-        auth = request.user.auth_token.key
-        return FindResolutionAPI.post(FindResolutionAPI(), request, user=user, auth=auth)
+        return FindResolutionAPI.post(FindResolutionAPI(), request)
 
     def get(self, request):
         return Response()
 
+
+@method_decorator(csrf_exempt, name='dispatch')
 class FasprPrepPublicAPI(APIView):
 
     renderer_classes = [CustomAPIRenderer]
 
+    @method_decorator(csrf_exempt)
     def post(self, request):
         try:
-            cached_token = cache.get('token')
-            if cached_token == request.user.auth_token.key:
-                pass
-
-            now = datetime.now()
-            created = request.user.auth_token.created.replace(tzinfo=None)
-            expiration = now - timedelta(days=1)
-
-            if created > expiration:
-                pass
-
-        except:
+            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+            if auth_header.startswith('Bearer '):
+                jwt = auth_header.split()[1]
+                AccessToken(jwt)
+        except TokenError as e:
             return redirect('user_accounts:account-welcome')
 
-        user = request.user.email
-        auth = request.user.auth_token.key
-        return FasprPrepAPI.post(FasprPrepAPI(), request, user=user, auth=auth)
+        return FasprPrepAPI.post(FasprPrepAPI(), request)
 
     def get(self, request):
         return Response(request)

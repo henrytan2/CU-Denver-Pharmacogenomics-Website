@@ -49,6 +49,14 @@ const isActive = (path: string) => {
           <li class="nav-item">
             <RouterLink
               class="nav-link"
+              :class="{ active: isActive(paths[PATH_NAME.PDBGEN_REFOLD]) }"
+              :to="paths[PATH_NAME.PDBGEN_REFOLD]"
+              >Pdbgen</RouterLink
+            >
+          </li>
+          <li class="nav-item">
+            <RouterLink
+              class="nav-link"
               :class="{ active: isActive(paths[PATH_NAME.PEOPLE]) }"
               :to="paths[PATH_NAME.PEOPLE]"
               >People</RouterLink

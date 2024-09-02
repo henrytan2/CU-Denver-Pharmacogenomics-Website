@@ -1,5 +1,7 @@
 from django.http import HttpResponse
 from django.views import generic
+from rest_framework.permissions import AllowAny
+
 from .models import Metabolite
 from precursors.models import Precursors
 from full_metabolite_map.models import FullMetaboliteMap
@@ -13,6 +15,7 @@ from django.core.cache import cache
 class GetMetabolitesViewForOnePrecursor(APIView):
     model = Metabolite
     precursors_to_metabolites = {}
+    permission_classes = (AllowAny,)
 
     def post(self, request):
         self.precursors_to_metabolites.clear()
@@ -33,6 +36,7 @@ class GetMetabolitesViewForOnePrecursor(APIView):
 class GetMetabolitesForMultiplePrecursors(APIView):
     model = Metabolite
     precursors_to_metabolites = {}
+    permission_classes = (AllowAny,)
 
     def get_precursors(self):
         precursors = self.request.session.get('precursor_UUIDs')
@@ -40,7 +44,6 @@ class GetMetabolitesForMultiplePrecursors(APIView):
 
     def map_precursors_to_metabolites(self, precursor_UUIDs, precursor_metabolite_map):
         precursor_metabolite_map.clear()
-        # cache.set('precursors_to_metabolites_filled', False)
         full_metabolite_maps = get_metabolite_Maps(precursor_UUIDs)
         metabolite_UUIDs = [o.metabolite_UUID for o in full_metabolite_maps]
         metabolites = self.model.objects \
@@ -57,7 +60,6 @@ class GetMetabolitesForMultiplePrecursors(APIView):
             metabolites_for_precursor = [o for o in metabolites if o.UUID in metabolite_UUIDs_for_precursor]
             if metabolites_for_precursor is not None:
                 precursor_metabolite_map[precursor_for_view] = build_metabolite_for_template(metabolites_for_precursor)
-        # cache.set('precursors_to_metabolites_filled', True)
 
     def post(self, request):
         request_parsed = dict(self.request.data)
@@ -121,6 +123,7 @@ class MetaboliteView(generic.ListView):
 
 
 class CheckMetabolites(APIView):
+    permission_classes = (AllowAny,)
     def get(self, request):
         response = cache.get('precursors_to_metabolites_filled')
         return Response(response)

@@ -45,6 +45,11 @@ const router = createRouter({
       component: () => import('../views/Metabolovigilance/Metabolites.vue')
     },
     {
+      path: paths[PATH_NAME.PRECURSOR_RESULTS],
+      name: 'precursor-results',
+      component: () => import('../views/Metabolovigilance/PrecursorResults.vue')
+    },
+    {
       path: paths[PATH_NAME.GTEXOME_EXOME],
       name: 'gtexome-exome',
       component: () => import('../views/GTExome/gtex/Exome.vue')
@@ -73,6 +78,21 @@ const router = createRouter({
       path: paths[PATH_NAME.PDBGEN_RESULTS],
       name: 'gtexome-pdbgen-results',
       component: () => import('../views/Pdbgen/PdbgenResults.vue')
+    },
+    {
+      path: paths[PATH_NAME.API_ACCESS],
+      name: 'user-accounts-profile',
+      component: () => import('../views/APIAccess/Login.vue')
+    },
+    {
+      path: paths[PATH_NAME.CREATE_ACCOUNT],
+      name: 'user-accounts-signup',
+      component: () => import('../views/APIAccess/CreateAccount.vue')
+    },
+    {
+      path: paths[PATH_NAME.PASSWORD_RESET],
+      name: 'user-accounts-password-reset',
+      component: () => import('../views/APIAccess/ResetPassword.vue')
     }
   ]
 })

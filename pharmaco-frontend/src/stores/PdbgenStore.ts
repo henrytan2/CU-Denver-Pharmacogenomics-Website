@@ -38,7 +38,7 @@ export const usePdbgenStore = defineStore('Pdbgen', {
       storePdbgenDataLoadingState: ApiLoadingState.Idle,
       storePdbGenDataResponse: undefined as unknown as StorePdbGenDataResponse,
       selectedProteinSource: ProteinSource.AlphaFold2,
-      angstromsInput: undefined as number | undefined,
+      angstromsInput: 0 as number,
       repackResiduesOnChain: false
     }
   },

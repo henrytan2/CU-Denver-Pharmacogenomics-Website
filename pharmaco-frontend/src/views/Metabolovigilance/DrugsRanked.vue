@@ -77,47 +77,49 @@ let drugsRankedDt: any
 let drugsRankedTable = ref()
 </script>
 <template>
-  <div style="margin-top: 40px">
-    <h1>Metabolovigilence - Drugs Ranked</h1>
-    <p>
-      Each Drug ID below downloads a 3D structure from
-      <a href="https://pubchem.ncbi.nlm.nih.gov/">PubChem</a>. PubChem may not have a 3D structure
-      of every substance below, look on
-      <a href="https://zinc15.docking.org/substances/home/">ZINC15</a>
-      if the link below does not download the 3D structure.
-    </p>
-    <p style="color: red" class="d-flex flex-row-reverse">
-      Viewing all metabolites for the list below can take a long period if the list is long
-    </p>
-  </div>
-  <div class="d-flex flex-row-reverse">
-    <Button
-      :className="'btn btn-primary'"
-      :showSpinner="metabolovigilanceStore.metabolitesLoadingState == ApiLoadingState.Pending"
-      :onClick="
-        () => {
-          const precursors = metabolovigilanceStore.rankedDrugs.map((p) => p.UUID)
-          metabolovigilanceStore.fetchMetabolites(precursors, false)
-        }
-      "
-      :buttonText="'View All Metabolites'"
-    />
-  </div>
   <div>
-    <DataTable
-      :columns="columns"
-      :data="metabolovigilanceStore.rankedDrugs"
-      ref="drugsRankedTable"
-      class="display nowrap"
-      :options="options"
-    >
-      <template #action="props">
-        <Button
-          :className="'btn btn-secondary'"
-          :onClick="() => fetchMetabolitesForPrecursor(props.rowData)"
-          :buttonText="'View Metabolites'"
-        />
-      </template>
-    </DataTable>
+    <div style="margin-top: 40px">
+      <h1>Metabolovigilence - Drugs Ranked</h1>
+      <p>
+        Each Drug ID below downloads a 3D structure from
+        <a href="https://pubchem.ncbi.nlm.nih.gov/">PubChem</a>. PubChem may not have a 3D structure
+        of every substance below, look on
+        <a href="https://zinc15.docking.org/substances/home/">ZINC15</a>
+        if the link below does not download the 3D structure.
+      </p>
+      <p style="color: red" class="d-flex flex-row-reverse">
+        Viewing all metabolites for the list below can take a long period if the list is long
+      </p>
+    </div>
+    <div class="d-flex flex-row-reverse">
+      <Button
+        :className="'btn btn-primary'"
+        :showSpinner="metabolovigilanceStore.metabolitesLoadingState == ApiLoadingState.Pending"
+        :onClick="
+          () => {
+            const precursors = metabolovigilanceStore.rankedDrugs.map((p) => p.UUID)
+            metabolovigilanceStore.fetchMetabolites(precursors, true)
+          }
+        "
+        :buttonText="'View All Metabolites'"
+      />
+    </div>
+    <div>
+      <DataTable
+        :columns="columns"
+        :data="metabolovigilanceStore.rankedDrugs"
+        ref="drugsRankedTable"
+        class="display nowrap"
+        :options="options"
+      >
+        <template #action="props">
+          <Button
+            :className="'btn btn-secondary'"
+            :onClick="() => fetchMetabolitesForPrecursor(props.rowData)"
+            :buttonText="'View Metabolites'"
+          />
+        </template>
+      </DataTable>
+    </div>
   </div>
 </template>

@@ -1,6 +1,8 @@
 from django.db.models import Count
 from django.http import HttpResponse
 from django.views import generic
+from rest_framework.permissions import AllowAny
+
 from .models import SideEffect
 from drug_name_precursor_map.models import DrugNamePrecursorMap
 import requests
@@ -10,6 +12,8 @@ from rest_framework.response import Response
 
 class GetSideEffects(APIView):
     model = SideEffect
+    permission_classes = (AllowAny,)
+
     def get(self, request):
         side_effects = self.model.objects.values('side_effect').distinct()
         response = list(side_effects)
@@ -17,6 +21,7 @@ class GetSideEffects(APIView):
 
 class GetDrugsFromSelectedSideEffects(APIView):
     model = SideEffect
+    permission_classes = (AllowAny,)
 
     def post(self, request, format=None):
         request_parsed = dict(self.request.data)
@@ -35,6 +40,7 @@ class GetDrugsFromSelectedSideEffects(APIView):
 
 class DrugsRankedAPI(APIView):
     model = SideEffect
+    permission_classes = (AllowAny,)
 
     def post(self, request, format=None):
         request_parsed = dict(self.request.data)
@@ -121,6 +127,7 @@ class SideEffectRankedDrugsView(generic.ListView):
 
 class FDAInfoView(generic.TemplateView):
     template_name = 'fda.html'
+    permission_classes = (AllowAny,)
 
     def get_context_data(self, **kwargs):
         context = super(FDAInfoView, self).get_context_data(**kwargs)

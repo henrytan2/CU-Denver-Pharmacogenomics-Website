@@ -213,6 +213,14 @@ const highlightedText = computed(() => {
               :buttonText="'Check'"
               :show-spinner="pdbgenStore.fasprPrepLoadingState == ApiLoadingState.Pending"
               :on-click="check"
+              :disabled="
+                !(
+                  pdbgenStore.findResolutionLoadingState == ApiLoadingState.Success &&
+                  pdbgenStore.findPLDDTLoadingState == ApiLoadingState.Success &&
+                  pdbgenStore.angstromsInput != undefined &&
+                  pdbgenStore.angstromsInput > 0
+                )
+              "
             />
           </div>
           <div>
@@ -220,6 +228,7 @@ const highlightedText = computed(() => {
               :className="'btn btn-primary'"
               :buttonText="'Submit'"
               :on-click="pdbgenStore.fasprRun"
+              :disabled="pdbgenStore.fasprPrepLoadingState != ApiLoadingState.Success"
             />
           </div>
           <div>

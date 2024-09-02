@@ -1,5 +1,12 @@
 import { defineStore } from 'pinia'
-import type { Drug, RankedDrug, SideEffect } from '@/models/sideEffect'
+import type {
+  Drug,
+  RankedDrug,
+  SideEffect,
+  Precursor,
+  FetchPrecursorsForDrugsRequest,
+  FetchPrecursorsForDrugsResponse
+} from '@/models/sideEffect'
 import axios from 'axios'
 import { API_URL_NAME, apiUrls, PATH_NAME, paths } from '@/constants/paths'
 import { ApiLoadingState, MetabolovigilanceTab } from '@/constants/enums'
@@ -21,7 +28,9 @@ export const useMetabolovigilanceStore = defineStore('metabolovigilance', {
       rankedDrugs: [] as RankedDrug[],
       rankedDrugsLoadingState: ApiLoadingState.Idle,
       metabolites: [] as Metabolite[],
-      metabolitesLoadingState: ApiLoadingState.Idle
+      metabolitesLoadingState: ApiLoadingState.Idle,
+      precursors: [] as Precursor[],
+      precursorsLoadingState: ApiLoadingState.Idle
     }
   },
   actions: {
@@ -180,6 +189,34 @@ export const useMetabolovigilanceStore = defineStore('metabolovigilance', {
         })
         .catch((error) => {
           this.metabolitesLoadingState = ApiLoadingState.Failed
+          console.log(error)
+        })
+    },
+    fetchPrecursorsForDrugs: function (
+      fetchPrecursorsForDrugsRequest: FetchPrecursorsForDrugsRequest
+    ) {
+      const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.FETCH_PRECURSORS_FOR_DRUGS]}`
+      this.precursorsLoadingState = ApiLoadingState.Pending
+      axios
+        .post(url, JSON.stringify(fetchPrecursorsForDrugsRequest), {
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+          }
+        })
+        .then(async (response) => {
+          if (response.status == 200) {
+            this.precursorsLoadingState == ApiLoadingState.Success
+            const json = response.data as FetchPrecursorsForDrugsResponse
+            this.precursors = json.precursors
+            router.push(paths[PATH_NAME.PRECURSOR_RESULTS])
+          } else {
+            this.precursorsLoadingState = ApiLoadingState.Failed
+            throw Error('Get Precursors Failed')
+          }
+        })
+        .catch((error) => {
+          this.precursorsLoadingState = ApiLoadingState.Failed
           console.log(error)
         })
     }

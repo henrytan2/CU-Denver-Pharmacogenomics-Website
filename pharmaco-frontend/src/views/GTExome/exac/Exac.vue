@@ -2,7 +2,6 @@
 <script setup lang="tsx">
 import { Multiselect } from 'vue-multiselect'
 import { useExacStore } from '@/stores/ExacStore'
-import PageSpinner from '@/components/page-spinner/PageSpinner.vue'
 import type { ExacGeneSearchResponse } from '@/models/exac'
 import { ref } from 'vue'
 import { ApiLoadingState } from '@/constants/enums'

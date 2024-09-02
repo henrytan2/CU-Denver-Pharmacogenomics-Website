@@ -36,6 +36,7 @@ django-cookies-samesite==0.9.0
 django-rest-authemail==2.1.7
 django-plotly-dash==2.0.0
 djangorestframework==3.14.0
+djangorestframework-simplejwt==5.3.1
 dpd-components==0.1.0
 dpd-static-support==0.0.5
 entrypoints==0.3

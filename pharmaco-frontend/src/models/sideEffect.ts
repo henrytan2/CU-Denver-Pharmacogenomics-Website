@@ -22,3 +22,21 @@ export interface RankedDrug {
   drug_id: string
   dcount: number
 }
+
+export interface Precursor {
+  UUID: string
+  DrugID: string
+  DrugName: string
+  SmileCode: string
+  InChiKey: string
+  logp: string
+  max_rmsd: string
+}
+
+export interface FetchPrecursorsForDrugsResponse {
+  precursors: Precursor[]
+}
+
+export interface FetchPrecursorsForDrugsRequest {
+  precursor_UUIDs: string[]
+}
