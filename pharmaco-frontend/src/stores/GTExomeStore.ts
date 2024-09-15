@@ -154,6 +154,7 @@ export const useGTExomeStore = defineStore('GTExome', {
             this.rangeResultsLoadingState = ApiLoadingState.Success
             const json = response.data
             this.setRangeResults(json)
+            router.push(paths[PATH_NAME.GTEXOME_RANGE_RESULTS])
           } else {
             this.rangeResultsLoadingState = ApiLoadingState.Failed
             console.log('Failed loading range results')
