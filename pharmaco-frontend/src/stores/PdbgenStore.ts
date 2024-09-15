@@ -43,6 +43,9 @@ export const usePdbgenStore = defineStore('Pdbgen', {
     }
   },
   actions: {
+    setFindResolutionLoadingState: function (loadingState: ApiLoadingState) {
+      this.findResolutionLoadingState = loadingState
+    },
     findResolution: function () {
       const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.FIND_RESOLUTION]}`
       this.findResolutionLoadingState = ApiLoadingState.Pending
@@ -62,14 +65,16 @@ export const usePdbgenStore = defineStore('Pdbgen', {
             this.findResolutionLoadingState = ApiLoadingState.Success
             this.findResolutionApiResponse = response.data
           } else {
-            this.findResolutionLoadingState = ApiLoadingState.Failed
-            throw Error('Get resolution response failed')
+            this.findPLDDTLoadingState = ApiLoadingState.Failed
+            throw Error('Get PLDDT response failed')
           }
         })
         .catch((error) => {
-          this.findResolutionLoadingState = ApiLoadingState.Failed
           console.log(error)
         })
+    },
+    setFindPlddtLoadingState: function (loadingState: ApiLoadingState) {
+      this.findPLDDTLoadingState = loadingState
     },
     findPLDDT: function () {
       const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.FIND_PLDDT]}`
@@ -95,7 +100,6 @@ export const usePdbgenStore = defineStore('Pdbgen', {
           }
         })
         .catch((error) => {
-          this.findPLDDTLoadingState = ApiLoadingState.Failed
           console.log(error)
         })
     },

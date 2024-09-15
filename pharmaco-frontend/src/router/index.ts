@@ -72,12 +72,12 @@ const router = createRouter({
     {
       path: paths[PATH_NAME.PDBGEN_REFOLD],
       name: 'gtexome-pdbgen',
-      component: () => import('../views/Pdbgen/Pdbgen.vue')
+      component: () => import('../views/GTExome/refold/refold.vue')
     },
     {
       path: paths[PATH_NAME.PDBGEN_RESULTS],
       name: 'gtexome-pdbgen-results',
-      component: () => import('../views/Pdbgen/PdbgenResults.vue')
+      component: () => import('../views/GTExome/refold/PdbgenResults.vue')
     },
     {
       path: paths[PATH_NAME.API_ACCESS],

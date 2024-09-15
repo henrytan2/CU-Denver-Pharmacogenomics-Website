@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.views import generic
+from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -10,6 +11,8 @@ from .business.exome import ExomeColumns
 
 class GetTissueTypes(APIView):
     model = GTEx
+    permission_classes = (AllowAny,)
+
     def get(self, request):
         all_fields = self.model._meta.get_fields()
         do_not_include = ['ID', 'Gene ID', 'Description']
@@ -20,6 +23,8 @@ class GetTissueTypes(APIView):
 
 class GetRangeResults(APIView):
     model = GTEx
+    permission_classes = (AllowAny,)
+
     def post(self, request):
         filter_list = list(self.request.data)
         all_fields = self.model._meta.get_fields()
@@ -52,6 +57,8 @@ class GetRangeResults(APIView):
 
 class GetRatioResults(APIView):
     model = GTEx
+    permission_classes = (AllowAny,)
+
     def post(self, request):
         all_fields = self.model._meta.get_fields()
         all_fields_verbose = [f.verbose_name for f in all_fields]

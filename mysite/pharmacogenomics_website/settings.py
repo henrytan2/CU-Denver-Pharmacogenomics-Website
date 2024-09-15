@@ -137,6 +137,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
+    'http://localhost:30441',
     'https://pharmacogenomics.clas.ucdenver.edu'
 ]
 

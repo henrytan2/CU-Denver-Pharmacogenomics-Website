@@ -25,6 +25,7 @@ const redirectToExacPage = () => {
 </script>
 <template>
   <div>
+    <label> Gene Symbol </label>
     <Multiselect
       v-model="selectedGene"
       :options="
