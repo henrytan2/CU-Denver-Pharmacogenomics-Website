@@ -3,10 +3,12 @@
 import InfoModal from '@/components/info-modal/info-modal.vue'
 import { Multiselect } from 'vue-multiselect'
 import { useRefoldStore } from '@/stores/refoldStore'
-import { computed, ref, watchEffect } from 'vue'
+import { computed, onMounted, ref, watchEffect } from 'vue'
 import { usePdbgenStore } from '@/stores/PdbgenStore'
 import Button from '@/components/button/button.vue'
 import { ApiLoadingState } from '@/constants/enums'
+import { useRoute } from 'vue-router'
+import { API_URL_NAME, apiUrls } from '@/constants/paths'
 
 const infoModalText = `You will arrive at this page with a geneID and mutation (CCID) populated.
 A search for experimental and AlphaFold2 structures starts automatically.
@@ -16,6 +18,10 @@ Clicking Check will return a list of residues that will be repacked. Clicking Su
 You can change the mutation (CCID) or the repack radius and hit return to update the information provided.
 To change the geneID and restart a search for experimental structures it is necessary to change the URL with the new geneID or return to the previous page and start your search over.
 A bad geneID will return no information.`
+
+// const route = useRoute()
+// const CCID = route.query.CCID
+// const geneID = route.query.geneID
 
 const RefoldStore = useRefoldStore()
 const pdbgenStore = usePdbgenStore()
@@ -36,6 +42,20 @@ const check = () => {
   pdbgenStore.fasprPrepLoadingState = ApiLoadingState.Pending
   pdbgenStore.fasprPrep()
 }
+
+// onMounted(() => {
+//   if (CCID != undefined && geneID != undefined) {
+//     debugger
+//     RefoldStore.setSelectedGene({
+//       ensembl_id: geneID as string
+//     })
+//     RefoldStore.setSelectedCCID({
+//       hgvsp: CCID as string
+//     })
+//     getExacGeneResults(geneID as string)
+//     getBestResolutionAndPlddtScore()
+//   }
+// })
 
 interface Highlight {
   start: number

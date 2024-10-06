@@ -13,7 +13,6 @@ const enum PATH_NAME {
   PEOPLE,
   CONTACT,
   API_ACCESS,
-  PDBGEN_REFOLD,
   PDBGEN_RESULTS,
   PASSWORD_RESET,
   CREATE_ACCOUNT,
@@ -60,7 +59,6 @@ const paths: { [key in PATH_NAME]: string } = {
   [PATH_NAME.CREATE_ACCOUNT]: '/user_accounts/create-account/',
   [PATH_NAME.LOGOUT]: 'user_accounts/logout/',
   [PATH_NAME.GTEXOME_EXAC]: '/gtexome/exac',
-  [PATH_NAME.PDBGEN_REFOLD]: '/pdbgen',
   [PATH_NAME.PDBGEN_RESULTS]: '/pdbgen/results',
   [PATH_NAME.PRECURSOR_RESULTS]: '/precursors/results'
 }

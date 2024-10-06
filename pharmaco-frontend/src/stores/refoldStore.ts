@@ -17,6 +17,12 @@ export const useRefoldStore = defineStore('refold', {
     }
   },
   actions: {
+    setSelectedGene: function (gene: ExacGeneSearchResponse) {
+      this.selectedGene = gene
+    },
+    setSelectedCCID: function (ccid: GeneIdAndCCID) {
+      this.selectedCCID = ccid
+    },
     setGeneSearchResults: function (geneSearchResults: ExacSearchResults) {
       this.geneSearchResults = geneSearchResults
     },

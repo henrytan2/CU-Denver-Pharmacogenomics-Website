@@ -1,4 +1,8 @@
+import { PATH_NAME, paths } from '@/constants/paths'
 import type { PopulationModel } from '@/models/gtexome'
+import { useRefoldStore } from '@/stores/refoldStore'
+
+const refoldStore = useRefoldStore()
 
 export const columns = [
   {
@@ -441,6 +445,16 @@ export const columns = [
     data: 'hgvsp',
     defaultContent: '',
     className: 'all'
+    // render: function (data: any) {
+    //   const CCID = data['hgvsp']
+    //   const geneId = data['gene_id']
+    //   let response = ''
+    //   if (CCID != null) {
+    //     const url = `${paths[PATH_NAME.GTEXOME]}?geneID=${geneId}&CCID=${CCID}`
+    //     response = `<a href=${url}>${CCID}</a>`
+    //   }
+    //   return response
+    // }
   },
   {
     title: 'lof',

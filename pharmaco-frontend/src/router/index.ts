@@ -70,11 +70,6 @@ const router = createRouter({
       component: () => import('../views/GTExome/gtex/RatioResults.vue')
     },
     {
-      path: paths[PATH_NAME.PDBGEN_REFOLD],
-      name: 'gtexome-pdbgen',
-      component: () => import('../views/GTExome/refold/refold.vue')
-    },
-    {
       path: paths[PATH_NAME.PDBGEN_RESULTS],
       name: 'gtexome-pdbgen-results',
       component: () => import('../views/GTExome/refold/PdbgenResults.vue')
