@@ -231,6 +231,13 @@ PASSWORD = os.getenv('PASSWORD')
 HOST = os.getenv('HOST')
 PORT = os.getenv('PORT')
 
+print("------DB-INFO-------")
+print(NAME)
+print(USER)
+print(PASSWORD)
+print(HOST)
+print(PORT)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
