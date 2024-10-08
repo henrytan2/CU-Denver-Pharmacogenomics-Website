@@ -83,7 +83,7 @@ const apiUrls: { [key in API_URL_NAME]: string | ((...args: any[]) => string) } 
   [API_URL_NAME.FIND_PLDDT]: '/api/plddt-score',
   [API_URL_NAME.FASPR_PREP]: '/api/faspr-prep',
   [API_URL_NAME.FASPR_RUN]: '/api/faspr-run',
-  [API_URL_NAME.STORE_PDB_GEN_DATA]: '/pdbgen/save-data',
+  [API_URL_NAME.STORE_PDB_GEN_DATA]: '/pdbgen-backend/save-data',
   [API_URL_NAME.GET_API_TOKEN]: '/user_accounts/api-token',
   [API_URL_NAME.CREATE_ACCOUNT]: '/user_accounts/sign-up',
   [API_URL_NAME.PASSWORD_RESET]: '/user_accounts/send-reset-email'

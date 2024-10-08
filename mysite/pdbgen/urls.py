@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 
-app_name = 'pdbgen'
+app_name = 'pdbgen-backend'
 urlpatterns = [
     path(r'', views.IndexView.as_view(), name='pdbgen_index'),
     path('pdbgen-results/', views.read_CCID, name='pdbgen-results.html'),
