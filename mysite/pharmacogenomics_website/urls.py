@@ -30,7 +30,7 @@ urlpatterns = [
     path('gtexome/', include('gtexome.urls')),
     path('metabolites/', include('metabolites.urls')),
     path('precursors/', include('precursors.urls')),
-    path('pdbgen/', include('pdbgen.urls')),
+    path('pdbgen-backend/', include('pdbgen.urls')),
     path('django_plotly_dash/', include('django_plotly_dash.urls')),
     path('api-token-auth/', rest_views.obtain_auth_token),
     path('accounts/', include('django.contrib.auth.urls')),

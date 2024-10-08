@@ -12,9 +12,12 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+print("-----BASE-DIR-------")
+print(BASE_DIR)
 
 env_path = os.path.join(BASE_DIR, 'pharmacogenomics.env')
 load_dotenv(env_path)
@@ -57,6 +60,8 @@ INSTALLED_APPS = [
     'django_plotly_dash.apps.DjangoPlotlyDashConfig',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_simplejwt',
+    'corsheaders',
     'channels',
     'channels_redis',
 ]
@@ -77,8 +82,8 @@ EMAIL_USE_SSL = False
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication'
     ],
 
     'DEFAULT_PERMISSION_CLASSES': [
@@ -89,6 +94,24 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ]
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=12),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+    'SLIDING_TOKEN_LIFETIME': timedelta(days=30),
+    'SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER': timedelta(days=1),
+    'SLIDING_TOKEN_LIFETIME_LATE_USER': timedelta(days=30),
+}
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
 }
 
 CHANNEL_LAYERS = {
@@ -102,7 +125,9 @@ CHANNEL_LAYERS = {
 
 MIDDLEWARE = [
     'django.middleware.cache.UpdateCacheMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.http.ConditionalGetMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -114,9 +139,16 @@ MIDDLEWARE = [
     'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'http://localhost:30441',
+    'http://localhost:443',
+    'https://pharmacogenomics.clas.ucdenver.edu'
+]
+
 LOGIN_REDIRECT_URL = '/api/templates/profile/'
 
-X_FRAME_OPTIONS = 'ALLOWALL'
+X_FRAME_OPTIONS = '*'
 
 XS_SHARING_ALLOWED_METHODS = ['POST','GET','OPTIONS', 'PUT', 'DELETE']
 
@@ -125,6 +157,8 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'
 DCS_SESSION_COOKIE_SAMESITE = 'None'
 DCS_SESSION_COOKIE_SAMESITE_FORCE_ALL = True
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 1209600
 
 MIDDLEWARE_CLASSES = [
     'django_cookies_samesite.middleware.CookiesSameSite',
@@ -197,6 +231,13 @@ USER = os.getenv('DB_USER')
 PASSWORD = os.getenv('PASSWORD')
 HOST = os.getenv('HOST')
 PORT = os.getenv('PORT')
+
+print("------DB-INFO-------")
+print(NAME)
+print(USER)
+print(PASSWORD)
+print(HOST)
+print(PORT)
 
 DATABASES = {
     'default': {
@@ -284,5 +325,3 @@ CACHES = {
         'LOCATION': 'my_cache_table',
     }
 }
-
-X_FRAME_OPTIONS = 'SAMEORIGIN'

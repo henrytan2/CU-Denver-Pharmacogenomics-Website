@@ -109,13 +109,11 @@
         </div>
     </script>
     <script type="application/javascript">
-        var side_effects = {{ object_list | safe }};
-    </script>
-    <script type="application/javascript">
         Vue.component("index", {
             template: "#index-template",
             data: function () {
                 return {
+                    sideEffects: [],
                     dtTable: null,
                     sideEffectList: [],
                     sideEffectsPageNumber: 1,
@@ -133,8 +131,15 @@
                 }
             },
             mounted: function () {
-                var _this = this;
-                $.ajax({
+                var _this = this
+                fetch("{% url 'pharmacogenomics:get-side-effects' %}", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }).then(async (response) => {
+                    _this.sideEffects = await response.json()
+                    $.ajax({
                     type: 'POST',
                     url: '{% url 'precursors:fetch_all_precursors' %}',
                     success: function (response) {
@@ -161,7 +166,7 @@
                     }
                 })
                 this.dtTable = $(this.$refs.datatable).DataTable({
-                    data: side_effects,
+                    data: _this.sideEffects,
                     columns: RenderColumns(this),
                     initComplete: function () {
                         this.removeClass("d-none");
@@ -183,6 +188,7 @@
                         });
                     }
                 });
+                })
             },
             methods: {
                 addSideEffect: function (sideEffect) {

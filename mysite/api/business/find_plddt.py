@@ -9,8 +9,8 @@ import re
 import io
 import numpy
 
-class CheckPLDDT:
 
+class CheckPLDDT:
     def __init__(self, gene_ID, CCID):
         self.alderaan = Alderaan()
         self.CCID = CCID
@@ -46,14 +46,14 @@ class CheckPLDDT:
                 self.proline_check = 'No cis proline removed'
             self.buried = self.buried_residues(self.structure, self.mutation_position, self.INV, self.MNV)
             self.recommendation = 'Alphafold structure not suitable for modeling'
-            self.hydrogen_bond = self.hbond_disruption(self.mutation_position, self.structure, self.chain, self.INV, self.MNV)
+            self.hbond = self.hbond_disruption(self.mutation_position, self.structure, self.chain, self.INV, self.MNV)
             self.salt_bridge = self.salt_check(self.mutation_position, self.structure, self.chain, self.INV, self.MNV)
             if self.charge_change == 'No swap of positively and negatively charged residues.'\
                     and self.disulfide_check == 'No disulfides disrupted.' \
                     and self.proline_check == 'No cis proline removed'\
                     and self.plddt_snv >= 90\
                     and self.salt_bridge == "No salt bridges broken."\
-                    and self.hydrogen_bond == "No side chain hydrogen bonds disrupted."\
+                    and self.hbond == "No side chain hydrogen bonds disrupted."\
                     and not (self.buried.startswith('Charge')) \
                     and not (self.buried.startswith('Lost')) \
                     and not (self.buried.startswith('Buried')):
@@ -72,6 +72,7 @@ class CheckPLDDT:
             self.hbond = 'error checking structure'
             self.salt_bridge = 'error checking structure'
             self.file_location = 'no file'
+            self.pocket_info = 'no pocket info'
 
     def get_Pnum(self):
         with open('./pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:

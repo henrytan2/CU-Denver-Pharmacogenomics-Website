@@ -1,6 +1,11 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer,  TemplateHTMLRenderer
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
+
 from .business.faspr_prep import FasprPrep
 from .business.faspr_run import FasprRun
 from .business.metabolite_gen import MetabPrep
@@ -49,6 +54,7 @@ class FasprPrepAPI(APIView):
         response_dict = {"residue_output": list(residues),
                          "sequence_length": sequence_length,
                          "mut_seq": get_mut_seq,
+                         "header": header,
                          "repack_pLDDT": repack_pLDDT,
                          "protein_location": protein_location}
         if kwargs:
@@ -64,15 +70,18 @@ class FasprRunAPI(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
-        mutated_sequence = request.data['mutated_sequence']
-        protein_location = request.data['protein_location']
-        faspr_output = FasprRun(mutated_sequence, protein_location)
-        if 'error' in faspr_output.FASPR_pdb_text:
-            error_logger.error(faspr_output.FASPR_pdb_text)
-            faspr_output.FASPR_pdb_text = 'error with structure'
-            # raise ValueError
-        return Response({'protein_structure': faspr_output.FASPR_pdb_text})
-
+        try:
+            mutated_sequence = request.data['mutated_sequence']
+            protein_location = request.data['protein_location']
+            header = request.data['header']
+            faspr_output = FasprRun(mutated_sequence, protein_location, header)
+            if 'error' in faspr_output.FASPR_pdb_text:
+                error_logger.error(faspr_output.FASPR_pdb_text)
+                faspr_output.FASPR_pdb_text = 'error with structure'
+                # raise ValueError
+            return Response({'protein_structure': faspr_output.FASPR_pdb_text})
+        except:
+            return Response()
 
 class CacheCCIDAPI(APIView):
     permission_classes = (AllowAny,)
@@ -171,13 +180,13 @@ class FindPlddtAPI(APIView):
         disulfide_check = find_plddt.disulfide_check
         proline_check = find_plddt.proline_check
         buried = find_plddt.buried
-        hydrogen_bond = find_plddt.hydrogen_bond
+        hydrogen_bond = find_plddt.hbond
         salt_bridge = find_plddt.salt_bridge
         recommendation = find_plddt.recommendation
         af_file_location = find_plddt.file_location
         pocket_input = find_plddt.pocket_info
         pocket_info = []
-        if pocket_input == 'No Adjacent Pockets':
+        if pocket_input == 'No Adjacent Pockets' or pocket_input == 'no pocket info':
             pocket_info = 'No Adjacent Pockets'
         else:
             for key, value in pocket_input.items():
@@ -207,7 +216,6 @@ class FindPlddtAPI(APIView):
         return Response(request)
 
 class CustomAPIRenderer(BrowsableAPIRenderer):
-
     renderer_classes = [BrowsableAPIRenderer, TemplateHTMLRenderer, JSONRenderer]
 
     def get_default_renderer(self, view):
@@ -217,29 +225,19 @@ class CustomAPIRenderer(BrowsableAPIRenderer):
     def template(self):
         return 'rest_framework/api.html'
 
+
 class FindPlddtPublicAPI(APIView):
 
     renderer_classes = [CustomAPIRenderer]
 
     def post(self, request):
         try:
-            cached_token = cache.get('token')
-            if cached_token == request.user.auth_token.key:
-                pass
-
-            now = datetime.now()
-            created = request.user.auth_token.created.replace(tzinfo=None)
-            expiration = now - timedelta(days=1)
-
-            if created > expiration:
-                pass
-
-        except:
-            return redirect('user_accounts:account-welcome')
-
-        user = request.user.email
-        auth = request.user.auth_token.key
-        return FindPlddtAPI.post(FindPlddtAPI(), request, user=user, auth=auth)
+            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+            if auth_header.startswith('Bearer '):
+                jwt = auth_header.split()[1]
+                AccessToken(jwt)
+        except TokenError as e:
+            return FindPlddtAPI.post(FindPlddtAPI(), request)
 
     def get(self, request):
         return Response()
@@ -251,50 +249,35 @@ class FindResolutionPublicAPI(APIView):
 
     def post(self, request):
         try:
-            cached_token = cache.get('token')
-            if cached_token == request.user.auth_token.key:
-                pass
-
-            now = datetime.now()
-            created = request.user.auth_token.created.replace(tzinfo=None)
-            expiration = now - timedelta(days=1)
-
-            if created > expiration:
-                pass
-
-        except:
+            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+            if auth_header.startswith('Bearer '):
+                jwt = auth_header.split()[1]
+                AccessToken(jwt)
+        except TokenError as e:
             return redirect('user_accounts:account-welcome')
 
-        user = request.user.email
-        auth = request.user.auth_token.key
-        return FindResolutionAPI.post(FindResolutionAPI(), request, user=user, auth=auth)
+        return FindResolutionAPI.post(FindResolutionAPI(), request)
 
     def get(self, request):
         return Response()
 
+
+@method_decorator(csrf_exempt, name='dispatch')
 class FasprPrepPublicAPI(APIView):
 
     renderer_classes = [CustomAPIRenderer]
 
+    @method_decorator(csrf_exempt)
     def post(self, request):
         try:
-            cached_token = cache.get('token')
-            if cached_token == request.user.auth_token.key:
-                pass
-
-            now = datetime.now()
-            created = request.user.auth_token.created.replace(tzinfo=None)
-            expiration = now - timedelta(days=1)
-
-            if created > expiration:
-                pass
-
-        except:
+            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+            if auth_header.startswith('Bearer '):
+                jwt = auth_header.split()[1]
+                AccessToken(jwt)
+        except TokenError as e:
             return redirect('user_accounts:account-welcome')
 
-        user = request.user.email
-        auth = request.user.auth_token.key
-        return FasprPrepAPI.post(FasprPrepAPI(), request, user=user, auth=auth)
+        return FasprPrepAPI.post(FasprPrepAPI(), request)
 
     def get(self, request):
         return Response(request)

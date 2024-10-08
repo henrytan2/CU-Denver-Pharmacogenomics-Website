@@ -1,7 +1,14 @@
+import json
+
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.views import generic
-from .models import SignupCode, PasswordResetCode
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from .models import SignupCode, PasswordResetCode, MyUser
 from datetime import date
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -15,10 +22,10 @@ from .models import send_multi_format_email
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import logout
 
-EXPIRY_PERIOD = 3    # days
+EXPIRY_PERIOD = 3  # days
 
 
 class Profile(generic.View):
@@ -29,7 +36,7 @@ class Profile(generic.View):
         if request.user.is_authenticated:
             status = f'Status: logged in as {request.user}'
         form = UserCreationForm()
-        return render(request, './templates/profile.html', {'form': form, 'status':status})
+        return render(request, './templates/profile.html', {'form': form, 'status': status})
 
     def post(self, request):
         self.serializer_class = LoginSerializer
@@ -54,7 +61,7 @@ class Profile(generic.View):
                         return render(request, './templates/profile.html',
                                       {'token': token_auth.key,
                                        'status': status,
-                                       'form': form},)
+                                       'form': form}, )
                     else:
                         status = 'Status: Not logged in'
                         return render(request, './templates/profile.html',
@@ -70,11 +77,10 @@ class Profile(generic.View):
 
         else:
             status = serializer.errors
-            return render(request, './templates/profile.html', {'form': form,'status': status})
+            return render(request, './templates/profile.html', {'form': form, 'status': status})
 
 
 class Signup(generic.View):
-
     permission_classes = (AllowAny,)
     serializer_class = SignupSerializer
 
@@ -91,7 +97,7 @@ class Signup(generic.View):
         last_name = request.POST['last_name']
 
         serializer = self.serializer_class(data={'email': email, 'password': pw,
-                                                 'first_name': first_name,'last_name': last_name})
+                                                 'first_name': first_name, 'last_name': last_name})
         if serializer.is_valid():
             email = serializer.data['email']
             password = serializer.data['password']
@@ -141,9 +147,9 @@ class Signup(generic.View):
                     status = 'failed to send email'
 
                 return render(request, './templates/profile.html',
-                                              {'token': token_text,
-                                               'status': status,
-                                               'form': form}, )
+                              {'token': token_text,
+                               'status': status,
+                               'form': form}, )
             if must_validate_email:
                 try:
                     ipaddr = self.request.META.get('REMOTE_ADDR')
@@ -197,7 +203,8 @@ class Logout(generic.View):
         except:
             form = UserCreationForm()
             status = 'Not currently logged in.'
-            return render(request, './templates/profile.html', {'form':form, 'status': status})
+            return render(request, './templates/profile.html', {'form': form, 'status': status})
+
 
 class PasswordReset(generic.View):
     permission_classes = (AllowAny,)
@@ -213,14 +220,13 @@ class PasswordReset(generic.View):
             if user.is_verified and user.is_active:
                 status = 'User active and verified.'
                 return render(request, './templates/account_management.html', {'status': status,
-                                                                                   'form': form})
+                                                                               'form': form})
         except:
             status = 'Account does not exist.'
             return render(request, './templates/account_management.html', {'status': status,
-                                                                               'form': form})
+                                                                           'form': form})
 
     def post(self, request):
-
         email = request.POST['username']
         serializer = self.serializer_class(data={'email': email})
         form = UserCreationForm()
@@ -237,7 +243,6 @@ class PasswordReset(generic.View):
                     password_reset_code = \
                         PasswordResetCode.objects.create_password_reset_code(user)
                     password_reset_code.send_password_reset_email()
-                    content = {'email': email}
                     return render(request, './templates/account_management.html',
                                   {'form': form})
 
@@ -320,7 +325,7 @@ class PasswordChange(generic.View):
         pw = request.POST['password']
         pw2 = request.POST['password2']
 
-        serializer = self.serializer_class(data={'password': pw,'password2': pw2})
+        serializer = self.serializer_class(data={'password': pw, 'password2': pw2})
 
         if serializer.is_valid():
             user = request.user
@@ -335,3 +340,142 @@ class PasswordChange(generic.View):
         else:
             status = 'Password not changed.'
             return render(request, './templates/account_management.html', {'status': status})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def get_api_token(request):
+    serializer_class = LoginSerializer
+    data = json.loads(request.body)
+    email = data['username']
+    pw = data['password']
+
+    serializer = serializer_class(data={'email': email, 'password': pw})
+
+    if serializer.is_valid():
+        email = serializer.data['email']
+        password = serializer.data['password']
+        user = authenticate(email=email, password=password)
+        if user:
+            if user.is_verified:
+                if user.is_active:
+                    refresh = RefreshToken.for_user(user)
+                    refresh['username'] = email
+                    login(request, user)
+                    return JsonResponse({
+                        'refresh': str(refresh),
+                        'access': str(getattr(refresh, 'access_token', None))
+                    })
+                else:
+                    return JsonResponse(status=401)
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def sign_up(request):
+    serializer_class = SignupSerializer
+    data = json.loads(request.body)
+
+    email = data['email']
+    pw = data['password']
+    first_name = data['first_name']
+    last_name = data['last_name']
+
+    serializer = serializer_class(data={'email': email, 'password': pw,
+                                        'first_name': first_name, 'last_name': last_name})
+
+    if serializer.is_valid():
+        email = serializer.data['email']
+        password = serializer.data['password']
+        first_name = serializer.data['first_name']
+        last_name = serializer.data['last_name']
+
+        must_validate_email = getattr(settings, "AUTH_EMAIL_VERIFICATION", True)
+
+        try:
+            user = get_user_model().objects.get(email=email)
+            if user.is_verified:
+                status = 'Email address already taken.'
+                return JsonResponse({
+                    "status": status
+                })
+            try:
+                signup_code = SignupCode.objects.get(user=user)
+                signup_code.delete()
+            except SignupCode.DoesNotExist:
+                pass
+
+        except get_user_model().DoesNotExist:
+            user = get_user_model().objects.create_user(email=email)
+        user.set_password(password)
+        user.first_name = first_name
+        user.last_name = last_name
+        if not must_validate_email:
+            user.is_verified = True
+            status = 'account created'
+            user.save()
+            try:
+                send_multi_format_email('welcome_email',
+                                        {'email': user.email, },
+                                        target_email=user.email)
+                user = authenticate(email=email, password=password)
+                if user:
+                    if user.is_verified:
+                        if user.is_active:
+                            login(request, user)
+                            status = 'Success'
+            except:
+                status = 'failed to send email'
+
+            return JsonResponse(
+                          {'status': status})
+        if must_validate_email:
+            try:
+                ipaddr = request.META.get('REMOTE_ADDR')
+            except:
+                ipaddr = '0.0.0.0'
+            user.save()
+            status = 'account saved'
+            send_multi_format_email('welcome_email',
+                                    {'email': user.email, },
+                                    target_email=user.email)
+            return JsonResponse({'status': status})
+
+        status = 'Email address already taken.'
+        return JsonResponse({'status': status})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def send_reset_email(request):
+    serializer_class = PasswordResetSerializer
+    data = json.loads(request.body)
+    email = data['username']
+    serializer = serializer_class(data={'email': email})
+    if serializer.is_valid():
+        email = serializer.data['email']
+
+        try:
+            user = get_user_model().objects.get(email=email)
+
+            # Delete all unused password reset codes
+            PasswordResetCode.objects.filter(user=user).delete()
+
+            if user.is_verified and user.is_active:
+                password_reset_code = \
+                    PasswordResetCode.objects.create_password_reset_code(user)
+                password_reset_code.send_password_reset_email()
+                return JsonResponse({'status': 'Success'})
+
+        except get_user_model().DoesNotExist:
+            pass
+
+        except get_user_model().DoesNotExist:
+            pass
+
+        status = 'Password reset not allowed.'
+        return JsonResponse({"status": status})
+
+    else:
+        status = 'Invalid account.'
+        return JsonResponse({'status': status})
