@@ -21,6 +21,7 @@ export const useUserStore = defineStore('user', {
       sendResetEmailLoadingState: ApiLoadingState.Idle,
       SendResetEmailResponse: undefined as unknown as SendResetEmailResponse,
       logInState: false,
+      logOutLoadingState: ApiLoadingState.Idle
     }
   },
   actions: {
@@ -102,6 +103,7 @@ export const useUserStore = defineStore('user', {
           this.sendResetEmailLoadingState = ApiLoadingState.Failed
           console.log(error)
         })
-    }
+    },
+    logout: function (logOutLoadingState)
   }
 })
