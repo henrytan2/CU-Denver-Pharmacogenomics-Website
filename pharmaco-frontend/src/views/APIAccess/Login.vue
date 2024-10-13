@@ -40,7 +40,9 @@ const login = () => {
     </span>
     <div style="margin-top: 40px">
       <p>Status:</p>
-      <span
+      <p v-if="userStore.logInState == true" class="text-success">Logged In</p>
+      <p v-else class="text-danger">Logged Out</p>
+      <span v-if="userStore.logInState == false"
         >Please log in or <a :href="paths[PATH_NAME.CREATE_ACCOUNT]">Create an Account</a>.</span
       >
     </div>
@@ -57,6 +59,7 @@ const login = () => {
     </div>
     <div class="d-flex justify-content-end">
       <Button
+        v-show="userStore.logInState == false"
         :button-type="'submit'"
         :className="'btn btn-primary'"
         :buttonText="'Login'"
@@ -65,6 +68,6 @@ const login = () => {
       ></Button>
     </div>
 
-    <div style="margin-top: 10px"><a :href="paths[PATH_NAME.LOGOUT]">Logout</a></div>
+    <div v-if="userStore.logInState == true" style="margin-top: 10px"><a :href="paths[PATH_NAME.LOGOUT]">Logout</a></div>
   </div>
 </template>

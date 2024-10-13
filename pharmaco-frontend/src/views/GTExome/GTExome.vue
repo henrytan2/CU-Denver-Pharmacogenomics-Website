@@ -6,17 +6,17 @@ import Button from '@/components/button/button.vue'
 import GTEx from '@/views/GTExome/gtex/GTEx.vue'
 import Exac from '@/views/GTExome/exac/Exac.vue'
 import Refold from '@/views/GTExome/refold/refold.vue'
-// import { useRoute } from 'vue-router'
+import { useRoute } from 'vue-router'
 
 const GTExomeStore = useGTExomeStore()
 
-// const route = useRoute()
-// const CCID = route.query.CCID
-// const geneID = route.query.geneID
+const route = useRoute()
+const CCID = route.query.CCID
+const geneID = route.query.geneID
 
-// if (CCID != undefined && geneID != undefined) {
-//   GTExomeStore.setSelectedTab(GTExomeTab.refold)
-// }
+if (CCID != undefined && geneID != undefined) {
+  GTExomeStore.setSelectedTab(GTExomeTab.refold)
+}
 
 if (GTExomeStore.tissueLoadingState != ApiLoadingState.Success) {
   GTExomeStore.fetchTissueTypes()
