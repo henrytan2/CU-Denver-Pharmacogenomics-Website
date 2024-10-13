@@ -13,8 +13,13 @@ const GTExomeStore = useGTExomeStore()
 const columns = [
   {
     title: 'Gene ID',
-    data: 'gene_id',
-    defaultContent: ''
+    data: null,
+    defaultContent: '',
+    render: (data: any) => {
+      const gene_id = data['gene_id']
+      const url = `<a href="${paths[PATH_NAME.GTEXOME_EXOME]}?gene_id=${gene_id}">${gene_id}</a>`
+      return url
+    }
   },
   {
     title: 'Description',

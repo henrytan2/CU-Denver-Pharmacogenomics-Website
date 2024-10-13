@@ -1,6 +1,6 @@
 <!-- eslint-disable no-irregular-whitespace -->
 <script setup lang="tsx">
-import { ApiLoadingState } from '@/constants/enums'
+import { ApiLoadingState, GTExomeTab } from '@/constants/enums'
 import { gtexFilter } from '@/constants/enums'
 import { useGTExomeStore } from '@/stores/GTExomeStore'
 import { computed } from 'vue'
@@ -48,7 +48,7 @@ const infoModalText = `GTExome is a tool to connect genotype expression data to 
 </script>
 
 <template>
-  <InfoModal :modal-text="infoModalText" />
+  <InfoModal v-if="GTExomeStore.selectedTab == GTExomeTab.gtex" :modal-text="infoModalText" />
   <div class="container text-center" style="margin-top: 20px">
     <div class="row">
       <div

@@ -442,19 +442,19 @@ export const columns = [
   },
   {
     title: 'HGVSp',
-    data: 'hgvsp',
+    data: null,
     defaultContent: '',
-    className: 'all'
-    // render: function (data: any) {
-    //   const CCID = data['hgvsp']
-    //   const geneId = data['gene_id']
-    //   let response = ''
-    //   if (CCID != null) {
-    //     const url = `${paths[PATH_NAME.GTEXOME]}?geneID=${geneId}&CCID=${CCID}`
-    //     response = `<a href=${url}>${CCID}</a>`
-    //   }
-    //   return response
-    // }
+    className: 'all',
+    render: function (data: any) {
+      const CCID = data['hgvsp']
+      const geneId = data['gene_id']
+      let response = ''
+      if (CCID != null) {
+        const url = `${paths[PATH_NAME.GTEXOME]}?geneID=${geneId}&CCID=${CCID}`
+        response = `<a href=${url}>${CCID}</a>`
+      }
+      return response
+    }
   },
   {
     title: 'lof',

@@ -19,7 +19,8 @@ export const useUserStore = defineStore('user', {
       signUpLoadingState: ApiLoadingState.Idle,
       signUpResponse: undefined as unknown as SignUpResponse,
       sendResetEmailLoadingState: ApiLoadingState.Idle,
-      SendResetEmailResponse: undefined as unknown as SendResetEmailResponse
+      SendResetEmailResponse: undefined as unknown as SendResetEmailResponse,
+      logInState: false,
     }
   },
   actions: {
@@ -39,6 +40,7 @@ export const useUserStore = defineStore('user', {
             this.getAPITokenLoadingState = ApiLoadingState.Success
             const json = response.data
             this.getAPITokenResponse = json
+            this.logInState = true
           } else {
             this.getAPITokenLoadingState = ApiLoadingState.Failed
             throw Error('Get API Token failed')

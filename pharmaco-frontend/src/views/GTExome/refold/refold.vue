@@ -8,7 +8,9 @@ import { usePdbgenStore } from '@/stores/PdbgenStore'
 import Button from '@/components/button/button.vue'
 import { ApiLoadingState } from '@/constants/enums'
 import { useRoute } from 'vue-router'
-import { API_URL_NAME, apiUrls } from '@/constants/paths'
+import { useGTExomeStore } from '@/stores/GTExomeStore'
+import { GTExomeTab } from '@/constants/enums'
+
 
 const infoModalText = `You will arrive at this page with a geneID and mutation (CCID) populated.
 A search for experimental and AlphaFold2 structures starts automatically.
@@ -19,12 +21,13 @@ You can change the mutation (CCID) or the repack radius and hit return to update
 To change the geneID and restart a search for experimental structures it is necessary to change the URL with the new geneID or return to the previous page and start your search over.
 A bad geneID will return no information.`
 
-// const route = useRoute()
-// const CCID = route.query.CCID
-// const geneID = route.query.geneID
+const route = useRoute()
+const CCID = route.query.CCID
+const geneID = route.query.geneID
 
 const RefoldStore = useRefoldStore()
 const pdbgenStore = usePdbgenStore()
+const GTExomeStore = useGTExomeStore()
 
 const getExacGeneResults = (value: string) => {
   RefoldStore.fetchExomeForRefold(value)
@@ -43,19 +46,17 @@ const check = () => {
   pdbgenStore.fasprPrep()
 }
 
-// onMounted(() => {
-//   if (CCID != undefined && geneID != undefined) {
-//     debugger
-//     RefoldStore.setSelectedGene({
-//       ensembl_id: geneID as string
-//     })
-//     RefoldStore.setSelectedCCID({
-//       hgvsp: CCID as string
-//     })
-//     getExacGeneResults(geneID as string)
-//     getBestResolutionAndPlddtScore()
-//   }
-// })
+onMounted(async () => {
+  if (CCID != undefined && geneID != undefined) {
+    await RefoldStore.fetchGeneSearchResults(geneID as string)
+    RefoldStore.setSelectedGene(RefoldStore.geneSearchResults.data.gene_search[0])
+    RefoldStore.setSelectedCCID({
+      hgvsp: CCID as string
+    })
+    getExacGeneResults(geneID as string)
+    getBestResolutionAndPlddtScore()
+  }
+})
 
 interface Highlight {
   start: number
@@ -110,8 +111,8 @@ const highlightedText = computed(() => {
           a diameter (in Angstroms)</span
         >
       </div>
-      <InfoModal :modal-text="infoModalText" />
-      <div class="d-flex d-flex-row justify-content-between ms-4 me-4">
+      <InfoModal v-if="GTExomeStore.selectedTab == GTExomeTab.refold" :modal-text="infoModalText" />
+      <div class="d-flex d-flex-row flex-shrink-0 flex-grow-0 justify-content-between ms-4 me-4">
         <div class="me-4 w-100">
           <h2>Protein Source</h2>
           <div>
@@ -144,7 +145,7 @@ const highlightedText = computed(() => {
           <div>
             <div v-if="pdbgenStore.findResolutionLoadingState === ApiLoadingState.Pending">
               <span role="status">Searching for experimental structures </span>
-              <div class="spinner-border spinner-border-sm text-light">
+              <div class="spinner-border spinner-border-sm text-primary">
                 <span class="visually-hidden">Loading...</span>
               </div>
             </div>
@@ -164,7 +165,7 @@ const highlightedText = computed(() => {
           </div>
           <div v-if="pdbgenStore.findPLDDTLoadingState === ApiLoadingState.Pending">
             <span role="status">Searching for AlphaFold2 structures </span>
-            <div class="spinner-border spinner-border-sm text-light">
+            <div class="spinner-border spinner-border-sm text-primary">
               <span class="visually-hidden">Loading...</span>
             </div>
           </div>
@@ -190,7 +191,7 @@ const highlightedText = computed(() => {
             </p>
           </div>
         </div>
-        <div>
+        <div class="flex-grow-0 flex-shrink-0 w-50">
           <h2>Repacking Parameters</h2>
           <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
             <input
@@ -215,7 +216,7 @@ const highlightedText = computed(() => {
           <div>Angstroms</div>
           <input
             type="number"
-            class="form-control mb-1"
+            class="form-control mb-1 flex-grow-0 flex-shrink-0 w-50"
             id="angstroms-btn-radio"
             v-model="pdbgenStore.angstromsInput"
           />
@@ -255,7 +256,7 @@ const highlightedText = computed(() => {
             <div>
               <div
                 v-if="pdbgenStore.fasprPrepLoadingState === ApiLoadingState.Pending"
-                class="spinner-border spinner-border-sm text-light"
+                class="spinner-border spinner-border-sm text-primary"
                 role="status"
               >
                 <span class="visually-hidden">Loading...</span>
@@ -265,7 +266,7 @@ const highlightedText = computed(() => {
               </div>
               <div v-else>
                 <p>{{ pdbgenStore.fasprPrepResponse?.repack_pLDDT }}</p>
-                <p id="text-container" class="text-break" v-html="highlightedText"></p>
+                <p id="text-container" class="text-break flex-grow-0 flex-shrink-0 w-50" v-html="highlightedText"></p>
               </div>
             </div>
           </div>

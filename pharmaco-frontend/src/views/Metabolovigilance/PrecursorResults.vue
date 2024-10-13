@@ -29,7 +29,7 @@ const precursorColumns = [
     title: 'Drug ID',
     defaultContent: '',
     render: function (data: any) {
-      const drugID = data['DrugID']
+      let drugID = data['DrugID'].substring(3)
       const url = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/CID/${drugID}/record/SDF/?record_type=3d&response_type=save&response_basename=Conformer3D_CID`
       let response = `<a href="${url}"">${drugID}</a>`
       return response
