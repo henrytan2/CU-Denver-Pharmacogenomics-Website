@@ -103,7 +103,6 @@ export const useUserStore = defineStore('user', {
           this.sendResetEmailLoadingState = ApiLoadingState.Failed
           console.log(error)
         })
-    },
-    logout: function (logOutLoadingState)
+    }
   }
 })
