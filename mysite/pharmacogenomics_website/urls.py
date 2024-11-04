@@ -40,7 +40,7 @@ schema_view = get_schema_view(
         description="API documentation for CU Denver Pharmacogenomics Website",
     ),
     public=True,
-    url=BASE_URL,
+    url='https://pharmacogenomics.clas.ucdenver.edu',
     permission_classes=[permissions.AllowAny,],
 )
 
