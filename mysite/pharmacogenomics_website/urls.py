@@ -15,16 +15,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from . import views
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.conf import settings
+import os
 
 if settings.DEBUG:
     API_ROUTE = ''
+    BASE_URL = 'http://localhost:8000'
 else:
     API_ROUTE = 'api/'
+    environment = os.getenv('DJANGO_ENV')
+    BASE_URL = 'https://pharmacogenomics.clas.ucdenver.edu' if environment == 'production' else 'http://localhost'
 
 print(f'IN DEBUG MODE: {settings.DEBUG}')
 
@@ -35,6 +38,7 @@ schema_view = get_schema_view(
         description="API documentation for CU Denver Pharmacogenomics Website",
     ),
     public=True,
+    url=BASE_URL,
     permission_classes=[permissions.AllowAny,],
 )
 
