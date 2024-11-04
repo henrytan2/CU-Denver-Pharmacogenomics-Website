@@ -323,3 +323,6 @@ CACHES = {
         'LOCATION': 'my_cache_table',
     }
 }
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
