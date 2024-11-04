@@ -21,15 +21,17 @@ from drf_yasg import openapi
 from django.conf import settings
 import os
 
+environment = os.getenv('DJANGO_ENV')
+
 if settings.DEBUG:
     API_ROUTE = ''
     BASE_URL = 'http://localhost:8000'
 else:
     API_ROUTE = 'api/'
-    environment = os.getenv('DJANGO_ENV')
     BASE_URL = 'https://pharmacogenomics.clas.ucdenver.edu' if environment == 'production' else 'http://localhost'
 
 print(f'IN DEBUG MODE: {settings.DEBUG}')
+print(f'DJANGO ENV: {environment}')
 
 schema_view = get_schema_view(
     openapi.Info(
