@@ -5,7 +5,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from rest_framework.response import Response
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import SignupCode, PasswordResetCode, MyUser
@@ -342,32 +344,101 @@ class PasswordChange(generic.View):
             return render(request, './templates/account_management.html', {'status': status})
 
 
-@csrf_exempt
-@require_http_methods(["POST"])
-def get_api_token(request):
+class GetAPITokenView(APIView):
     serializer_class = LoginSerializer
-    data = json.loads(request.body)
-    email = data['username']
-    pw = data['password']
+    permission_classes = [AllowAny]
 
-    serializer = serializer_class(data={'email': email, 'password': pw})
+    @swagger_auto_schema(
+        operation_summary="Get JWT Token",
+        operation_description="Authenticate user and return JWT tokens",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['username', 'password'],
+            properties={
+                'username': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="User's email address"
+                ),
+                'password': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="User's password",
+                    format="password"
+                ),
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Successful authentication",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'refresh': openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description="JWT refresh token"
+                        ),
+                        'access': openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description="JWT access token"
+                        ),
+                    }
+                )
+            ),
+            401: openapi.Response(
+                description="Authentication failed",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'detail': openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description="Error message"
+                        )
+                    }
+                )
+            ),
+            400: "Bad request - Invalid input data",
+            403: "Account not verified",
+        },
+        tags=['Authentication'],
+        security=[],  # Empty list means no security requirements for this endpoint
+    )
+    def post(self, request):
+        data = json.loads(request.body)
+        email = data['username']
+        pw = data['password']
 
-    if serializer.is_valid():
-        email = serializer.data['email']
-        password = serializer.data['password']
-        user = authenticate(email=email, password=password)
-        if user:
-            if user.is_verified:
-                if user.is_active:
-                    refresh = RefreshToken.for_user(user)
-                    refresh['username'] = email
-                    login(request, user)
-                    return JsonResponse({
-                        'refresh': str(refresh),
-                        'access': str(getattr(refresh, 'access_token', None))
-                    })
-                else:
-                    return JsonResponse(status=401)
+        serializer = self.serializer_class(data={'email': email, 'password': pw})
+
+        if serializer.is_valid():
+            email = serializer.data['email']
+            password = serializer.data['password']
+            user = authenticate(email=email, password=password)
+            if user:
+                if user.is_verified:
+                    if user.is_active:
+                        refresh = RefreshToken.for_user(user)
+                        refresh['username'] = email
+                        login(request, user)
+                        return JsonResponse({
+                            'refresh': str(refresh),
+                            'access': str(getattr(refresh, 'access_token', None))
+                        })
+                    else:
+                        return JsonResponse(
+                            {'detail': 'Account is not active'},
+                            status=401
+                        )
+                return JsonResponse(
+                    {'detail': 'Account is not verified'},
+                    status=403
+                )
+            return JsonResponse(
+                {'detail': 'Invalid credentials'},
+                status=401
+            )
+        return JsonResponse(
+            serializer.errors,
+            status=400
+        )
 
 
 @csrf_exempt

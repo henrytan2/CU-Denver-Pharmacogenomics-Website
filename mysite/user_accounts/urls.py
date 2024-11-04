@@ -12,7 +12,7 @@ urlpatterns = [
     path('password/reset/verify/', views.PasswordResetVerify.as_view(), name='authemail-password-reset-verify'),
     path('password/reset/verified/', views.PasswordResetVerified.as_view(), name='authemail-password-reset-verified'),
     path('password/change/', views.PasswordChange.as_view(), name='authemail-password-change'),
-    path('api-token', views.get_api_token, name='get-api-token'),
+    path('api-token', views.GetAPITokenView.as_view(), name='get-api-token'),
     path('send-reset-email', views.send_reset_email, name='send-reset-email'),
     path('sign-up', views.sign_up, name='signup')
 ]

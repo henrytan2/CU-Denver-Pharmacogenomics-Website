@@ -1,11 +1,12 @@
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer,  TemplateHTMLRenderer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
-
+from rest_framework_simplejwt.tokens import AccessToken
 from .business.faspr_prep import FasprPrep
 from .business.faspr_run import FasprRun
 from .business.metabolite_gen import MetabPrep
@@ -13,9 +14,7 @@ from .business.best_resolution import FindBestResolution
 from .business.find_plddt import CheckPLDDT
 from django.core.cache import cache
 import logging
-from django.shortcuts import redirect
 from datetime import date
-from datetime import datetime, timedelta
 from rest_framework.permissions import AllowAny
 
 error_logger = logging.getLogger('django.error')
@@ -23,6 +22,7 @@ error_logger = logging.getLogger('django.error')
 class FasprPrepAPI(APIView):
     permission_classes = (AllowAny,)
 
+    @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def post(self, request, **kwargs):
         ccid = request.data['CCID']
         gene_ID = request.data['gene_ID']
@@ -61,6 +61,7 @@ class FasprPrepAPI(APIView):
             response_dict.update(kwargs)
         return Response(response_dict)
 
+    @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def get(self, request):
         returned_protein_structure = cache.get('protein_structure')
         return Response(returned_protein_structure)
@@ -69,6 +70,7 @@ class FasprPrepAPI(APIView):
 class FasprRunAPI(APIView):
     permission_classes = (AllowAny,)
 
+    @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def post(self, request):
         try:
             mutated_sequence = request.data['mutated_sequence']
@@ -83,70 +85,21 @@ class FasprRunAPI(APIView):
         except:
             return Response()
 
-class CacheCCIDAPI(APIView):
-    permission_classes = (AllowAny,)
-
-    def post(self, request):
-        ccid = request.data['CCID']
-        cache.set('CCID', ccid)
-        return Response({'CCID': ccid})
-
-    def get(self, request):
-        returned_CCID = cache.get('CCID')
-        return Response(returned_CCID)
-
-
-class CachePositionsAPI(APIView):
-    permission_classes = (AllowAny,)
-
-    def post(self, request):
-        positions = request.POST.getlist('positions[]')
-        cache.set('positions', positions)
-        return Response({'positions': positions})
-
-    def get(self, request):
-        returned_positions = cache.get('positions')
-        return Response(returned_positions)
-
-class CacheLengthAPI(APIView):
-    permission_classes = (AllowAny,)
-
-    def post(self, request):
-        sequence_length = request.data['sequence_length']
-        cache.set('sequence_length', sequence_length)
-        return Response({'sequence_length': sequence_length})
-
-    def get(self, request):
-        returned_length = cache.get('sequence_length')
-        return Response(returned_length)
-
-
-class CacheProteinAPI(APIView):
-    permission_classes = (AllowAny,)
-
-    def post(self, request):
-        protein_structure = request.data['protein_structure']
-        cache.set('protein_structure', protein_structure)
-        return Response({'protein_structure': protein_structure})
-
-    def get(self, request):
-        returned_protein_structure = cache.get('protein_structure')
-        return Response(returned_protein_structure)
-
 
 class MetabPrepAPI(APIView):
     permission_classes = (AllowAny,)
 
+    @swagger_auto_schema(auto_schema=None)
     def post(self, request):
         smiles_code = request.data['smiles']
         metabolites = MetabPrep(smiles_code)
         bt_output = metabolites.bt_output
         return Response({'bt_output': bt_output})
 
-
 class FindResolutionAPI(APIView):
     permission_classes = (AllowAny,)
 
+    @swagger_auto_schema(auto_schema=None)
     def post(self, request, **kwargs):
         gene_ID = request.data['gene_ID']
         CCID = request.data['CCID']
@@ -170,6 +123,7 @@ class FindResolutionAPI(APIView):
 class FindPlddtAPI(APIView):
     permission_classes = (AllowAny,)
 
+    @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def post(self, request, **kwargs):
         gene_ID = request.data['gene_ID']
         ccid = request.data['CCID']
@@ -212,52 +166,183 @@ class FindPlddtAPI(APIView):
             response_dict.update(kwargs)
         return Response(response_dict)
 
+    @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def get(self, request):
         return Response(request)
 
-class CustomAPIRenderer(BrowsableAPIRenderer):
-    renderer_classes = [BrowsableAPIRenderer, TemplateHTMLRenderer, JSONRenderer]
-
-    def get_default_renderer(self, view):
-        return JSONRenderer()
-
-    @property
-    def template(self):
-        return 'rest_framework/api.html'
-
-
 class FindPlddtPublicAPI(APIView):
+    permission_classes = [AllowAny]
 
-    renderer_classes = [CustomAPIRenderer]
-
+    @swagger_auto_schema(
+        operation_summary="Find pLDDT Score (Public)",
+        operation_description="""Public endpoint to find pLDDT (predicted Local Distance Difference Test) scores. 
+        If a valid JWT token is provided, it will use the authenticated endpoint""",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'gene_ID': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Identifier for gene"
+                ),
+                'CCID': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Identifier for CCID"
+                ),
+            },
+            required=['gene_ID', 'CCID']
+        ),
+        responses={
+            200: openapi.Response(
+                description="Successfully retrieved pLDDT score",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'plddt_score': openapi.Schema(
+                            type=openapi.TYPE_NUMBER,
+                            description="The pLDDT score for the protein",
+                            example=92.5
+                        ),
+                    }
+                )
+            ),
+            400: openapi.Response(
+                description="Bad request",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'error': openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description="Error message"
+                        )
+                    }
+                )
+            ),
+            401: "Invalid authentication token",
+            500: "Internal server error"
+        },
+        tags=['Protein Analysis'],
+        security=[
+            {'Bearer': []}
+        ],
+        manual_parameters=[
+            openapi.Parameter(
+                'Authorization',
+                openapi.IN_HEADER,
+                description="Bearer token (required)",
+                type=openapi.TYPE_STRING,
+                required=True
+            )
+        ]
+    )
     def post(self, request):
+        """
+        Find pLDDT score for a protein. Can be accessed with or without authentication.
+        If authenticated, uses the authenticated endpoint's functionality.
+        """
         try:
             auth_header = request.META.get('HTTP_AUTHORIZATION', '')
             if auth_header.startswith('Bearer '):
                 jwt = auth_header.split()[1]
                 AccessToken(jwt)
+                return FindPlddtAPI.post(FindPlddtAPI(), request)
+            else:
+                return Response("Auth header must begin with Bearer", status=401)
         except TokenError as e:
-            return FindPlddtAPI.post(FindPlddtAPI(), request)
+            return Response('Could not validate credentials', status=401)
 
-    def get(self, request):
-        return Response()
 
 
 class FindResolutionPublicAPI(APIView):
+    permission_classes = [AllowAny]
 
-    renderer_classes = [CustomAPIRenderer]
-
+    @swagger_auto_schema(
+        operation_summary="Find Resolution (Public)",
+        operation_description="""Public endpoint to find protein resolution data. 
+        If a valid JWT token is provided, processes the request""",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'CCID': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Identifier for the protein structure",
+                    example="p.His144Gln"
+                ),
+                'gene_id': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Identifier in the gene structure",
+                    example="ENSG00000001561"
+                ),
+            },
+            required=['CCID', 'gene_id']
+        ),
+        responses={
+            200: openapi.Response(
+                description="Successfully retrieved resolution data",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'resolution': openapi.Schema(
+                            type=openapi.TYPE_NUMBER,
+                            description="Resolution in Angstroms",
+                            example=2.5
+                        ),
+                        'method': openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description="Method used for structure determination",
+                            example="X-RAY DIFFRACTION"
+                        ),
+                        # Add other response fields based on what FindResolutionAPI returns
+                    }
+                )
+            ),
+            400: openapi.Response(
+                description="Bad request",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'error': openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description="Error message"
+                        )
+                    }
+                )
+            ),
+            401: "Invalid authentication credentials",
+            500: "Internal server error"
+        },
+        tags=['Protein Structure Analysis'],
+        security=[
+            {'Bearer': []}
+        ],
+        manual_parameters=[
+            openapi.Parameter(
+                'Authorization',
+                openapi.IN_HEADER,
+                description="Bearer token (required) - If provided and valid, enables additional features",
+                type=openapi.TYPE_STRING,
+                required=True
+            )
+        ]
+    )
     def post(self, request):
+        """
+        Find resolution data for a protein structure.
+        Accessible without authentication, but authenticated users may receive additional data.
+        Invalid or missing authentication returns 401.
+        """
         try:
             auth_header = request.META.get('HTTP_AUTHORIZATION', '')
             if auth_header.startswith('Bearer '):
                 jwt = auth_header.split()[1]
                 AccessToken(jwt)
+            else:
+                return Response("Auth header must begin with Bearer", status=401)
         except TokenError as e:
-            return redirect('user_accounts:account-welcome')
+            return Response('Could not validate credentials', status=401)
 
         return FindResolutionAPI.post(FindResolutionAPI(), request)
 
+    @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def get(self, request):
         return Response()
 
@@ -265,19 +350,114 @@ class FindResolutionPublicAPI(APIView):
 @method_decorator(csrf_exempt, name='dispatch')
 class FasprPrepPublicAPI(APIView):
 
-    renderer_classes = [CustomAPIRenderer]
-
     @method_decorator(csrf_exempt)
+    @swagger_auto_schema(
+        operation_summary="Faspr Prep (Public)",
+        operation_description="""Public endpoint to prepare PDB 
+            JWT Required""",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'CCID': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Identifier for the protein structure",
+                    example="p.His144Gln"
+                ),
+                'angstroms': openapi.Schema(
+                    type=openapi.TYPE_INTEGER,
+                    description="",
+                    example="10"
+                ),
+                'chain_id': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Chain identifier in the protein structure",
+                    example="A"
+                ),
+                'file_location': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="File location to store PDBGEN file",
+                    example="/home/boss/website_activity/remote_pdb/remote_pdb/proteins/lr/pdb4lr2.ent"
+                ),
+                'gene_ID': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Identifier for the gene",
+                    example="ENSG00000001561"
+                ),
+                'reported_location': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Location for the pdb file",
+                    example="AF-Q9Y6X5-F1-model_v1.pdb"
+                ),
+                'toggleAggleFoldOn': openapi.Schema(
+                    type=openapi.TYPE_BOOLEAN,
+                    description="AlphaFold2 or Experimental parameter",
+                    example="true"
+                )
+            },
+            required=['CCID', 'angstroms', 'chain_id', 'file_location','gene_id','reported_location','toggleAlphaFoldOn']  # List required fields
+        ),
+        responses={
+            200: openapi.Response(
+                description="Successfully retrieved resolution data",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'resolution': openapi.Schema(
+                            type=openapi.TYPE_NUMBER,
+                            description="Resolution in Angstroms",
+                            example=2.5
+                        ),
+                        'method': openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description="Method used for structure determination",
+                            example="X-RAY DIFFRACTION"
+                        ),
+                    }
+                )
+            ),
+            400: openapi.Response(
+                description="Bad request",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'error': openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description="Error message"
+                        )
+                    }
+                )
+            ),
+            401: "Invalid authentication credentials",
+            500: "Internal server error"
+        },
+        tags=['Protein Structure Analysis'],
+        security=[
+            {'Bearer': []}
+        ],
+        manual_parameters=[
+            openapi.Parameter(
+                'Authorization',
+                openapi.IN_HEADER,
+                description="Bearer token (required)",
+                type=openapi.TYPE_STRING,
+                required=True
+            )
+        ]
+    )
     def post(self, request):
         try:
             auth_header = request.META.get('HTTP_AUTHORIZATION', '')
             if auth_header.startswith('Bearer '):
                 jwt = auth_header.split()[1]
                 AccessToken(jwt)
+                return FasprPrepAPI.post(FasprPrepAPI(), request)
+            else:
+                return Response("Bearer must be present in authorization header")
         except TokenError as e:
-            return redirect('user_accounts:account-welcome')
+            return Response('Could not validate credentials', status=401)
 
-        return FasprPrepAPI.post(FasprPrepAPI(), request)
 
+
+    @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def get(self, request):
         return Response(request)

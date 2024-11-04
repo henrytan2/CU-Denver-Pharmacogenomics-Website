@@ -1,7 +1,9 @@
 import json
 
 from django.http import JsonResponse
+from django.utils.decorators import method_decorator
 from django.views import generic
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import AllowAny
 
 from .models import Precursors
@@ -13,6 +15,7 @@ class FetchAllPrecursorsAPI(APIView):
     model = Precursors
     permission_classes = (AllowAny,)
 
+    @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def get(self, request):
         response = list(self.model.objects.all().values())
         return Response(response)
@@ -21,6 +24,7 @@ class FetchPrecursorsForDrugsAPI(APIView):
     model = Precursors
     permission_classes = (AllowAny,)
 
+    @swagger_auto_schema(auto_schema=None)
     def post(self, request):
         data = json.loads(request.body)
         precursor_UUIDs = data['precursor_UUIDs']
@@ -29,6 +33,7 @@ class FetchPrecursorsForDrugsAPI(APIView):
 
 
 class ReceivePrecursorsSelectedAPI(APIView):
+    @swagger_auto_schema(auto_schema=None)
     def post(self, request):
         if request.method == 'POST':
             request.session['precursor_UUIDs'] = []
@@ -44,6 +49,7 @@ class PrecursorsTemplateView(generic.TemplateView):
 class PrecursorFetchAPIView(APIView):
     model = Precursors
 
+    @swagger_auto_schema(auto_schema=None)
     def post(self, request):
         precursor_UUIDs = request.session['precursor_UUIDs']
         precursors = list(self.model.objects.filter(UUID__in=precursor_UUIDs).values())

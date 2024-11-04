@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.views import generic
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -13,6 +14,7 @@ class GetTissueTypes(APIView):
     model = GTEx
     permission_classes = (AllowAny,)
 
+    @swagger_auto_schema(auto_schema=None)
     def get(self, request):
         all_fields = self.model._meta.get_fields()
         do_not_include = ['ID', 'Gene ID', 'Description']
@@ -25,6 +27,7 @@ class GetRangeResults(APIView):
     model = GTEx
     permission_classes = (AllowAny,)
 
+    @swagger_auto_schema(auto_schema=None)
     def post(self, request):
         filter_list = list(self.request.data)
         all_fields = self.model._meta.get_fields()
@@ -59,6 +62,7 @@ class GetRatioResults(APIView):
     model = GTEx
     permission_classes = (AllowAny,)
 
+    @swagger_auto_schema(auto_schema=None)
     def post(self, request):
         all_fields = self.model._meta.get_fields()
         all_fields_verbose = [f.verbose_name for f in all_fields]

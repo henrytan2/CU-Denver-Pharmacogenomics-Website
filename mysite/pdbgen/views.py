@@ -10,10 +10,6 @@ from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
 
 
-class IndexView(generic.TemplateView):
-    template_name = 'pdbgen_index.html'
-
-
 @permission_classes([AllowAny])
 @csrf_exempt
 @require_http_methods(["POST"])

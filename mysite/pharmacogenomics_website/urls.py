@@ -16,23 +16,39 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from . import views
-from rest_framework.authtoken import views as rest_views
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from django.conf import settings
+
+if settings.DEBUG:
+    API_ROUTE = ''
+else:
+    API_ROUTE = 'api/'
+
+print(f'IN DEBUG MODE: {settings.DEBUG}')
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="CU Denver Pharmacogenomics API",
+        default_version='v1',
+        description="API documentation for CU Denver Pharmacogenomics Website",
+    ),
+    public=True,
+    permission_classes=[permissions.AllowAny,],
+)
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),
-    path('', views.IndexView.as_view(), name='index'),
-    path('people/', views.PeopleView.as_view(), name='people'),
-    path('contact/', views.ContactView.as_view(), name='contact'),
-    path('pharmacogenomics/', views.IndexView.as_view(), name='index2'),
-    path('pharmacogenomics/', include('pharmacogenomics.urls')),
-    path('gtexome/', include('gtexome.urls')),
-    path('metabolites/', include('metabolites.urls')),
-    path('precursors/', include('precursors.urls')),
-    path('pdbgen-backend/', include('pdbgen.urls')),
-    path('django_plotly_dash/', include('django_plotly_dash.urls')),
-    path('api-token-auth/', rest_views.obtain_auth_token),
-    path('accounts/', include('django.contrib.auth.urls')),
-    path('user_accounts/', include('user_accounts.urls')),
+    path(f'{API_ROUTE}admin/', admin.site.urls),
+    path(f'{API_ROUTE}api/', include('api.urls')),
+    path(f'{API_ROUTE}pharmacogenomics/', include('pharmacogenomics.urls')),
+    path(f'{API_ROUTE}gtexome/', include('gtexome.urls')),
+    path(f'{API_ROUTE}metabolites/', include('metabolites.urls')),
+    path(f'{API_ROUTE}precursors/', include('precursors.urls')),
+    path(f'{API_ROUTE}pdbgen-backend/', include('pdbgen.urls')),
+    path(f'{API_ROUTE}django_plotly_dash/', include('django_plotly_dash.urls')),
+    path(f'{API_ROUTE}accounts/', include('django.contrib.auth.urls')),
+    path(f'{API_ROUTE}user_accounts/', include('user_accounts.urls')),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui')
     ]

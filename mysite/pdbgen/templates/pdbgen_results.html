@@ -39,37 +39,6 @@
     <script type="application/javascript">
         Vue.component('index', {
             template: "#index-template",
-
-            methods: {
-                downloadProtein() {
-                    var _this = this;
-                    $.ajax({
-                        type: 'GET',
-                        url: '{% url 'api:cache_protein_structure' %}',
-                        data: '',
-                        success: function (protein_structure) {
-                            const pdb_blob = new Blob(
-                                [protein_structure],
-                                {
-                                    type: "text/plain;charset=utf-8"
-                                }
-                            );
-                            const url = window.URL.createObjectURL(pdb_blob);
-                            const a = document.createElement('a');
-                            a.style.display = 'none';
-                            a.href = url;
-                            a.download = 'repacked_protein.pdb';
-                            document.body.appendChild(a);
-                            a.click();
-                            window.URL.revokeObjectURL(url);
-                        }
-                    })
-
-                },
-                edit: function () {
-                    history.back();
-                },
-            }
         })
     </script>
 

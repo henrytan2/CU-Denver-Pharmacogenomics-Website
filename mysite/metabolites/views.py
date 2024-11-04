@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.views import generic
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import AllowAny
 
 from .models import Metabolite
@@ -17,6 +18,7 @@ class GetMetabolitesViewForOnePrecursor(APIView):
     precursors_to_metabolites = {}
     permission_classes = (AllowAny,)
 
+    @swagger_auto_schema(auto_schema=None)
     def post(self, request):
         self.precursors_to_metabolites.clear()
         request_parsed = dict(self.request.data)
@@ -61,6 +63,7 @@ class GetMetabolitesForMultiplePrecursors(APIView):
             if metabolites_for_precursor is not None:
                 precursor_metabolite_map[precursor_for_view] = build_metabolite_for_template(metabolites_for_precursor)
 
+    @swagger_auto_schema(auto_schema=None)
     def post(self, request):
         request_parsed = dict(self.request.data)
         precursor_uuids = request_parsed["precursorUUIDs"]
@@ -120,13 +123,6 @@ class MetaboliteView(generic.ListView):
         self.map_precursors_to_metabolites(precursors, self.precursors_to_metabolites)
         return HttpResponse('metabolites:metabolite_index',
                             {'precursor_UUIDs': self.request.session['precursor_UUIDs']})
-
-
-class CheckMetabolites(APIView):
-    permission_classes = (AllowAny,)
-    def get(self, request):
-        response = cache.get('precursors_to_metabolites_filled')
-        return Response(response)
 
 class MetaboliteSingleView(generic.ListView):
     model = Metabolite

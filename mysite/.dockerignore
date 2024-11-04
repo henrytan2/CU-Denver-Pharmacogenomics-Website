@@ -1,0 +1,17 @@
+# Ignore node_modules directory
+node_modules
+
+# Ignore any files with .log extension
+*.log
+
+# Ignore Dockerfile and .dockerignore file itself
+Dockerfile
+.dockerignore
+
+# Ignore all hidden files (dotfiles), except .env
+.*
+!.env
+
+# Ignore build artifacts
+dist/
+build/
