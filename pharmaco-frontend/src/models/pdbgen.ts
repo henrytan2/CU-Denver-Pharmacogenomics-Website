@@ -38,6 +38,7 @@ export interface FasprPrepRequest {
   file_location: string
   chain_id?: string
   reported_location?: string
+  uploaded_file?: File
 }
 
 export interface FasprPrepResponse {

@@ -1,5 +1,4 @@
 import os.path
-from os import remove
 
 import paramiko
 import json

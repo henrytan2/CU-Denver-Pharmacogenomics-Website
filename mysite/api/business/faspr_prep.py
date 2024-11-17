@@ -38,6 +38,7 @@ class FasprPrepUpload:
         self.chain_id = self.find_chain_id(self.pdb_content, self.mutation_position)
 
         self.chain_pdb = 'empty'
+        self.uploaded_file = uploaded_file
 
         #need to save uploaded file to temp_folder/file_name
         try:
