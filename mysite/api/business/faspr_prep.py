@@ -15,8 +15,9 @@ class FasprPrep:
     scratch_folder = os.path.join('website_activity')
     alpha_folder = os.path.join('Documents', 'alphafold')
     temp_folder = os.path.join(scratch_folder, 'tmp')
+    uploaded_file = None
 
-    def __init__(self, CCID, gene_ID, angstroms, use_alphafold, file_location, chain_id, reported_location):
+    def __init__(self, CCID, gene_ID, angstroms, use_alphafold, file_location, chain_id, reported_location, uploaded_file):
         self.alderaan = Alderaan()
         self.CCID = CCID
         self.mutant_n = str(re.findall(r'\d+', self.CCID))
@@ -35,6 +36,7 @@ class FasprPrep:
         self.protein_location = file_location
         self.chain_id = chain_id
         self.chain_pdb = 'empty'
+        self.uploaded_file = uploaded_file
 
         if self.use_alphafold == 'false':
             self.reported_location = reported_location
@@ -76,7 +78,6 @@ class FasprPrep:
             self.reported_location = self.temp_folder + f'/{self.file_name}'
             self.structure, self.header, self.protein_location = self.get_sequence_unmut(
                 self.protein_location)
-            self.model = self.structure[0]
             self.model = self.structure[0]
             self.repack_pLDDT = 'Using Uploaded PDB file'
             self.unmutated_sequence, self.sequence_length = self.get_peptide_properties(self.structure)

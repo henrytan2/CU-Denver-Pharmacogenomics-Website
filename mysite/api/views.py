@@ -1,3 +1,5 @@
+import json
+
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from drf_yasg import openapi
@@ -24,14 +26,24 @@ class FasprPrepAPI(APIView):
 
     @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def post(self, request, **kwargs):
-        ccid = request.data['CCID']
-        gene_ID = request.data['gene_ID']
-        angstroms = request.data['angstroms']
-        useAlphafold = request.data['toggleAlphaFoldOn']
-        file_location = request.data['file_location']
-        chain_id = request.data['chain_id']
-        reported_location = request.data['reported_location']
-        faspr_prep = FasprPrep(ccid, gene_ID, angstroms, useAlphafold, file_location, chain_id, reported_location)
+        data = json.loads(request.data['data'])
+        ccid = data['CCID']
+        gene_ID = data['gene_ID']
+        angstroms = data['angstroms']
+        useAlphafold = data['toggleAlphaFoldOn']
+        file_location = data['file_location']
+        chain_id = data['chain_id']
+        reported_location = data['reported_location']
+        uploaded_file = request.FILES.get('file')
+        faspr_prep = FasprPrep(
+            ccid,
+            gene_ID,
+            angstroms,
+            useAlphafold,
+            file_location,
+            chain_id,
+            reported_location,
+            uploaded_file)
         sequence_length = faspr_prep.sequence_length
         residues = faspr_prep.positions
         get_mut_seq = faspr_prep.get_mut_seq

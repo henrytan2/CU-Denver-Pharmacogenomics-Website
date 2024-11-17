@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import { API_URL_NAME, PATH_NAME, apiUrls, paths } from '@/constants/paths'
-import { ApiLoadingState } from '@/constants/enums'
+import { ApiLoadingState, GTExomeTab } from '@/constants/enums'
 import { ProteinSource } from '@/models/refold'
 import { useRefoldStore } from './refoldStore'
 import type {
@@ -17,8 +17,10 @@ import type {
   StorePdbGenDataResponse
 } from '@/models/pdbgen'
 import router from '@/router'
+import { useGTExomeStore } from './GTExomeStore'
 
 const refoldStore = useRefoldStore()
+const gtexomeStore = useGTExomeStore()
 
 export const usePdbgenStore = defineStore('Pdbgen', {
   state: () => {
@@ -29,7 +31,7 @@ export const usePdbgenStore = defineStore('Pdbgen', {
       findPLDDTLoadingState: ApiLoadingState.Idle,
       findPLDDTRequest: undefined as unknown as FindPLDDTRequest,
       findPLDDTResponse: undefined as unknown as FindPLDDTResponse,
-      fasprPrepRequest: undefined as unknown as FasprPrepRequest,
+      fasprPrepRequest: {} as unknown as FasprPrepRequest,
       fasprPrepResponse: undefined as unknown as FasprPrepResponse,
       fasprRunRequest: undefined as unknown as FasprRunRequest,
       fasprRunResponse: undefined as unknown as FasprRunResponse,
@@ -107,6 +109,11 @@ export const usePdbgenStore = defineStore('Pdbgen', {
       const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.FASPR_PREP]}`
       this.fasprPrepLoadingState = ApiLoadingState.Pending
       let reportedLocation = undefined
+      const formData = new FormData()
+      if (this.fasprPrepRequest.uploaded_file != undefined) {
+        formData.append('file', this.fasprPrepRequest.uploaded_file)
+      }
+
       if (this.selectedProteinSource == ProteinSource.AlphaFold2) {
         reportedLocation = this.findPLDDTResponse.af_file_location
       } else if (this.selectedProteinSource == ProteinSource.Experimental) {
@@ -118,15 +125,19 @@ export const usePdbgenStore = defineStore('Pdbgen', {
         CCID: refoldStore.selectedCCID?.hgvsp ?? undefined,
         gene_ID: refoldStore.selectedGene?.ensembl_id ?? undefined,
         angstroms: this.angstromsInput,
-        toggleAlphaFoldOn: this.selectedProteinSource == ProteinSource.AlphaFold2,
+        toggleAlphaFoldOn:
+          gtexomeStore.selectedTab == GTExomeTab.upload
+            ? 'uploaded'
+            : this.selectedProteinSource == ProteinSource.AlphaFold2,
         file_location: this.findResolutionApiResponse.file_location,
         chain_id: this.findResolutionApiResponse.chain_id,
         reported_location: reportedLocation
       }
+      formData.append('data', JSON.stringify(request))
       axios
-        .post(url, JSON.stringify(request), {
+        .post(url, formData, {
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'multipart/form-data',
             Accept: 'application/json'
           }
         })

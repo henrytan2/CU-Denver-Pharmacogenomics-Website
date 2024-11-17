@@ -35,9 +35,11 @@
     "jquery": "^3.7.1",
     "lodash": "^4.17.21",
     "pinia": "^2.1.7",
+    "vee-validate": "^4.14.7",
     "vue": "^3.4.15",
     "vue-multiselect": "^3.0.0",
-    "vue-router": "^4.2.5"
+    "vue-router": "^4.2.5",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.24.1",

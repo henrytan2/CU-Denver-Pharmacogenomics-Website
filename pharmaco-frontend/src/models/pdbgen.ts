@@ -34,10 +34,11 @@ export interface FasprPrepRequest {
   CCID?: string
   gene_ID?: string
   angstroms?: number
-  toggleAlphaFoldOn: boolean
+  toggleAlphaFoldOn: boolean | string
   file_location: string
   chain_id: string
   reported_location?: string
+  uploaded_file?: File
 }
 
 export interface FasprPrepResponse {

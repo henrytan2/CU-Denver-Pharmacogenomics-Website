@@ -4,6 +4,7 @@ import axios from 'axios'
 import { API_URL_NAME, apiUrls } from '@/constants/paths'
 import { ApiLoadingState } from '@/constants/enums'
 import type { ExomeResponseRefold, GeneIdAndCCID } from '@/models/refold'
+import { axiosWithRetry } from '@/utils/axios-utils'
 
 export const useRefoldStore = defineStore('refold', {
   state: () => {
@@ -45,14 +46,12 @@ export const useRefoldStore = defineStore('refold', {
           referenceGenome: 'GRCh37'
         }
       }
-
+      const headers = {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      }
       try {
-        const response = await axios.post(url, JSON.stringify(requestBody), {
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json'
-          }
-        })
+        const response = await axiosWithRetry<ExacSearchResults>(url, requestBody, headers, 3)
 
         if (response.status === 200) {
           this.geneSearchRequestLoadingState = ApiLoadingState.Success
@@ -85,22 +84,29 @@ export const useRefoldStore = defineStore('refold', {
           }
         }
       `
-      axios
-        .post(url, { query: query })
-        .then(async (response) => {
-          if (response.status == 200) {
-            this.exomeLoadingState = ApiLoadingState.Success
-            const json: ExomeResponseRefold = response.data
-            this.geneAndCCIDs = json.data.gene.variants.filter((o) => o.hgvsp != null)
-          } else {
-            this.exomeLoadingState = ApiLoadingState.Failed
-            throw Error('Get exome variants failed')
-          }
-        })
-        .catch((error) => {
+      const headers = {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      }
+      try {
+        const response = await axiosWithRetry<ExomeResponseRefold>(
+          url,
+          { query: query },
+          headers,
+          3
+        )
+        if (response.status === 200) {
+          this.exomeLoadingState = ApiLoadingState.Success
+          const json = response.data
+          this.geneAndCCIDs = json.data.gene.variants.filter((o) => o.hgvsp != null)
+        } else {
           this.exomeLoadingState = ApiLoadingState.Failed
-          console.log(error)
-        })
+          throw Error('Get exome variants failed')
+        }
+      } catch (error) {
+        this.exomeLoadingState = ApiLoadingState.Failed
+        console.log(error)
+      }
     }
   }
 })

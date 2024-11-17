@@ -13,7 +13,8 @@ export const enum MetabolovigilanceTab {
 export const enum GTExomeTab {
   gtex,
   exac,
-  refold
+  refold,
+  upload
 }
 
 export const enum gtexFilter {
