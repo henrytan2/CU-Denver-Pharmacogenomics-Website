@@ -10,7 +10,7 @@ import { ApiLoadingState } from '@/constants/enums'
 import { useRoute } from 'vue-router'
 import { useGTExomeStore } from '@/stores/GTExomeStore'
 import { GTExomeTab } from '@/constants/enums'
-
+import { debounce } from 'lodash'
 
 const infoModalText = `You will arrive at this page with a geneID and mutation (CCID) populated.
 A search for experimental and AlphaFold2 structures starts automatically.
@@ -29,10 +29,10 @@ const RefoldStore = useRefoldStore()
 const pdbgenStore = usePdbgenStore()
 const GTExomeStore = useGTExomeStore()
 
-const getExacGeneResults = (value: string) => {
+const getExacGeneResults = debounce((value: string) => {
   RefoldStore.fetchExomeForRefold(value)
   RefoldStore.fetchGeneSearchResults(value)
-}
+}, 500)
 
 const getBestResolutionAndPlddtScore = () => {
   if (RefoldStore.selectedGene != undefined && RefoldStore.selectedCCID != undefined) {
@@ -266,7 +266,11 @@ const highlightedText = computed(() => {
               </div>
               <div v-else>
                 <p>{{ pdbgenStore.fasprPrepResponse?.repack_pLDDT }}</p>
-                <p id="text-container" class="text-break flex-grow-0 flex-shrink-0 w-50" v-html="highlightedText"></p>
+                <p
+                  id="text-container"
+                  class="text-break flex-grow-0 flex-shrink-0 w-50"
+                  v-html="highlightedText"
+                ></p>
               </div>
             </div>
           </div>
