@@ -3,7 +3,7 @@
 import InfoModal from '@/components/info-modal/info-modal.vue'
 import { Multiselect } from 'vue-multiselect'
 import { useRefoldStore } from '@/stores/refoldStore'
-import { computed, onMounted, ref, watchEffect } from 'vue'
+import { computed, onMounted, ref, watch, watchEffect } from 'vue'
 import { usePdbgenStore } from '@/stores/PdbgenStore'
 import Button from '@/components/button/button.vue'
 import { ApiLoadingState } from '@/constants/enums'
@@ -30,9 +30,21 @@ const pdbgenStore = usePdbgenStore()
 const GTExomeStore = useGTExomeStore()
 
 const getExacGeneResults = debounce(async (value: string) => {
-  await RefoldStore.fetchExomeForRefold(value)
   await RefoldStore.fetchGeneSearchResults(value)
 }, 500)
+
+const getExomeSearchResults = debounce(async () => {
+  await RefoldStore.fetchExomeForRefold(RefoldStore.selectedGene?.symbol ?? '')
+}, 500)
+
+watch(
+  () => RefoldStore.selectedGene,
+  async () => {
+    if (RefoldStore.selectedGene != undefined) {
+      getExomeSearchResults()
+    }
+  }
+)
 
 const getBestResolutionAndPlddtScore = () => {
   if (RefoldStore.selectedGene != undefined && RefoldStore.selectedCCID != undefined) {
@@ -125,7 +137,6 @@ const highlightedText = computed(() => {
                   : RefoldStore.geneSearchResults.data.gene_search
               "
               label="symbol"
-              @update:modelValue="getExacGeneResults"
               @search-change="(value: string) => getExacGeneResults(value)"
               @select="() => getBestResolutionAndPlddtScore()"
               placeholder="e.g. ENPP4"
