@@ -70,6 +70,9 @@ export const useRefoldStore = defineStore('refold', {
       }
     },
     fetchExomeForRefold: async function (geneId: string) {
+      if (geneId == '') {
+        return
+      }
       this.exomeLoadingState = ApiLoadingState.Pending
       const url = `${apiUrls[API_URL_NAME.GTEXOME_GENE_SEARCH_RESULTS]}`
       const query = `
