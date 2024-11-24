@@ -29,9 +29,9 @@ const RefoldStore = useRefoldStore()
 const pdbgenStore = usePdbgenStore()
 const GTExomeStore = useGTExomeStore()
 
-const getExacGeneResults = debounce((value: string) => {
-  RefoldStore.fetchExomeForRefold(value)
-  RefoldStore.fetchGeneSearchResults(value)
+const getExacGeneResults = debounce(async (value: string) => {
+  await RefoldStore.fetchExomeForRefold(value)
+  await RefoldStore.fetchGeneSearchResults(value)
 }, 500)
 
 const getBestResolutionAndPlddtScore = () => {
