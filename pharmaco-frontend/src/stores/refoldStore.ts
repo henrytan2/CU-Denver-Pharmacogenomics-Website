@@ -27,6 +27,9 @@ export const useRefoldStore = defineStore('refold', {
       this.geneSearchResults = geneSearchResults
     },
     async fetchGeneSearchResults(geneSymbol: string) {
+      if (geneSymbol == '') {
+        return
+      }
       const url = `${apiUrls[API_URL_NAME.GTEXOME_GENE_SEARCH_RESULTS]}`
       this.geneSearchRequestLoadingState = ApiLoadingState.Pending
 
@@ -66,9 +69,9 @@ export const useRefoldStore = defineStore('refold', {
         return Promise.reject(error) // Ensure the promise is rejected if there's an error
       }
     },
-    fetchExomeForRefold: function (geneId: string) {
+    fetchExomeForRefold: async function (geneId: string) {
       this.exomeLoadingState = ApiLoadingState.Pending
-      const url = 'https://gnomad.broadinstitute.org/api/'
+      const url = `${apiUrls[API_URL_NAME.GTEXOME_GENE_SEARCH_RESULTS]}`
       const query = `
       query {
         gene(gene_symbol: "${geneId}", reference_genome: GRCh37) {
