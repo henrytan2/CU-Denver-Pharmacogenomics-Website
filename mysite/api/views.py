@@ -1,5 +1,4 @@
 import json
-
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from drf_yasg import openapi
@@ -10,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import AccessToken
 from .business.faspr_prep import FasprPrep
+from .business.faspr_prep import FasprPrepUpload
 from .business.faspr_run import FasprRun
 from .business.metabolite_gen import MetabPrep
 from .business.best_resolution import FindBestResolution
@@ -20,6 +20,52 @@ from datetime import date
 from rest_framework.permissions import AllowAny
 
 error_logger = logging.getLogger('django.error')
+
+
+class FasprPrepUploadAPI(APIView):
+    permission_classes = (AllowAny,)
+
+    @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
+    def post(self, request, **kwargs):
+        data = json.loads(request.data['data'])
+        ccid = data['CCID']
+        file_location = data['file_location']
+        uploaded_file = request.FILES.get('file')
+        faspr_prep_upload = FasprPrepUpload(
+            ccid,
+            file_location
+            )
+        sequence_length = faspr_prep_upload.sequence_length
+        residues = faspr_prep_upload.positions
+        get_mut_seq = faspr_prep_upload.get_mut_seq
+        reported_location = faspr_prep_upload.reported_location
+        header = str(f'REMARK created on GTExome (https://pharmacogenomics.clas.ucdenver.edu/gtexome/)')
+        header += (f'\nREMARK created on: {date.today()}')
+        header += (f'\nREMARK from user provided file: {reported_location}')
+        header += (f'\nREMARK introducing mutation: {ccid}')
+        header += ('\nREMARK FASPR Repacked these residues:')
+        header += (str(residues))
+        header += ('\n')
+        header += faspr_prep_upload.header
+        cache.set('pdb_header', header)
+        chain_pdb = faspr_prep_upload.chain_pdb
+        chain_pdb = "".join(chain_pdb)
+        cache.set('chain_pdb', chain_pdb)
+        protein_location = faspr_prep_upload.protein_location
+        response_dict = {"residue_output": list(residues),
+                         "sequence_length": sequence_length,
+                         "mut_seq": get_mut_seq,
+                         "header": header,
+                         "protein_location": protein_location}
+        if kwargs:
+            response_dict.update(kwargs)
+        return Response(response_dict)
+
+    @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
+    def get(self, request):
+        returned_protein_structure = cache.get('protein_structure')
+        return Response(returned_protein_structure)
+
 
 class FasprPrepAPI(APIView):
     permission_classes = (AllowAny,)
