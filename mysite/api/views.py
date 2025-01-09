@@ -1,6 +1,7 @@
 import os.path
 
 import paramiko
+import json
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from drf_yasg import openapi
@@ -31,52 +32,39 @@ class FasprPrepUploadAPI(APIView):
 
     @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def post(self, request, **kwargs):
-        try:
-            ccid = request.data.get('CCID')
-            gene_ID = request.data.get('gene_ID')
-            angstroms = request.data.get('angstroms')
-            useAlphafold = request.data.get('toggleAlphaFoldOn')
-            file_location = request.data.get('file_location')
-            chain_id = request.data.get('chain_id')
-            reported_location = request.data.get('reported_location')
-            faspr_prep = FasprPrep(
-                ccid,
-                gene_ID,
-                angstroms,
-                useAlphafold,
-                file_location,
-                chain_id,
-                reported_location)
-            sequence_length = faspr_prep.sequence_length
-            residues = faspr_prep.positions
-            get_mut_seq = faspr_prep.get_mut_seq
-            repack_pLDDT = faspr_prep.repack_pLDDT
-            reported_location = faspr_prep.reported_location
-            header = str(f'REMARK created on GTExome (https://pharmacogenomics.clas.ucdenver.edu/gtexome/)')
-            header += (f'\nREMARK created on: {date.today()}')
-            header += (f'\nREMARK using gene ID: {gene_ID}')
-            header += (f'\nREMARK from file: {reported_location}')
-            header += (f'\nREMARK introducing mutation: {ccid}')
-            header += ('\nREMARK FASPR Repacked these residues:')
-            header += (str(residues))
-            header += ('\n')
-            header += faspr_prep.header
-            cache.set('pdb_header', header)
-            chain_pdb = faspr_prep.chain_pdb
-            chain_pdb = "".join(chain_pdb)
-            cache.set('chain_pdb', chain_pdb)
-            protein_location = faspr_prep.protein_location
-            response_dict = {"residue_output": list(residues),
-                             "sequence_length": sequence_length,
-                             "mut_seq": get_mut_seq,
-                             "header": header,
-                             "repack_pLDDT": repack_pLDDT,
-                             "protein_location": protein_location}
-            if kwargs:
-                response_dict.update(kwargs)
-            return Response(response_dict)
-        except (KeyError, TypeError) as e:
-            print(e)
+        data = json.loads(request.data['data'])
+        ccid = data['CCID']
+        file_location = data['file_location']
+        uploaded_file = request.FILES.get('file')
+        faspr_prep_upload = FasprPrepUpload(
+            ccid,
+            file_location
+            )
+        sequence_length = faspr_prep_upload.sequence_length
+        residues = faspr_prep_upload.positions
+        get_mut_seq = faspr_prep_upload.get_mut_seq
+        reported_location = faspr_prep_upload.reported_location
+        header = str(f'REMARK created on GTExome (https://pharmacogenomics.clas.ucdenver.edu/gtexome/)')
+        header += (f'\nREMARK created on: {date.today()}')
+        header += (f'\nREMARK from user provided file: {reported_location}')
+        header += (f'\nREMARK introducing mutation: {ccid}')
+        header += ('\nREMARK FASPR Repacked these residues:')
+        header += (str(residues))
+        header += ('\n')
+        header += faspr_prep_upload.header
+        cache.set('pdb_header', header)
+        chain_pdb = faspr_prep_upload.chain_pdb
+        chain_pdb = "".join(chain_pdb)
+        cache.set('chain_pdb', chain_pdb)
+        protein_location = faspr_prep_upload.protein_location
+        response_dict = {"residue_output": list(residues),
+                         "sequence_length": sequence_length,
+                         "mut_seq": get_mut_seq,
+                         "header": header,
+                         "protein_location": protein_location}
+        if kwargs:
+            response_dict.update(kwargs)
+        return Response(response_dict)
 
     @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def get(self, request):
