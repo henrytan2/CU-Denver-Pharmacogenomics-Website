@@ -3,7 +3,6 @@ import json
 from django.contrib.sessions.backends.db import SessionStore
 from django.http import JsonResponse
 from django.shortcuts import render
-from django.views import generic
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import permission_classes

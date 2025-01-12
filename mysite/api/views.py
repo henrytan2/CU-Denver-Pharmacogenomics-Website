@@ -1,13 +1,16 @@
-import json
+import os.path
+
+import paramiko
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer,  TemplateHTMLRenderer
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import AccessToken
+
 from .business.faspr_prep import FasprPrep
 from .business.faspr_prep import FasprPrepUpload
 from .business.faspr_run import FasprRun
@@ -18,6 +21,7 @@ from django.core.cache import cache
 import logging
 from datetime import date
 from rest_framework.permissions import AllowAny
+from django.contrib.sessions.backends.db import SessionStore
 
 error_logger = logging.getLogger('django.error')
 
@@ -72,52 +76,52 @@ class FasprPrepAPI(APIView):
 
     @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def post(self, request, **kwargs):
-        data = json.loads(request.data['data'])
-        ccid = data['CCID']
-        gene_ID = data['gene_ID']
-        angstroms = data['angstroms']
-        useAlphafold = data['toggleAlphaFoldOn']
-        file_location = data['file_location']
-        chain_id = data['chain_id']
-        reported_location = data['reported_location']
-        uploaded_file = request.FILES.get('file')
-        faspr_prep = FasprPrep(
-            ccid,
-            gene_ID,
-            angstroms,
-            useAlphafold,
-            file_location,
-            chain_id,
-            reported_location,
-            uploaded_file)
-        sequence_length = faspr_prep.sequence_length
-        residues = faspr_prep.positions
-        get_mut_seq = faspr_prep.get_mut_seq
-        repack_pLDDT = faspr_prep.repack_pLDDT
-        reported_location = faspr_prep.reported_location
-        header = str(f'REMARK created on GTExome (https://pharmacogenomics.clas.ucdenver.edu/gtexome/)')
-        header += (f'\nREMARK created on: {date.today()}')
-        header += (f'\nREMARK using gene ID: {gene_ID}')
-        header += (f'\nREMARK from file: {reported_location}')
-        header += (f'\nREMARK introducing mutation: {ccid}')
-        header += ('\nREMARK FASPR Repacked these residues:')
-        header += (str(residues))
-        header += ('\n')
-        header += faspr_prep.header
-        cache.set('pdb_header', header)
-        chain_pdb = faspr_prep.chain_pdb
-        chain_pdb = "".join(chain_pdb)
-        cache.set('chain_pdb', chain_pdb)
-        protein_location = faspr_prep.protein_location
-        response_dict = {"residue_output": list(residues),
-                         "sequence_length": sequence_length,
-                         "mut_seq": get_mut_seq,
-                         "header": header,
-                         "repack_pLDDT": repack_pLDDT,
-                         "protein_location": protein_location}
-        if kwargs:
-            response_dict.update(kwargs)
-        return Response(response_dict)
+        try:
+            ccid = request.data.get('CCID')
+            gene_ID = request.data.get('gene_ID')
+            angstroms = request.data.get('angstroms')
+            useAlphafold = request.data.get('toggleAlphaFoldOn')
+            file_location = request.data.get('file_location')
+            chain_id = request.data.get('chain_id')
+            reported_location = request.data.get('reported_location')
+            faspr_prep = FasprPrep(
+                ccid,
+                gene_ID,
+                angstroms,
+                useAlphafold,
+                file_location,
+                chain_id,
+                reported_location)
+            sequence_length = faspr_prep.sequence_length
+            residues = faspr_prep.positions
+            get_mut_seq = faspr_prep.get_mut_seq
+            repack_pLDDT = faspr_prep.repack_pLDDT
+            reported_location = faspr_prep.reported_location
+            header = str(f'REMARK created on GTExome (https://pharmacogenomics.clas.ucdenver.edu/gtexome/)')
+            header += (f'\nREMARK created on: {date.today()}')
+            header += (f'\nREMARK using gene ID: {gene_ID}')
+            header += (f'\nREMARK from file: {reported_location}')
+            header += (f'\nREMARK introducing mutation: {ccid}')
+            header += ('\nREMARK FASPR Repacked these residues:')
+            header += (str(residues))
+            header += ('\n')
+            header += faspr_prep.header
+            cache.set('pdb_header', header)
+            chain_pdb = faspr_prep.chain_pdb
+            chain_pdb = "".join(chain_pdb)
+            cache.set('chain_pdb', chain_pdb)
+            protein_location = faspr_prep.protein_location
+            response_dict = {"residue_output": list(residues),
+                             "sequence_length": sequence_length,
+                             "mut_seq": get_mut_seq,
+                             "header": header,
+                             "repack_pLDDT": repack_pLDDT,
+                             "protein_location": protein_location}
+            if kwargs:
+                response_dict.update(kwargs)
+            return Response(response_dict)
+        except (KeyError, TypeError) as e:
+            print(e)
 
     @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def get(self, request):
@@ -153,6 +157,50 @@ class MetabPrepAPI(APIView):
         metabolites = MetabPrep(smiles_code)
         bt_output = metabolites.bt_output
         return Response({'bt_output': bt_output})
+
+class FasprPrepUploadFileAPI(APIView):
+    permission_classes = (AllowAny,)
+
+    ssh = None
+
+    upload_path = 'website_activity'
+    temp_folder = 'tmp'
+    @swagger_auto_schema(auto_schema=None)
+    def post(self, request):
+        self.ssh = paramiko.SSHClient()
+        self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+        self.ssh.connect(os.getenv('ALDERAAN_IP'), 22,os.getenv('ALDERAAN_USER'), os.getenv('ALDERAAN_PASSWORD'))
+        sftp = self.ssh.open_sftp()
+
+
+        uploaded_file = request.FILES.get('file')
+        destination_folder = '/home/boss/website_activity/tmp'
+        try:
+            if uploaded_file is not None:
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                website_activity_path = os.path.join(base_dir, self.upload_path)
+                temp_folder = os.path.join(website_activity_path, self.temp_folder)
+                session = SessionStore()
+                session.create()
+                session_key = session.session_key
+                file_name, ext = os.path.splitext(uploaded_file.name)
+                destination_file_name = f'{file_name}_{session_key}{ext}'
+                file_path = os.path.join(temp_folder, destination_file_name)
+                if not os.path.exists(temp_folder):
+                    os.makedirs(temp_folder)
+                with open(file_path, 'wb') as f:
+                    for chunk in uploaded_file.chunks():
+                        f.write(chunk)
+                sftp.put(file_path, f'{destination_folder}/{destination_file_name}')
+                return Response({'message': 'File uploaded successfully!', 'destinationFileName':destination_file_name}, status=status.HTTP_201_CREATED)
+        except:
+            return Response({'message': 'Internal Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # finally:
+            # self.ftp.quit()
+        return Response({'message': 'Error uploading file'}, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 class FindResolutionAPI(APIView):
     permission_classes = (AllowAny,)

@@ -308,9 +308,12 @@ class FasprPrep:
         self.get_mut_seq = self.capitalize(self.mutated_sequence, self.positions)
 
     def get_Pnum(self):
-        with open('./pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:
-            ENSG_Pnum_dict = pickle.load(f)
-            self.P_num = ENSG_Pnum_dict[f'{self.gene_ID}']
+        try:
+            with open('./pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:
+                ENSG_Pnum_dict = pickle.load(f)
+                self.P_num = ENSG_Pnum_dict[f'{self.gene_ID}']
+        except:
+            self.P_num = None
 
     def get_sequence_unmut(self, protein_location):
         open_command = f"cat {protein_location} "  # | tee {self.temp_folder}/pdb_temporary.txt"
