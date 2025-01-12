@@ -260,7 +260,6 @@ class FasprPrep:
                 self.mutatseq = '0'
                 self.repack_pLDDT = 'experimental structure not suitable'
                 self.sequence_length = '0'
-
         else:
             self.reported_location = reported_location
 
