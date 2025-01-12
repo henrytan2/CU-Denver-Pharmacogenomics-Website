@@ -43,7 +43,7 @@ class FasprPrepUpload:
             self.file_name = uuid.uuid4()
             self.reported_location = self.temp_folder + f'/{self.file_name}'
             self.structure, self.header, self.protein_location = self.get_sequence_unmut(
-                self.protein_location)
+                f'"{self.temp_folder}/{self.protein_location}"')
             self.model = self.structure[0]
             self.repack_pLDDT = 'Using Uploaded PDB file'
             self.unmutated_sequence, self.sequence_length = self.get_peptide_properties(self.structure)
@@ -78,9 +78,12 @@ class FasprPrepUpload:
         self.get_mut_seq = self.capitalize(self.mutated_sequence, self.positions)
 
     def get_Pnum(self):
-        with open('./pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:
-            ENSG_Pnum_dict = pickle.load(f)
-            self.P_num = ENSG_Pnum_dict[f'{self.gene_ID}']
+        try:
+            with open('./pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:
+                ENSG_Pnum_dict = pickle.load(f)
+                self.P_num = ENSG_Pnum_dict[f'{self.gene_ID}']
+        except:
+            self.P_num = None
 
     def get_sequence_unmut(self, protein_location):
         open_command = f"cat {protein_location} "  # | tee {self.temp_folder}/pdb_temporary.txt"
