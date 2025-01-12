@@ -40,10 +40,43 @@ class FasprPrepUpload:
         self.chain_pdb = 'empty'
         self.uploaded_file = uploaded_file
 
-        #need to save uploaded file to temp_folder/file_name
-        try:
-            self.chain_id = 'A' #FIX
-            self.file_name = uuid.uuid4()
+        if self.use_alphafold == 'false':
+            self.reported_location = reported_location
+            try:
+                self.structure, self.header, self.protein_location = self.get_sequence_unmut(
+                    self.protein_location)
+                self.model = self.structure[0]
+                self.repack_pLDDT = 'Using Experimental'
+                self.unmutated_sequence, self.sequence_length = self.get_peptide_properties(self.structure)
+                self.mutated_sequence = self.unmutated_sequence[:self.mutation_position - 1] + \
+                                        self.unmutated_sequence[self.mutation_position - \
+                                                                1:self.mutation_position].replace(
+                                            self.single_nucleotide,
+                                            self.single_nucleotide_variation) + \
+                                        self.unmutated_sequence[self.mutation_position:]
+
+                self.angstroms = int(angstroms)
+                self.positions = self.get_mutated_sequence3d(self.structure, self.mut_pos, self.chain_id,
+                                                             self.angstroms)
+                if self.chain_id == 'empty':
+                    self.chain_id = 'A'
+
+                self.chain = self.model[self.chain_id]
+                bio_io = PDBIO()
+                bio_io.set_structure(self.chain)
+                bio_io.save("chain_only.pdb")
+                with open("chain_only.pdb", 'r') as f:
+                    self.chain_pdb = f.readlines()
+
+            except:
+                self.positions = '0'
+                self.mutatseq = '0'
+                self.repack_pLDDT = 'experimental structure not suitable'
+                self.sequence_length = '0'
+
+        elif self.use_alphafold == "uploaded":
+            #need to save uploaded file to temp_folder/file_name
+            self.file_name = file_location
             self.reported_location = self.temp_folder + f'/{self.file_name}'
             self.structure, self.header, self.protein_location = self.get_sequence_unmut(
                 f'"{self.temp_folder}/{self.protein_location}"')
@@ -68,14 +101,6 @@ class FasprPrepUpload:
             bio_io.save("chain_only.pdb")
             with open("chain_only.pdb", 'r') as f:
                 self.chain_pdb = f.readlines()
-        #need to delete temp file
-        except Exception as e:
-            print(e)
-            self.positions = '0'
-            self.mutatseq = '0'
-            self.repack_pLDDT = 'experimental structure not suitable'
-            self.sequence_length = '0'
-            self.chain = self.model[self.chain_id]
 
         self.positions_short = str(self.positions)
         self.chain = self.model[self.chain_id]
