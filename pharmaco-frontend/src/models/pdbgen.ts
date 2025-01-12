@@ -36,9 +36,8 @@ export interface FasprPrepRequest {
   angstroms?: number
   toggleAlphaFoldOn: boolean | string
   file_location: string
-  chain_id: string
+  chain_id?: string
   reported_location?: string
-  uploaded_file?: File
 }
 
 export interface FasprPrepResponse {
@@ -70,4 +69,8 @@ export interface StorePdbGenDataRequest {
 export interface StorePdbGenDataResponse {
   success: string
   session_key: string
+}
+
+export interface PdbgenFileUploadResponse {
+  destinationFileName: string
 }

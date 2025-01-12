@@ -14,7 +14,8 @@ import type {
   FasprRunRequest,
   FasprRunResponse,
   StorePdbGenDataRequest,
-  StorePdbGenDataResponse
+  StorePdbGenDataResponse,
+  PdbgenFileUploadResponse
 } from '@/models/pdbgen'
 import router from '@/router'
 import { useGTExomeStore } from './GTExomeStore'
@@ -36,11 +37,14 @@ export const usePdbgenStore = defineStore('Pdbgen', {
       fasprRunRequest: undefined as unknown as FasprRunRequest,
       fasprRunResponse: undefined as unknown as FasprRunResponse,
       fasprPrepLoadingState: ApiLoadingState.Idle,
+      fasprPrepUploadLoadingState: ApiLoadingState.Idle,
+      fasprPrepUploadResponse: undefined as unknown as PdbgenFileUploadResponse,
       fasprRunLoadingState: ApiLoadingState.Idle,
       storePdbgenDataLoadingState: ApiLoadingState.Idle,
       storePdbGenDataResponse: undefined as unknown as StorePdbGenDataResponse,
       selectedProteinSource: ProteinSource.AlphaFold2,
       angstromsInput: 0 as number,
+      angstromsInputFileUpload: 0 as number,
       repackResiduesOnChain: false
     }
   },
@@ -109,11 +113,6 @@ export const usePdbgenStore = defineStore('Pdbgen', {
       const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.FASPR_PREP]}`
       this.fasprPrepLoadingState = ApiLoadingState.Pending
       let reportedLocation = undefined
-      const formData = new FormData()
-      if (this.fasprPrepRequest.uploaded_file != undefined) {
-        formData.append('file', this.fasprPrepRequest.uploaded_file)
-      }
-
       if (this.selectedProteinSource == ProteinSource.AlphaFold2) {
         reportedLocation = this.findPLDDTResponse.af_file_location
       } else if (this.selectedProteinSource == ProteinSource.Experimental) {
@@ -125,19 +124,39 @@ export const usePdbgenStore = defineStore('Pdbgen', {
         CCID: refoldStore.selectedCCID?.hgvsp ?? undefined,
         gene_ID: refoldStore.selectedGene?.ensembl_id ?? undefined,
         angstroms: this.angstromsInput,
-        toggleAlphaFoldOn:
-          gtexomeStore.selectedTab == GTExomeTab.upload
-            ? 'uploaded'
-            : this.selectedProteinSource == ProteinSource.AlphaFold2,
+        toggleAlphaFoldOn: this.selectedProteinSource == ProteinSource.AlphaFold2,
         file_location: this.findResolutionApiResponse.file_location,
         chain_id: this.findResolutionApiResponse.chain_id,
         reported_location: reportedLocation
       }
-      formData.append('data', JSON.stringify(request))
       axios
-        .post(url, formData, {
+        .post(url, JSON.stringify(request), {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'application/json',
+            Accept: 'application/json'
+          }
+        })
+        .then((response) => {
+          if (response.status == 200) {
+            this.fasprPrepLoadingState = ApiLoadingState.Success
+            this.fasprPrepResponse = response.data
+          } else {
+            this.fasprPrepLoadingState = ApiLoadingState.Failed
+            throw Error('Get Faspr Prep response failed')
+          }
+        })
+        .catch((error) => {
+          this.fasprPrepLoadingState = ApiLoadingState.Failed
+          console.log(error)
+        })
+    },
+    fasprPrepUpload: function (request: FasprPrepRequest) {
+      const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.FASPR_PREP]}`
+      this.fasprPrepLoadingState = ApiLoadingState.Pending
+      axios
+        .post(url, JSON.stringify(request), {
+          headers: {
+            'Content-Type': 'application/json',
             Accept: 'application/json'
           }
         })
@@ -213,6 +232,31 @@ export const usePdbgenStore = defineStore('Pdbgen', {
         })
         .catch((error) => {
           this.storePdbgenDataLoadingState = ApiLoadingState.Failed
+          console.log(error)
+        })
+    },
+    uploadFileForFasprPrep: function (file: File) {
+      const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.FASPR_PREP_FILE_UPLOAD]}`
+      const formData = new FormData()
+      formData.append('file', file)
+      axios
+        .post(url, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            Accept: 'application/json'
+          }
+        })
+        .then((response) => {
+          if (response.status == 201) {
+            this.fasprPrepUploadLoadingState = ApiLoadingState.Success
+            this.fasprPrepUploadResponse = response.data
+          } else {
+            this.fasprPrepUploadLoadingState = ApiLoadingState.Failed
+            throw Error('Get Faspr Prep response failed')
+          }
+        })
+        .catch((error) => {
+          this.fasprPrepUploadLoadingState = ApiLoadingState.Failed
           console.log(error)
         })
     }

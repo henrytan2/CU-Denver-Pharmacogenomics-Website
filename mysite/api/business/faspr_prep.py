@@ -15,9 +15,8 @@ class FasprPrep:
     scratch_folder = os.path.join('website_activity')
     alpha_folder = os.path.join('Documents', 'alphafold')
     temp_folder = os.path.join(scratch_folder, 'tmp')
-    uploaded_file = None
 
-    def __init__(self, CCID, gene_ID, angstroms, use_alphafold, file_location, chain_id, reported_location, uploaded_file):
+    def __init__(self, CCID, gene_ID, angstroms, use_alphafold, file_location, chain_id, reported_location):
         self.alderaan = Alderaan()
         self.CCID = CCID
         self.mutant_n = str(re.findall(r'\d+', self.CCID))
@@ -36,7 +35,6 @@ class FasprPrep:
         self.protein_location = file_location
         self.chain_id = chain_id
         self.chain_pdb = 'empty'
-        self.uploaded_file = uploaded_file
 
         if self.use_alphafold == 'false':
             self.reported_location = reported_location
@@ -74,10 +72,10 @@ class FasprPrep:
 
         elif self.use_alphafold == "uploaded":
             #need to save uploaded file to temp_folder/file_name
-            self.file_name = uuid.uuid4()
+            self.file_name = file_location
             self.reported_location = self.temp_folder + f'/{self.file_name}'
             self.structure, self.header, self.protein_location = self.get_sequence_unmut(
-                self.protein_location)
+                f'"{self.temp_folder}/{self.protein_location}"')
             self.model = self.structure[0]
             self.repack_pLDDT = 'Using Uploaded PDB file'
             self.unmutated_sequence, self.sequence_length = self.get_peptide_properties(self.structure)
@@ -152,9 +150,12 @@ class FasprPrep:
         self.get_mut_seq = self.capitalize(self.mutated_sequence, self.positions)
 
     def get_Pnum(self):
-        with open('./pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:
-            ENSG_Pnum_dict = pickle.load(f)
-            self.P_num = ENSG_Pnum_dict[f'{self.gene_ID}']
+        try:
+            with open('./pharmacogenomics_website/resources/ENSG_PN_dictALL.pickle', 'rb') as f:
+                ENSG_Pnum_dict = pickle.load(f)
+                self.P_num = ENSG_Pnum_dict[f'{self.gene_ID}']
+        except:
+            self.P_num = None
 
     def get_sequence_unmut(self, protein_location):
         open_command = f"cat {protein_location} "  # | tee {self.temp_folder}/pdb_temporary.txt"

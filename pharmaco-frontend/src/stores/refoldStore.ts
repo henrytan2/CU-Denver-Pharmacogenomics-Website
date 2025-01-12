@@ -14,7 +14,8 @@ export const useRefoldStore = defineStore('refold', {
       geneSearchResults: undefined as unknown as ExacSearchResults,
       geneAndCCIDs: [] as GeneIdAndCCID[],
       selectedCCID: undefined as unknown as GeneIdAndCCID,
-      selectedGene: undefined as unknown as ExacGeneSearchResponse
+      selectedGene: undefined as unknown as ExacGeneSearchResponse,
+      uploadCCID: undefined as unknown as string
     }
   },
   actions: {
