@@ -112,11 +112,6 @@ export const usePdbgenStore = defineStore('Pdbgen', {
       const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.FASPR_PREP]}`
       this.fasprPrepLoadingState = ApiLoadingState.Pending
       let reportedLocation = undefined
-      const formData = new FormData()
-      if (this.fasprPrepRequest.uploaded_file != undefined) {
-        formData.append('file', this.fasprPrepRequest.uploaded_file)
-      }
-
       if (this.selectedProteinSource == ProteinSource.AlphaFold2) {
         reportedLocation = this.findPLDDTResponse.af_file_location
       } else if (this.selectedProteinSource == ProteinSource.Experimental) {
@@ -128,19 +123,15 @@ export const usePdbgenStore = defineStore('Pdbgen', {
         CCID: refoldStore.selectedCCID?.hgvsp ?? undefined,
         gene_ID: refoldStore.selectedGene?.ensembl_id ?? undefined,
         angstroms: this.angstromsInput,
-        toggleAlphaFoldOn:
-          gtexomeStore.selectedTab == GTExomeTab.upload
-            ? 'uploaded'
-            : this.selectedProteinSource == ProteinSource.AlphaFold2,
+        toggleAlphaFoldOn: this.selectedProteinSource == ProteinSource.AlphaFold2,
         file_location: this.findResolutionApiResponse.file_location,
         chain_id: this.findResolutionApiResponse.chain_id,
         reported_location: reportedLocation
       }
-      formData.append('data', JSON.stringify(request))
       axios
-        .post(url, formData, {
+        .post(url, JSON.stringify(request), {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'application/json',
             Accept: 'application/json'
           }
         })

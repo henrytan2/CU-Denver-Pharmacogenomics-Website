@@ -1,10 +1,9 @@
 from django_plotly_dash import DjangoDash
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 import dash_bio as dashbio
 from dash_bio.utils import PdbParser, create_mol3d_style
 from dash import html
 import pandas as pd
-from django.core.cache import cache
 from dash import dcc
 from dash.exceptions import PreventUpdate
 import re
@@ -14,8 +13,8 @@ import logging
 error_logger = logging.getLogger('django.error')
 
 
-# parser = PdbParser('./pharmacogenomics_website/glygly.pdb')
-parser = PdbParser('https://git.io/4K8X.pdb')
+parser = PdbParser('./pharmacogenomics_website/glygly.pdb')
+# parser = PdbParser('https://git.io/4K8X.pdb')
 
 data = parser.mol3d_data()
 styles = create_mol3d_style(
@@ -118,7 +117,7 @@ def residue(value,
         print('value is none')
         raise PreventUpdate
 
-    if value > length:
+    if value > int(length):
         print('value is > len')
         value = length
 
