@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import { API_URL_NAME, PATH_NAME, apiUrls, paths } from '@/constants/paths'
-import { ApiLoadingState, GTExomeTab } from '@/constants/enums'
+import { ApiLoadingState } from '@/constants/enums'
 import { ProteinSource } from '@/models/refold'
 import { useRefoldStore } from './refoldStore'
 import type {
@@ -18,10 +18,8 @@ import type {
   PdbgenFileUploadResponse
 } from '@/models/pdbgen'
 import router from '@/router'
-import { useGTExomeStore } from './GTExomeStore'
 
 const refoldStore = useRefoldStore()
-const gtexomeStore = useGTExomeStore()
 
 export const usePdbgenStore = defineStore('Pdbgen', {
   state: () => {
