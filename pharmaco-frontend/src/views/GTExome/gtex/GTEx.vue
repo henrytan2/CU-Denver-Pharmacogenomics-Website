@@ -8,6 +8,8 @@ import { Multiselect } from 'vue-multiselect'
 import { type GTexomeRangeModel } from '@/models/gtexome'
 import Button from '@/components/button/button.vue'
 import InfoModal from '@/components/info-modal/info-modal.vue'
+import { Form, useField, useForm } from 'vee-validate'
+import * as yup from 'yup'
 
 const GTExomeStore = useGTExomeStore()
 if (GTExomeStore.tissueLoadingState != ApiLoadingState.Success) {
@@ -31,6 +33,18 @@ const updateSelectedTissues = (tissues: string[]) => {
   )
 }
 
+const schema = yup.object({
+  tissue: yup.string().required('Tissue type(s) required')
+})
+
+const { handleSubmit } = useForm({
+  validationSchema: schema
+})
+
+const { value: tissue, errorMessage: tissueError } = useField('selected-tissue-types')
+
+const onSubmit = handleSubmit(() => {})
+
 const infoModalText = `GTExome is a tool to connect genotype expression data to exome data by filtering the GTEx
     database for specific TPM ranges in different tissue types to get a list of genes. From the list
     of genes, you can view the exome data sourced from
@@ -48,72 +62,83 @@ const infoModalText = `GTExome is a tool to connect genotype expression data to 
 </script>
 
 <template>
-  <InfoModal v-if="GTExomeStore.selectedTab == GTExomeTab.gtex" :modal-text="infoModalText" />
-  <div class="container text-center" style="margin-top: 20px">
-    <div class="row">
-      <div
-        class="btn-group-horizontal"
-        role="group"
-        aria-label="Horizontal radio toggle button group"
-      >
-        <input
-          type="radio"
-          class="btn-check"
-          id="ratio-btn-radio"
-          :checked="GTExomeStore.filterType == gtexFilter.ratio"
-          @click="GTExomeStore.setSelectedFilter(gtexFilter.ratio)"
-        />
-        <label class="btn btn-outline-secondary" for="ratio-btn-radio">Filter By TPM Ratio</label>
-        <input
-          type="radio"
-          class="btn-check"
-          id="range-btn-radio"
-          :checked="GTExomeStore.filterType == gtexFilter.range"
-          @click="GTExomeStore.setSelectedFilter(gtexFilter.range)"
-        />
-        <label class="btn btn-outline-secondary" for="range-btn-radio">Filter By TPM Range</label>
+  <form @submit.prevent="onSubmit">
+    <InfoModal v-if="GTExomeStore.selectedTab == GTExomeTab.gtex" :modal-text="infoModalText" />
+    <div class="container text-center" style="margin-top: 20px">
+      <div class="row">
+        <div
+          class="btn-group-horizontal"
+          role="group"
+          aria-label="Horizontal radio toggle button group"
+        >
+          <input
+            type="radio"
+            class="btn-check"
+            id="ratio-btn-radio"
+            :checked="GTExomeStore.filterType == gtexFilter.ratio"
+            @click="GTExomeStore.setSelectedFilter(gtexFilter.ratio)"
+          />
+          <label class="btn btn-outline-secondary" for="ratio-btn-radio">Filter By TPM Ratio</label>
+          <input
+            type="radio"
+            class="btn-check"
+            id="range-btn-radio"
+            :checked="GTExomeStore.filterType == gtexFilter.range"
+            @click="GTExomeStore.setSelectedFilter(gtexFilter.range)"
+          />
+          <label class="btn btn-outline-secondary" for="range-btn-radio">Filter By TPM Range</label>
+        </div>
       </div>
-    </div>
-    <div class="row" style="margin-top: 20px">
-      <label> Selected Tissue Types </label>
-      <Multiselect
-        v-model="selectedTissues"
-        :options="GTExomeStore.tissues"
-        @update:modelValue="updateSelectedTissues"
-        multiple
-      ></Multiselect>
-    </div>
-    <div class="row" v-show="GTExomeStore.filterType == gtexFilter.range" style="margin-top: 10px">
-      <div v-for="tissue in GTExomeStore.tissueRatios" :key="tissue.tissue">
-        <div style="margin-bottom: 10px">
-          {{ tissue.tissue }}
-          <input type="number" v-model="tissue.range.lower" placeholder="e.g. .05" />
-          <label>&nbsp;to&nbsp;</label>
-          <input type="number" v-model="tissue.range.upper" placeholder="e.g .5" />
+      <div class="row" style="margin-top: 20px">
+        <label> Selected Tissue Types </label>
+        <Multiselect
+          v-model="selectedTissues"
+          id="selected-tissue-types"
+          :options="GTExomeStore.tissues"
+          @update:modelValue="updateSelectedTissues"
+          multiple
+        ></Multiselect>
+      </div>
+      <div
+        class="row"
+        v-show="GTExomeStore.filterType == gtexFilter.range"
+        style="margin-top: 10px"
+      >
+        <div v-for="tissue in GTExomeStore.tissueRatios" :key="tissue.tissue">
+          <div style="margin-bottom: 10px">
+            {{ tissue.tissue }}
+            <input type="number" v-model="tissue.range.lower" placeholder="e.g. .05" />
+            <label>&nbsp;to&nbsp;</label>
+            <input type="number" v-model="tissue.range.upper" placeholder="e.g .5" />
+          </div>
+        </div>
+      </div>
+      <div class="row" v-show="GTExomeStore.filterType == gtexFilter.ratio">
+        <label>Ratio Range (Leave blank for unbounded lower/upper)</label>
+        <div>
+          <input type="number" v-model="GTExomeStore.ratioLowerBound" placeholder="e.g. .05" />
+          <label>&nbsp;≤&nbsp;</label>
+          <input type="number" v-model="GTExomeStore.ratioUpperBound" placeholder="e.g .5" />
         </div>
       </div>
     </div>
-    <div class="row" v-show="GTExomeStore.filterType == gtexFilter.ratio">
-      <label>Ratio Range (Leave blank for unbounded lower/upper)</label>
-      <div>
-        <input type="number" v-model="GTExomeStore.ratioLowerBound" placeholder="e.g. .05" />
-        <label>&nbsp;≤&nbsp;</label>
-        <input type="number" v-model="GTExomeStore.ratioUpperBound" placeholder="e.g .5" />
-      </div>
+    <!-- Display Error Message if Validation Fails -->
+    <div class="w-30">
+      <span v-if="tissueError" class="ms-2 text-danger">{{ tissueError }}</span>
     </div>
-  </div>
-  <div class="d-flex justify-content-end" style="margin-top: 10px">
-    <Button
-      :className="'btn btn-primary'"
-      :buttonText="'Submit'"
-      :showSpinner="
-        GTExomeStore.ratioResultsLoadingState == ApiLoadingState.Pending ||
-        GTExomeStore.rangeResultsLoadingState == ApiLoadingState.Pending
-      "
-      :onClick="GTExomeStore.fetchResults"
-      :disabled="GTExomeStore.selectedTissues.length <= 0"
-    />
-  </div>
+    <div class="d-flex justify-content-end" style="margin-top: 10px">
+      <Button
+        :className="'btn btn-primary'"
+        :buttonText="'Submit'"
+        :showSpinner="
+          GTExomeStore.ratioResultsLoadingState == ApiLoadingState.Pending ||
+          GTExomeStore.rangeResultsLoadingState == ApiLoadingState.Pending
+        "
+        :onClick="GTExomeStore.fetchResults"
+        :disabled="GTExomeStore.selectedTissues.length <= 0"
+      />
+    </div>
+  </form>
 </template>
 <style>
 input::-webkit-outer-spin-button,

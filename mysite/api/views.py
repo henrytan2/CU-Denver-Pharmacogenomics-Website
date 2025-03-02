@@ -1,4 +1,5 @@
 import os.path
+from os import remove
 
 import paramiko
 import json
@@ -18,7 +19,6 @@ from .business.faspr_run import FasprRun
 from .business.metabolite_gen import MetabPrep
 from .business.best_resolution import FindBestResolution
 from .business.find_plddt import CheckPLDDT
-from django.core.cache import cache
 import logging
 from datetime import date
 from rest_framework.permissions import AllowAny
@@ -32,14 +32,19 @@ class FasprPrepUploadAPI(APIView):
 
     @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def post(self, request, **kwargs):
-        data = json.loads(request.data['data'])
+        data = json.loads(request.body)
+
+        session = SessionStore()
+        session.create()
+
+
         ccid = data['CCID']
         file_location = data['file_location']
-        uploaded_file = request.FILES.get('file')
+        angstroms = data['angstroms']
         faspr_prep_upload = FasprPrepUpload(
             ccid,
-            file_location
-            )
+            file_location,
+            angstroms)
         sequence_length = faspr_prep_upload.sequence_length
         residues = faspr_prep_upload.positions
         get_mut_seq = faspr_prep_upload.get_mut_seq
@@ -52,24 +57,26 @@ class FasprPrepUploadAPI(APIView):
         header += (str(residues))
         header += ('\n')
         header += faspr_prep_upload.header
-        cache.set('pdb_header', header)
+        session['pdb_header'] = header
         chain_pdb = faspr_prep_upload.chain_pdb
         chain_pdb = "".join(chain_pdb)
-        cache.set('chain_pdb', chain_pdb)
+        session['chain_pdb'] = chain_pdb
         protein_location = faspr_prep_upload.protein_location
+        positions = faspr_prep_upload.positions
+
+        session.save()
+
+        session_key = session.session_key
         response_dict = {"residue_output": list(residues),
                          "sequence_length": sequence_length,
                          "mut_seq": get_mut_seq,
                          "header": header,
-                         "protein_location": protein_location}
+                         "protein_location": protein_location,
+                         "session_key": session_key,
+                         "positions": positions}
         if kwargs:
             response_dict.update(kwargs)
         return Response(response_dict)
-
-    @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
-    def get(self, request):
-        returned_protein_structure = cache.get('protein_structure')
-        return Response(returned_protein_structure)
 
 
 class FasprPrepAPI(APIView):
@@ -78,6 +85,9 @@ class FasprPrepAPI(APIView):
     @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def post(self, request, **kwargs):
         try:
+            session = SessionStore()
+            session.create()
+
             ccid = request.data.get('CCID')
             gene_ID = request.data.get('gene_ID')
             angstroms = request.data.get('angstroms')
@@ -107,27 +117,26 @@ class FasprPrepAPI(APIView):
             header += (str(residues))
             header += ('\n')
             header += faspr_prep.header
-            cache.set('pdb_header', header)
+            session['pdb_header'] = header
             chain_pdb = faspr_prep.chain_pdb
             chain_pdb = "".join(chain_pdb)
-            cache.set('chain_pdb', chain_pdb)
+            session['chain_pdb'] = chain_pdb
             protein_location = faspr_prep.protein_location
+            session.save()
+
+            session_key = session.session_key
             response_dict = {"residue_output": list(residues),
                              "sequence_length": sequence_length,
                              "mut_seq": get_mut_seq,
                              "header": header,
                              "repack_pLDDT": repack_pLDDT,
-                             "protein_location": protein_location}
+                             "protein_location": protein_location,
+                             "session_key": session_key}
             if kwargs:
                 response_dict.update(kwargs)
             return Response(response_dict)
         except (KeyError, TypeError) as e:
             print(e)
-
-    @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
-    def get(self, request):
-        returned_protein_structure = cache.get('protein_structure')
-        return Response(returned_protein_structure)
 
 
 class FasprRunAPI(APIView):
@@ -139,12 +148,15 @@ class FasprRunAPI(APIView):
             mutated_sequence = request.data['mutated_sequence']
             protein_location = request.data['protein_location']
             header = request.data['header']
-            faspr_output = FasprRun(mutated_sequence, protein_location, header)
+            session_key = request.data['session_key']
+
+            faspr_output = FasprRun(mutated_sequence, protein_location, header, session_key)
             if 'error' in faspr_output.FASPR_pdb_text:
                 error_logger.error(faspr_output.FASPR_pdb_text)
                 faspr_output.FASPR_pdb_text = 'error with structure'
                 # raise ValueError
             return Response({'protein_structure': faspr_output.FASPR_pdb_text})
+
         except:
             return Response()
 
@@ -197,8 +209,6 @@ class FasprPrepUploadFileAPI(APIView):
                 return Response({'message': 'File uploaded successfully!', 'destinationFileName':destination_file_name}, status=status.HTTP_201_CREATED)
         except:
             return Response({'message': 'Internal Server Error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        # finally:
-            # self.ftp.quit()
         return Response({'message': 'Error uploading file'}, status=status.HTTP_400_BAD_REQUEST)
 
 

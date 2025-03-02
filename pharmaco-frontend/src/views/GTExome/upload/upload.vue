@@ -8,11 +8,15 @@ import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
 import { useUserStore } from '@/stores/UserStore'
 import { paths, PATH_NAME } from '@/constants/paths'
+import { ApiLoadingState } from '@/constants/enums'
+import type { FasprPrepResponse } from '@/models/pdbgen'
 
 const fileRegex = /^.*\.(pdb|biopython)$/
 
-const RefoldStore = useRefoldStore()
 const pdbgenStore = usePdbgenStore()
+
+pdbgenStore.fasprPrepResponse = undefined as unknown as FasprPrepResponse
+
 const userStore = useUserStore()
 const hgvsProteinRegex =
   /^p\.[A-Z][a-z]{2}\d+([A-Z][a-z]{2}|=|del|ins|dup|fs|_)?(del|ins|dup|[A-Z][a-z]{2})?$/
@@ -37,7 +41,7 @@ const schema = yup.object({
     .positive('Angstroms must be greater than 0')
 })
 
-const { handleSubmit, validateField, errors, defineField } = useForm({
+const { handleSubmit, validateField, errors, defineField, validate } = useForm({
   validationSchema: schema,
   initialValues: {
     CCIDInput: '', // Initialize fields
@@ -60,14 +64,27 @@ const [angstromField, angstromFieldProps] = defineField('angstromsInput')
 
 const fileUploadField = useField<File>('fileUpload')
 
-const onSubmit = handleSubmit((values) => {
-  pdbgenStore.fasprPrepUpload({
-    CCID: CCIDField.value,
-    angstroms: angstromField.value!,
-    file_location: pdbgenStore.fasprPrepUploadResponse.destinationFileName,
-    toggleAlphaFoldOn: 'uploaded'
-  })
-})
+const handleGeneratePdbStructure = async () => {
+  const validateFormResponse = await validate()
+  if (validateFormResponse.errors != null) {
+    pdbgenStore.fasprPrepUpload({
+      CCID: CCIDField.value,
+      angstroms: angstromField.value!,
+      file_location: pdbgenStore.fasprPrepFileUploadResponse.destinationFileName,
+      toggleAlphaFoldOn: 'uploaded'
+    })
+  }
+}
+
+const onSubmit = handleSubmit(
+  (values) => {
+    console.log(values)
+    pdbgenStore.fasprRun(true)
+  },
+  (errors) => {
+    console.log(errors)
+  }
+)
 </script>
 <template>
   <div class="d-flex justify-content-center">
@@ -116,14 +133,32 @@ const onSubmit = handleSubmit((values) => {
       </div>
       <div>
         <Button
-          :className="'btn btn-primary'"
-          :button-type="'submit'"
-          :buttonText="'Submit'"
+          :className="'btn btn-primary mt-1 mb-1'"
+          :button-type="'button'"
+          :buttonText="'Generate PDB Structure'"
           :disabled="
-          (errors.CCIDInput?.length! > 0 ||
+          !(errors.CCIDInput?.length! > 0 ||
             errors.fileUpload?.length! > 0 ||
             errors.angstromsInput?.length! > 0) && 
-            !(CCIDField.length > 0 && fileUploadField != undefined && angstromField! >0)
+            !(CCIDField.length > 0 && fileUploadField != undefined && angstromField! > 0)
+          "
+          :on-click="handleGeneratePdbStructure"
+        />
+        <div v-if="pdbgenStore.fasprPrepUploadLoadingState === ApiLoadingState.Pending">
+          <div class="spinner-border spinner-border-sm text-primary" .ml="1">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <Button
+          :className="'btn btn-primary'"
+          :button-type="'submit'"
+          :buttonText="'Faspr Run'"
+          :disabled="pdbgenStore.fasprPrepResponseAfterGenerateForFileUpload == undefined || (!(errors.CCIDInput?.length! > 0 ||
+            errors.fileUpload?.length! > 0 ||
+            errors.angstromsInput?.length! > 0) && 
+            !(CCIDField.length > 0 && fileUploadField != undefined && angstromField! > 0))
           "
         />
       </div>

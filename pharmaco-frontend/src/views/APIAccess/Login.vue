@@ -6,7 +6,7 @@ import Button from '@/components/button/button.vue'
 import { useUserStore } from '@/stores/UserStore'
 import { nextTick, onMounted, ref } from 'vue'
 import * as bootstrap from 'bootstrap'
-import { Form, useField, useForm } from 'vee-validate'
+import { useField, useForm } from 'vee-validate'
 import * as yup from 'yup'
 
 const userStore = useUserStore()

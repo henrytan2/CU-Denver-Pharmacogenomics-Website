@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import type { ExacGeneSearchResponse, ExacSearchRequest, ExacSearchResults } from '@/models/exac'
-import axios from 'axios'
 import { API_URL_NAME, apiUrls } from '@/constants/paths'
 import { ApiLoadingState } from '@/constants/enums'
 import type { ExomeResponseRefold, GeneIdAndCCID } from '@/models/refold'

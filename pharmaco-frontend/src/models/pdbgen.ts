@@ -47,12 +47,15 @@ export interface FasprPrepResponse {
   mut_seq: string
   repack_pLDDT: number
   protein_location: string
+  session_key: string
+  positions: number[]
 }
 
 export interface FasprRunRequest {
   mutated_sequence: string
   protein_location: string
   header: string
+  session_key: string
 }
 
 export interface FasprRunResponse {

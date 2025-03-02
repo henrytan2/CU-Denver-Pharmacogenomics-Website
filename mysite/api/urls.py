@@ -4,7 +4,7 @@ from .views import FasprPrepAPI, FasprPrepPublicAPI
 from .views import FasprRunAPI
 from .views import MetabPrepAPI
 from .views import FindResolutionAPI
-from .views import FindPlddtAPI, FindPlddtPublicAPI, FindResolutionPublicAPI, FasprPrepUploadFileAPI
+from .views import FindPlddtAPI, FindPlddtPublicAPI, FindResolutionPublicAPI, FasprPrepUploadFileAPI, FasprPrepUploadAPI
 from .business.plotly_trial import mutation_app # need to keep
 
 app_name = 'api'
@@ -21,4 +21,5 @@ urlpatterns = [
     path('public-best-resolution', FindResolutionPublicAPI.as_view(), name='public_best_resolution'),
     path('public-faspr-prep', FasprPrepPublicAPI.as_view(), name='public_faspr_prep'),
     path('faspr-prep-file-upload', FasprPrepUploadFileAPI.as_view(), name='faspr-prep-upload-file'),
+    path('faspr-prep-upload', FasprPrepUploadAPI.as_view(), name='faspr-prep-upload'),
 ]

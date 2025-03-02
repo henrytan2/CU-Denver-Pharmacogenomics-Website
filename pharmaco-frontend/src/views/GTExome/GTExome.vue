@@ -81,11 +81,11 @@ if (GTExomeStore.tissueLoadingState != ApiLoadingState.Success) {
         </button>
       </li>
     </ul>
-    <div v-show="GTExomeStore.selectedTab === GTExomeTab.gtex">
+    <div v-if="GTExomeStore.selectedTab === GTExomeTab.gtex">
       <GTEx />
     </div>
-    <div v-show="GTExomeStore.selectedTab === GTExomeTab.exac"><Exac /></div>
-    <div v-show="GTExomeStore.selectedTab === GTExomeTab.refold"><Refold /></div>
-    <div v-show="GTExomeStore.selectedTab === GTExomeTab.upload"><Upload /></div>
+    <div v-if="GTExomeStore.selectedTab === GTExomeTab.exac"><Exac /></div>
+    <div v-if="GTExomeStore.selectedTab === GTExomeTab.refold"><Refold /></div>
+    <div v-if="GTExomeStore.selectedTab === GTExomeTab.upload"><Upload /></div>
   </div>
 </template>

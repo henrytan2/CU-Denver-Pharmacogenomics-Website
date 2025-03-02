@@ -15,10 +15,12 @@ class FasprPrepUpload:
     scratch_folder = os.path.join('website_activity')
     alpha_folder = os.path.join('Documents', 'alphafold')
     temp_folder = os.path.join(scratch_folder, 'tmp')
+    angstroms = 0
 
-    def __init__(self, CCID, file_location):
+    def __init__(self, CCID, file_location, angstroms):
         self.alderaan = Alderaan()
         self.CCID = CCID
+        self.angstroms = angstroms
         self.mutant_n = str(re.findall(r'\d+', self.CCID))
         self.mutation_str = self.mutant_n.strip("['']")
         self.mutation_position = int(self.mutation_str)
@@ -32,7 +34,7 @@ class FasprPrepUpload:
             self.single_nucleotide = None
         self.protein_location = file_location
 
-        self.pdb_content = self.extract_text_with_pdftotext(file_location)
+        self.pdb_content = self.extract_text_with_pdbtotext(file_location)
         self.chain_id = self.find_chain_id(self.pdb_content, self.mutation_position)
 
         self.chain_pdb = 'empty'
@@ -66,7 +68,8 @@ class FasprPrepUpload:
             with open("chain_only.pdb", 'r') as f:
                 self.chain_pdb = f.readlines()
         #need to delete temp file
-        except:
+        except Exception as e:
+            print(e)
             self.positions = '0'
             self.mutatseq = '0'
             self.repack_pLDDT = 'experimental structure not suitable'
@@ -187,7 +190,7 @@ class FasprPrepUpload:
         os.remove(output_file)
         return content
 
-    def find_chain_id(pdb_content, residue_number):
+    def find_chain_id(self, pdb_content, residue_number):
         parser = PDBParser(QUIET=True)
         from io import StringIO
         structure = parser.get_structure("structure", StringIO(pdb_content))
@@ -199,6 +202,14 @@ class FasprPrepUpload:
                     if seq_id == residue_number:
                         return chain.id
         return None
+
+
+    def extract_text_with_pdbtotext(self, pdb_file_location):
+        cat_command = f"cat '{self.temp_folder}/{pdb_file_location}'"
+        FASPR_pdb_text, success = self.alderaan.run_command(cat_command)
+        if (success == True):
+            return FASPR_pdb_text
+
 
 
 

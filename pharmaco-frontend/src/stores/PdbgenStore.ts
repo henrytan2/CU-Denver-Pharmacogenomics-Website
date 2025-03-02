@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
 import { API_URL_NAME, PATH_NAME, apiUrls, paths } from '@/constants/paths'
-import { ApiLoadingState, GTExomeTab } from '@/constants/enums'
+import { ApiLoadingState } from '@/constants/enums'
 import { ProteinSource } from '@/models/refold'
 import { useRefoldStore } from './refoldStore'
 import type {
@@ -18,10 +18,8 @@ import type {
   PdbgenFileUploadResponse
 } from '@/models/pdbgen'
 import router from '@/router'
-import { useGTExomeStore } from './GTExomeStore'
 
 const refoldStore = useRefoldStore()
-const gtexomeStore = useGTExomeStore()
 
 export const usePdbgenStore = defineStore('Pdbgen', {
   state: () => {
@@ -38,7 +36,8 @@ export const usePdbgenStore = defineStore('Pdbgen', {
       fasprRunResponse: undefined as unknown as FasprRunResponse,
       fasprPrepLoadingState: ApiLoadingState.Idle,
       fasprPrepUploadLoadingState: ApiLoadingState.Idle,
-      fasprPrepUploadResponse: undefined as unknown as PdbgenFileUploadResponse,
+      fasprPrepFileUploadResponse: undefined as unknown as PdbgenFileUploadResponse,
+      fasprPrepResponseAfterGenerateForFileUpload: undefined as unknown as FasprPrepResponse,
       fasprRunLoadingState: ApiLoadingState.Idle,
       storePdbgenDataLoadingState: ApiLoadingState.Idle,
       storePdbGenDataResponse: undefined as unknown as StorePdbGenDataResponse,
@@ -151,8 +150,11 @@ export const usePdbgenStore = defineStore('Pdbgen', {
         })
     },
     fasprPrepUpload: function (request: FasprPrepRequest) {
-      const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.FASPR_PREP]}`
+      const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.FASPR_PREP_UPLOAD]}`
       this.fasprPrepLoadingState = ApiLoadingState.Pending
+      refoldStore.selectedCCID = {
+        hgvsp: request.CCID
+      }
       axios
         .post(url, JSON.stringify(request), {
           headers: {
@@ -163,7 +165,7 @@ export const usePdbgenStore = defineStore('Pdbgen', {
         .then((response) => {
           if (response.status == 200) {
             this.fasprPrepLoadingState = ApiLoadingState.Success
-            this.fasprPrepResponse = response.data
+            this.fasprPrepResponseAfterGenerateForFileUpload = response.data
           } else {
             this.fasprPrepLoadingState = ApiLoadingState.Failed
             throw Error('Get Faspr Prep response failed')
@@ -174,13 +176,22 @@ export const usePdbgenStore = defineStore('Pdbgen', {
           console.log(error)
         })
     },
-    fasprRun: function () {
+    fasprRun: function (uploaded: boolean = false) {
       const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.FASPR_RUN]}`
       this.fasprRunLoadingState = ApiLoadingState.Pending
       const request: FasprRunRequest = {
-        mutated_sequence: this.fasprPrepResponse.mut_seq,
-        protein_location: this.fasprPrepResponse.protein_location,
-        header: this.fasprPrepResponse.header
+        mutated_sequence: uploaded
+          ? this.fasprPrepResponseAfterGenerateForFileUpload.mut_seq
+          : this.fasprPrepResponse.mut_seq,
+        protein_location: uploaded
+          ? this.fasprPrepResponseAfterGenerateForFileUpload.protein_location
+          : this.fasprPrepResponse.protein_location,
+        header: uploaded
+          ? this.fasprPrepResponseAfterGenerateForFileUpload.header
+          : this.fasprPrepResponse.header,
+        session_key: uploaded
+          ? this.fasprPrepResponseAfterGenerateForFileUpload.session_key
+          : this.fasprPrepResponse.session_key
       }
       axios
         .post(url, JSON.stringify(request), {
@@ -208,10 +219,16 @@ export const usePdbgenStore = defineStore('Pdbgen', {
       const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.STORE_PDB_GEN_DATA]}`
       this.storePdbgenDataLoadingState = ApiLoadingState.Pending
       const request: StorePdbGenDataRequest = {
-        ccid: refoldStore.selectedCCID.hgvsp || '',
-        length: this.fasprPrepResponse.sequence_length,
+        ccid: refoldStore.selectedCCID?.hgvsp || '',
+        length:
+          this.fasprPrepResponse != undefined
+            ? this.fasprPrepResponse?.sequence_length
+            : this.fasprPrepResponseAfterGenerateForFileUpload.sequence_length,
         pdb: this.fasprRunResponse.protein_structure,
-        positions: this.fasprPrepResponse.residue_output
+        positions:
+          this.fasprPrepResponse != undefined
+            ? this.fasprPrepResponse?.residue_output ?? []
+            : this.fasprPrepResponseAfterGenerateForFileUpload.residue_output
       }
       axios
         .post(url, JSON.stringify(request), {
@@ -249,7 +266,7 @@ export const usePdbgenStore = defineStore('Pdbgen', {
         .then((response) => {
           if (response.status == 201) {
             this.fasprPrepUploadLoadingState = ApiLoadingState.Success
-            this.fasprPrepUploadResponse = response.data
+            this.fasprPrepFileUploadResponse = response.data
           } else {
             this.fasprPrepUploadLoadingState = ApiLoadingState.Failed
             throw Error('Get Faspr Prep response failed')
