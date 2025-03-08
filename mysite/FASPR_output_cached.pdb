@@ -10,8 +10,6 @@ REMARK from file: AF-Q9Y6X5-F1-model_v1.pdb
 REMARK introducing mutation: p.His144Gln
 REMARK FASPR Repacked these residues:[86, 110, 111, 112, 113, 114, 115, 116, 117, 118, 121, 122, 125, 141, 142, 143, 144, 145, 146, 147]
 REMARK repacked structure by FASPR
-REMARK repacked structure by FASPR
-REMARK repacked structure by FASPR
 ATOM      1  N   MET A   1       8.667  -3.659  70.879  1.00  0.00           N  
 ATOM      2  CA  MET A   1       8.674  -4.212  69.502  1.00  0.00           C  
 ATOM      3  C   MET A   1       7.555  -3.521  68.720  1.00  0.00           C  
