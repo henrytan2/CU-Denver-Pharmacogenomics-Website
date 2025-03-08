@@ -29,7 +29,7 @@ load_dotenv(env_path)
 SECRET_KEY = 'ugbnazv9chk*!1d2mfs(&w#beok=wqa%h_i8f&l_es=exl+u*n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True if os.getenv("DJANGO_DEBUG") == "True" else False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -40,6 +40,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    'drf_yasg',
     'pharmacogenomics.apps.PharmacogenomicsConfig',
     'pdbgen.apps.PdbgenConfig',
     'gtexome.apps.GtexomeConfig',
@@ -82,7 +83,6 @@ EMAIL_USE_SSL = False
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication'
     ],
 
@@ -153,6 +153,7 @@ X_FRAME_OPTIONS = '*'
 XS_SHARING_ALLOWED_METHODS = ['POST','GET','OPTIONS', 'PUT', 'DELETE']
 
 CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = ['https://pharmacogenomics.clas.ucdenver.edu']
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = 'None'
 DCS_SESSION_COOKIE_SAMESITE = 'None'
@@ -286,11 +287,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static/'),
-    os.path.join(BASE_DIR, 'rest_framework/css/'),
-    os.path.join('../pharmacogenomics_venv/lib/python3.8/site-packages/rest_framework/css/rest_framework/css/')
-)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 STATICFILES_FINDERS = [
 
@@ -318,6 +317,7 @@ PLOTLY_COMPONENTS = [
 ]
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 CACHES = {
     'default': {
@@ -325,3 +325,6 @@ CACHES = {
         'LOCATION': 'my_cache_table',
     }
 }
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

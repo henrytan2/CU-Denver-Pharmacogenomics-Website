@@ -5,12 +5,16 @@ services:
     build:
       context: .
       dockerfile: ./pharmaco-frontend/Dockerfile
+    volumes:
+      - ./config/frontend/.env:/app/.env
     ports:
       - "30444:30444"
   backend:
     build:
       context: .
       dockerfile: ./mysite/Dockerfile
+    volumes:
+      - ./config/backend/pharmacogenomics.env:/app/pharmacogenomics.env
     ports:
       - "8000:8000"
   nginx:

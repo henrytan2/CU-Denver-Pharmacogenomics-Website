@@ -1,6 +1,8 @@
 from django.db.models import Count
 from django.http import HttpResponse
+from django.utils.decorators import method_decorator
 from django.views import generic
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import AllowAny
 
 from .models import SideEffect
@@ -14,6 +16,7 @@ class GetSideEffects(APIView):
     model = SideEffect
     permission_classes = (AllowAny,)
 
+    @swagger_auto_schema(auto_schema=None)
     def get(self, request):
         side_effects = self.model.objects.values('side_effect').distinct()
         response = list(side_effects)
@@ -23,6 +26,7 @@ class GetDrugsFromSelectedSideEffects(APIView):
     model = SideEffect
     permission_classes = (AllowAny,)
 
+    @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def post(self, request, format=None):
         request_parsed = dict(self.request.data)
         selected_side_effects = request_parsed["selectedSideEffects"]
@@ -42,6 +46,7 @@ class DrugsRankedAPI(APIView):
     model = SideEffect
     permission_classes = (AllowAny,)
 
+    @swagger_auto_schema(auto_schema=None)
     def post(self, request, format=None):
         request_parsed = dict(self.request.data)
         selected_side_effects = request_parsed["selectedSideEffects"]
@@ -69,6 +74,7 @@ class SideEffectView(generic.ListView):
     template_name = 'side-effect.html'
     side_effect_list = []
 
+    @swagger_auto_schema(auto_schema=None)
     def post(self, request):
         if request.method == 'POST':
             self.side_effect_list = request.POST.getlist('sideEffectList[]')

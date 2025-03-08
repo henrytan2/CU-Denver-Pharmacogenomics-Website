@@ -1,6 +1,7 @@
+from django.contrib.sessions.backends.db import SessionStore
+
 from .alderaan import Alderaan
 import os
-from django.core.cache import cache
 import logging
 
 error_logger = logging.getLogger('django.error')
@@ -10,13 +11,13 @@ class FasprRun:
     scratch_folder = os.path.join('website_activity')
     temp_folder = os.path.join(scratch_folder, 'tmp')
 
-    def __init__(self, mutated_sequence, protein_location, header):
+    def __init__(self, mutated_sequence, protein_location, header, session_key):
         self.alderaan = Alderaan()
         self.mutated_sequence = mutated_sequence
         self.protein_location = protein_location
         self.header = header
         self.save_mutatedseq_file(self.mutated_sequence)
-        self.FASPR_pdb_text, self.chain_pdb = self.run_faspr(self.protein_location)
+        self.FASPR_pdb_text, self.chain_pdb = self.run_faspr(self.protein_location, session_key)
 
     def save_mutatedseq_file(self, mutated_sequence):
         mutatseq_pipe = str(f'"{mutated_sequence}"')
@@ -26,9 +27,11 @@ class FasprRun:
         chmod_command = f'{self.temp_folder}/repacked_pdb.txt'
         self.alderaan.send_chmod(chmod_command)
 
-    def run_faspr(self, protein_location):
+    def run_faspr(self, protein_location, session_key):
         try:
-            chain_pdb = cache.get('chain_pdb')
+            session = SessionStore(session_key=session_key)
+            chain_pdb = session.get('chain_pdb')
+
             if chain_pdb != 'empty':
                 self.alderaan.send_batch(f'{self.temp_folder}/repacked_chain_pdb.txt', chain_pdb)
                 self.alderaan.send_chmod(f'{self.temp_folder}/repacked_chain_pdb.txt')
@@ -40,12 +43,13 @@ class FasprRun:
             else:
                 cat_command = f"cat {self.temp_folder}/FASPR_output.pdb" #| tee FASPR_output.txt
                 FASPR_pdb_text, success = self.alderaan.run_command(cat_command)
-                header = cache.get('pdb_header')
+                header = session.get('pdb_header')
                 FASPR_pdb_text = header + FASPR_pdb_text
 
         except Exception as e:
             FASPR_pdb_text = str(e)
             error_logger.error(e)
             chain_pdb = ''
-
+        remove_file_command = f'rm {protein_location}'
+        self.alderaan.run_command(remove_file_command)
         return FASPR_pdb_text, chain_pdb

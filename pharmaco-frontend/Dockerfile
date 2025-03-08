@@ -8,7 +8,7 @@ WORKDIR /app
 COPY /pharmaco-frontend/package*.json /app
 
 # Step 4: Install dependencies
-RUN npm install
+RUN npm install --force
 
 # Step 5: Copy the rest of the app's source code
 COPY /pharmaco-frontend /app

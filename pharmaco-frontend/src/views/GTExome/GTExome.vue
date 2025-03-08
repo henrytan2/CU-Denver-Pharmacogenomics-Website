@@ -1,12 +1,12 @@
 <script setup lang="tsx">
 import { ApiLoadingState } from '@/constants/enums'
-import { GTExomeTab, gtexFilter } from '@/constants/enums'
+import { GTExomeTab } from '@/constants/enums'
 import { useGTExomeStore } from '@/stores/GTExomeStore'
-import Button from '@/components/button/button.vue'
 import GTEx from '@/views/GTExome/gtex/GTEx.vue'
 import Exac from '@/views/GTExome/exac/Exac.vue'
 import Refold from '@/views/GTExome/refold/refold.vue'
 import { useRoute } from 'vue-router'
+import Upload from './upload/upload.vue'
 
 const GTExomeStore = useGTExomeStore()
 
@@ -68,11 +68,24 @@ if (GTExomeStore.tissueLoadingState != ApiLoadingState.Success) {
           refold
         </button>
       </li>
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
+          @click="GTExomeStore.setSelectedTab(GTExomeTab.upload)"
+          :class="{ active: GTExomeStore.selectedTab == GTExomeTab.upload }"
+          id="upload-tab"
+          type="button"
+          role="tab"
+        >
+          upload
+        </button>
+      </li>
     </ul>
-    <div v-show="GTExomeStore.selectedTab === GTExomeTab.gtex">
+    <div v-if="GTExomeStore.selectedTab === GTExomeTab.gtex">
       <GTEx />
     </div>
-    <div v-show="GTExomeStore.selectedTab === GTExomeTab.exac"><Exac /></div>
-    <div v-show="GTExomeStore.selectedTab === GTExomeTab.refold"><Refold /></div>
+    <div v-if="GTExomeStore.selectedTab === GTExomeTab.exac"><Exac /></div>
+    <div v-if="GTExomeStore.selectedTab === GTExomeTab.refold"><Refold /></div>
+    <div v-if="GTExomeStore.selectedTab === GTExomeTab.upload"><Upload /></div>
   </div>
 </template>

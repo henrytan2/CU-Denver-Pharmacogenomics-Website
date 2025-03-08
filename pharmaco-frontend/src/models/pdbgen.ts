@@ -34,10 +34,11 @@ export interface FasprPrepRequest {
   CCID?: string
   gene_ID?: string
   angstroms?: number
-  toggleAlphaFoldOn: boolean
+  toggleAlphaFoldOn: boolean | string
   file_location: string
-  chain_id: string
+  chain_id?: string
   reported_location?: string
+  uploaded_file?: File
 }
 
 export interface FasprPrepResponse {
@@ -47,12 +48,15 @@ export interface FasprPrepResponse {
   mut_seq: string
   repack_pLDDT: number
   protein_location: string
+  session_key: string
+  positions: number[]
 }
 
 export interface FasprRunRequest {
   mutated_sequence: string
   protein_location: string
   header: string
+  session_key: string
 }
 
 export interface FasprRunResponse {
@@ -69,4 +73,8 @@ export interface StorePdbGenDataRequest {
 export interface StorePdbGenDataResponse {
   success: string
   session_key: string
+}
+
+export interface PdbgenFileUploadResponse {
+  destinationFileName: string
 }

@@ -39,7 +39,9 @@ const enum API_URL_NAME {
   PASSWORD_RESET,
   STORE_PDB_GEN_DATA,
   GET_API_TOKEN,
-  CREATE_ACCOUNT
+  CREATE_ACCOUNT,
+  FASPR_PREP_FILE_UPLOAD,
+  FASPR_PREP_UPLOAD
 }
 
 const paths: { [key in PATH_NAME]: string } = {
@@ -86,7 +88,9 @@ const apiUrls: { [key in API_URL_NAME]: string | ((...args: any[]) => string) } 
   [API_URL_NAME.STORE_PDB_GEN_DATA]: '/pdbgen-backend/save-data',
   [API_URL_NAME.GET_API_TOKEN]: '/user_accounts/api-token',
   [API_URL_NAME.CREATE_ACCOUNT]: '/user_accounts/sign-up',
-  [API_URL_NAME.PASSWORD_RESET]: '/user_accounts/send-reset-email'
+  [API_URL_NAME.PASSWORD_RESET]: '/user_accounts/send-reset-email',
+  [API_URL_NAME.FASPR_PREP_FILE_UPLOAD]: '/api/faspr-prep-file-upload',
+  [API_URL_NAME.FASPR_PREP_UPLOAD]: '/api/faspr-prep-upload'
 }
 
 export { PATH_NAME, API_URL_NAME, paths, apiUrls }

@@ -11,9 +11,9 @@ const isActive = (path: string) => {
 </script>
 
 <template>
-  <nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary">
+  <nav class="navbar fixed-top navbar-expand-lg" style="color: #ffffff; background: #2b2f31">
     <div class="container-fluid">
-      <a class="navbar-brand" href="/">
+      <a class="navbar-brand text-white" href="/">
         <img height="30" width="30" :src="logo" />
         CU Denver Pharmacogenomics
       </a>
@@ -32,7 +32,7 @@ const isActive = (path: string) => {
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
             <RouterLink
-              class="nav-link"
+              class="nav-link text-white"
               :class="{ active: isActive(paths[PATH_NAME.METABOLOVIGILANCE]) }"
               :to="paths[PATH_NAME.METABOLOVIGILANCE]"
               >Metabolovigilance</RouterLink
@@ -40,7 +40,7 @@ const isActive = (path: string) => {
           </li>
           <li class="nav-item">
             <RouterLink
-              class="nav-link"
+              class="nav-link text-white"
               :class="{ active: isActive(paths[PATH_NAME.GTEXOME]) }"
               :to="paths[PATH_NAME.GTEXOME]"
               >GTExome</RouterLink
@@ -48,7 +48,7 @@ const isActive = (path: string) => {
           </li>
           <li class="nav-item">
             <RouterLink
-              class="nav-link"
+              class="nav-link text-white"
               :class="{ active: isActive(paths[PATH_NAME.PEOPLE]) }"
               :to="paths[PATH_NAME.PEOPLE]"
               >People</RouterLink
@@ -56,7 +56,7 @@ const isActive = (path: string) => {
           </li>
           <li class="nav-item">
             <RouterLink
-              class="nav-link"
+              class="nav-link text-white"
               :class="{ active: isActive(paths[PATH_NAME.CONTACT]) }"
               :to="paths[PATH_NAME.CONTACT]"
               >Contact</RouterLink
@@ -64,7 +64,7 @@ const isActive = (path: string) => {
           </li>
           <li class="nav-item">
             <RouterLink
-              class="nav-link"
+              class="nav-link text-white"
               :class="{ active: isActive(paths[PATH_NAME.API_ACCESS]) }"
               :to="paths[PATH_NAME.API_ACCESS]"
               >API Access</RouterLink

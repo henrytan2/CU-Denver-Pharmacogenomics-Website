@@ -24,7 +24,7 @@ const downloadProtein = () => {
         class="d-flex border-0 w-100"
         height="800px"
         id="pdbgen-results"
-        :src="`${apiBaseUrl}/?session_key=${pdbgenStore.storePdbGenDataResponse.session_key}`"
+        :src="`${apiBaseUrl}?session_key=${pdbgenStore.storePdbGenDataResponse.session_key}`"
       ></iframe>
     </div>
   </div>

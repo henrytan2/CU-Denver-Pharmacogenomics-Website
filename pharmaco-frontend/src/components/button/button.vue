@@ -11,7 +11,7 @@ defineProps<{
 </script>
 <template>
   <button
-    :type="buttonText == undefined ? 'button' : buttonType"
+    :type="buttonType == undefined ? 'button' : buttonType"
     :class="className"
     @click="onClick"
     :disabled="disabled"

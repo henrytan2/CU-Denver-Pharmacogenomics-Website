@@ -3,6 +3,7 @@ import type { ExacSearchRequest, ExacSearchResults } from '@/models/exac'
 import axios from 'axios'
 import { API_URL_NAME, apiUrls } from '@/constants/paths'
 import { ApiLoadingState } from '@/constants/enums'
+import { axiosWithRetry } from '@/utils/axios-utils'
 
 export const useExacStore = defineStore('exac', {
   state: () => {
@@ -15,7 +16,7 @@ export const useExacStore = defineStore('exac', {
     setGeneSearchResults: function (geneSearchResults: ExacSearchResults) {
       this.geneSearchResults = geneSearchResults
     },
-    fetchGeneSearchResults: function (geneSymbol: string) {
+    fetchGeneSearchResults: async function (geneSymbol: string) {
       const url = `${apiUrls[API_URL_NAME.GTEXOME_GENE_SEARCH_RESULTS]}`
       this.geneSearchRequestLoadingState = ApiLoadingState.Pending
       const requestBody: ExacSearchRequest = {
@@ -25,27 +26,28 @@ export const useExacStore = defineStore('exac', {
           referenceGenome: 'GRCh37'
         }
       }
-      axios
-        .post(url, JSON.stringify(requestBody), {
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json'
-          }
-        })
-        .then(async (response) => {
-          if (response.status == 200) {
-            this.geneSearchRequestLoadingState = ApiLoadingState.Success
-            const json = response.data
-            this.setGeneSearchResults(json)
-          } else {
-            this.geneSearchRequestLoadingState = ApiLoadingState.Failed
-            throw Error('Get gene search results failed')
-          }
-        })
-        .catch((error) => {
+      const headers = {
+        'Content-Type': 'application/json',
+        Accept: 'application/json'
+      }
+
+      try {
+        const response = await axiosWithRetry<ExacSearchResults>(url, requestBody, headers, 3)
+
+        if (response.status === 200) {
+          this.geneSearchRequestLoadingState = ApiLoadingState.Success
+          const json = response.data
+          // Process and set your data here
+          console.log('Gene search results:', json)
+          this.geneSearchResults = json
+        } else {
           this.geneSearchRequestLoadingState = ApiLoadingState.Failed
-          console.log(error)
-        })
+          throw new Error('Get gene search results failed')
+        }
+      } catch (error) {
+        this.geneSearchRequestLoadingState = ApiLoadingState.Failed
+        console.error('Error fetching gene search results:', error)
+      }
     }
   }
 })
