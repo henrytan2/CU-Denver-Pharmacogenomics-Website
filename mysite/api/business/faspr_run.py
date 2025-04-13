@@ -50,6 +50,4 @@ class FasprRun:
             FASPR_pdb_text = str(e)
             error_logger.error(e)
             chain_pdb = ''
-        remove_file_command = f'rm {protein_location}'
-        self.alderaan.run_command(remove_file_command)
         return FASPR_pdb_text, chain_pdb
