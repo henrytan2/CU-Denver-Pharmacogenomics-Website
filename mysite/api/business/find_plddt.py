@@ -8,6 +8,13 @@ import os
 import re
 import io
 import numpy
+import logging
+
+logging.basicConfig(
+    level=logging.ERROR,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 
 class CheckPLDDT:
@@ -60,8 +67,8 @@ class CheckPLDDT:
                 self.recommendation = 'Alphafold structure suitable for modeling'
             self.pocket_info = self.pocket_check(self.mutation_position)
 
-        except Exception as e:
-            print(e)
+        except Exception:
+            logger.exception('Exception')
             self.plddt_snv = 'structure too large'
             self.plddt_avg = 'structure too large'
             self.charge_change = 'error checking structure'

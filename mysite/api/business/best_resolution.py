@@ -1,6 +1,13 @@
 import os
 from .alderaan import Alderaan
+import logging
 
+logging.basicConfig(
+    level=logging.ERROR,
+    format="%(asctime)s [%(levelname)s] %(message)s"
+)
+
+logger = logging.getLogger(__name__)
 
 class FindBestResolution:
 
@@ -38,6 +45,7 @@ class FindBestResolution:
                 self.best_resolution = 'no structure found'
 
         except:
+            logger.exception('Could not find best structure')
             self.best_resolution = 'no structure found'
             self.file_location = 'empty'
             self.chain_id = ''
