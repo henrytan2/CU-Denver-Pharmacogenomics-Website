@@ -75,6 +75,11 @@ const router = createRouter({
       component: () => import('../views/GTExome/refold/PdbgenResults.vue')
     },
     {
+      path: paths[PATH_NAME.DOCKING],
+      name: 'docking',
+      component: () => import('../views/Docking/Docking.vue')
+    },
+    {
       path: paths[PATH_NAME.API_ACCESS],
       name: 'user-accounts-profile',
       component: () => import('../views/APIAccess/Login.vue')

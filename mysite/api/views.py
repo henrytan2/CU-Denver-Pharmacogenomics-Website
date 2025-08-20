@@ -3,15 +3,21 @@ from os import remove
 
 import paramiko
 import json
+
+from django.http.response import HttpResponseBadRequest, FileResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
+from rest_framework.decorators import permission_classes
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import AccessToken
+
+from .business.docking.docking_service import generate_docking_zip_output
 from .business.faspr_prep import FasprPrep
 from .business.faspr_prep import FasprPrepUpload
 from .business.faspr_run import FasprRun
@@ -577,3 +583,22 @@ class FasprPrepPublicAPI(APIView):
     @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def get(self, request):
         return Response(request)
+
+@permission_classes([AllowAny])
+@csrf_exempt
+@require_http_methods(["GET"])
+def download_docking_results(request):
+    ligand_name = request.GET.get('ligand_name')
+
+    if not ligand_name:
+        return HttpResponseBadRequest("Missing ?ligand_name=")
+
+    buf, size = generate_docking_zip_output(ligand_name)
+    filename = f"docking_output_{ligand_name}.zip"
+
+    buf.seek(0)
+
+    resp = FileResponse(buf, as_attachment=True, filename=filename, content_type="application/zip")
+    resp["Content-Length"] = str(size)
+    return resp
+

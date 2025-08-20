@@ -1,6 +1,6 @@
 from django.urls import path, include
 
-from .views import FasprPrepAPI, FasprPrepPublicAPI
+from .views import FasprPrepAPI, FasprPrepPublicAPI, download_docking_results
 from .views import FasprRunAPI
 from .views import MetabPrepAPI
 from .views import FindResolutionAPI
@@ -22,4 +22,5 @@ urlpatterns = [
     path('public-faspr-prep', FasprPrepPublicAPI.as_view(), name='public_faspr_prep'),
     path('faspr-prep-file-upload', FasprPrepUploadFileAPI.as_view(), name='faspr-prep-upload-file'),
     path('faspr-prep-upload', FasprPrepUploadAPI.as_view(), name='faspr-prep-upload'),
+    path('download-docking-results', download_docking_results, name='download_docking_results'),
 ]
