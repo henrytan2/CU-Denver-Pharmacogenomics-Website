@@ -18,7 +18,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import AccessToken
 
-from .business.docking.docking_service import generate_docking_zip_output
+from .business.docking.docking_service import generate_docking_zip_output, generate_docking_zip_output_alphafold
 from .business.faspr_prep import FasprPrep
 from .business.faspr_prep import FasprPrepUpload
 from .business.faspr_run import FasprRun
@@ -604,4 +604,23 @@ def download_docking_results(request):
     resp["Content-Length"] = str(size)
     return resp
 
+@permission_classes([AllowAny])
+@csrf_exempt
+@never_cache
+@require_http_methods(["GET"])
+def download_docking_results_af(request):
+    file_name = request.GET.get('file_name')
+    if not file_name:
+        return HttpResponseBadRequest("Missing ?file_name=")
+
+    buf, size = generate_docking_zip_output_alphafold(file_name)
+
+    filename = f"docking_output_{file_name}.zip"
+    buf.seek(0)
+
+    # Option A: FileResponse (streaming)
+    resp = FileResponse(buf, content_type="application/zip")
+    resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+    resp["Content-Length"] = str(size)
+    return resp
 

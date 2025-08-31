@@ -15,6 +15,7 @@ import { useField, useForm } from 'vee-validate'
 import * as yup from 'yup'
 import type { ExacGeneSearchResponse } from '@/models/exac'
 import type { GeneIdAndCCID } from '@/models/refold'
+import { useDockingStore } from '@/stores/DockingStore'
 
 const infoModalText = `You will arrive at this page with a geneID and mutation (CCID) populated.
 A search for experimental and AlphaFold2 structures starts automatically.
@@ -32,6 +33,9 @@ const geneID = route.query.geneID
 const RefoldStore = useRefoldStore()
 const pdbgenStore = usePdbgenStore()
 const GTExomeStore = useGTExomeStore()
+const DockingStore = useDockingStore()
+
+DockingStore.loadingState = ApiLoadingState.Idle
 
 const schema = yup.object({
   geneSymbol: yup
@@ -297,9 +301,20 @@ const onSubmit = handleSubmit(
             <div>
               <Button
                 :className="'btn btn-primary'"
-                :buttonText="'Submit'"
+                :buttonText="'View Structure'"
                 :button-type="'submit'"
                 :disabled="pdbgenStore.fasprPrepLoadingState != ApiLoadingState.Success"
+              />
+              <Button
+                :className="'btn btn-primary ms-2'"
+                :buttonText="'Save Structure'"
+                :button-type="'button'"
+                :disabled="pdbgenStore.fasprPrepLoadingState != ApiLoadingState.Success"
+                @click="
+                  DockingStore.downloadDockingResultsAF(
+                    pdbgenStore.findPLDDTResponse.af_file_location ?? ''
+                  )
+                "
               />
             </div>
             <div>
