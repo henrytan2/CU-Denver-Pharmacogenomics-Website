@@ -84,7 +84,7 @@ const apiUrls: { [key in API_URL_NAME]: string | ((...args: any[]) => string) } 
   [API_URL_NAME.GET_RANGE_RESULTS]: '/gtexome/get-range-results',
   [API_URL_NAME.GET_RATIO_RESULTS]: '/gtexome/get-ratio-results',
   [API_URL_NAME.GTEXOME_GENE_SEARCH_RESULTS]: 'https://gnomad.broadinstitute.org/api',
-  [API_URL_NAME.DOWNLOAD_DOCKING_RESULTS]: '/api/docking-results-download',
+  [API_URL_NAME.DOWNLOAD_DOCKING_RESULTS]: '/api/download-docking-results',
   [API_URL_NAME.FIND_RESOLUTION]: '/api/best-resolution',
   [API_URL_NAME.FIND_PLDDT]: '/api/plddt-score',
   [API_URL_NAME.FASPR_PREP]: '/api/faspr-prep',

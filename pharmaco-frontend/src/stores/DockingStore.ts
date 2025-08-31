@@ -16,7 +16,11 @@ export const useDockingStore = defineStore('Docking', {
       const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.DOWNLOAD_DOCKING_RESULTS]}`
       this.loadingState = ApiLoadingState.Pending
       axios
-        .get(url, { params: { ligand_name: this.dockingInput.ligand }, responseType: 'blob' })
+        .get(url, {
+          params: { ligand_name: this.dockingInput.ligand },
+          responseType: 'blob',
+          headers: { Accept: 'application/zip' }
+        })
         .then((response) => {
           if (response.status === 200) {
             this.loadingState = ApiLoadingState.Success

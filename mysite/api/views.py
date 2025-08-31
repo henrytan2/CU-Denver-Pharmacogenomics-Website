@@ -6,6 +6,7 @@ import json
 
 from django.http.response import HttpResponseBadRequest, FileResponse
 from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from drf_yasg import openapi
@@ -586,19 +587,21 @@ class FasprPrepPublicAPI(APIView):
 
 @permission_classes([AllowAny])
 @csrf_exempt
+@never_cache
 @require_http_methods(["GET"])
 def download_docking_results(request):
     ligand_name = request.GET.get('ligand_name')
-
     if not ligand_name:
         return HttpResponseBadRequest("Missing ?ligand_name=")
 
     buf, size = generate_docking_zip_output(ligand_name)
     filename = f"docking_output_{ligand_name}.zip"
-
     buf.seek(0)
 
-    resp = FileResponse(buf, as_attachment=True, filename=filename, content_type="application/zip")
+    # Option A: FileResponse (streaming)
+    resp = FileResponse(buf, content_type="application/zip")
+    resp["Content-Disposition"] = f'attachment; filename="{filename}"'
     resp["Content-Length"] = str(size)
     return resp
+
 
