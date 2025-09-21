@@ -610,10 +610,16 @@ def download_docking_results(request):
 @require_http_methods(["GET"])
 def download_docking_results_af(request):
     file_name = request.GET.get('file_name')
+    drug_name = request.GET.get('drug_name')
+    smiles_code = request.GET.get('smiles_code')
     if not file_name:
         return HttpResponseBadRequest("Missing ?file_name=")
+    if not drug_name:
+        return HttpResponseBadRequest("Missing ?drug_name=")
+    if not smiles_code:
+        return HttpResponseBadRequest("Missing ?smiles_code=")
 
-    buf, size = generate_docking_zip_output_alphafold(file_name)
+    buf, size = generate_docking_zip_output_alphafold(file_name, drug_name, smiles_code)
 
     filename = f"docking_output_{file_name}.zip"
     buf.seek(0)

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import axios from 'axios'
 import { API_URL_NAME, apiUrls } from '@/constants/paths'
 import { ApiLoadingState } from '@/constants/enums'
-import type { DockingModel } from '@/models/docking'
+import type { DockingModel, DockingModelAF } from '@/models/docking'
 import { useToastStore } from './ToastStore'
 
 const toastStore = useToastStore()
@@ -11,7 +11,8 @@ export const useDockingStore = defineStore('Docking', {
   state: () => {
     return {
       loadingState: ApiLoadingState.Idle,
-      dockingInput: { ligand: '' } as DockingModel
+      dockingInput: { ligand: '' } as DockingModel,
+      dockingInputAF: { fileName: '', drugName: '', metaboliteSmilesCode: '' } as DockingModelAF
     }
   },
   actions: {
@@ -42,12 +43,12 @@ export const useDockingStore = defineStore('Docking', {
           this.loadingState = ApiLoadingState.Failed
         })
     },
-    downloadDockingResultsAF: function (fileName: string) {
+    downloadDockingResultsAF: function (fileName: string, drugName: string, smilesCode: string) {
       const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.DOWNLOAD_DOCKING_RESULTS_AF]}`
       this.loadingState = ApiLoadingState.Pending
       axios
         .get(url, {
-          params: { file_name: fileName },
+          params: { file_name: fileName, drug_name: drugName, smiles_code: smilesCode },
           responseType: 'blob',
           headers: { Accept: 'application/zip' }
         })

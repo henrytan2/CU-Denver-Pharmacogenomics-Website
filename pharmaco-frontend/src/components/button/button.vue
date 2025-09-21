@@ -1,5 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <script setup lang="ts">
+import { useAttrs } from 'vue'
+
 defineProps<{
   className: string
   buttonText: string
@@ -8,6 +10,8 @@ defineProps<{
   onClick?: (...args: any[]) => any
   showSpinner?: boolean
 }>()
+
+const attrs = useAttrs()
 </script>
 <template>
   <button
@@ -15,6 +19,7 @@ defineProps<{
     :class="className"
     @click="onClick"
     :disabled="disabled"
+    v-bind="attrs"
   >
     <div
       v-if="showSpinner"

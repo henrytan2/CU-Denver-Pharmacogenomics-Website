@@ -9,9 +9,13 @@ import { useMetabolovigilanceStore } from '@/stores/metabolovigilanceStore'
 import GridAddButton from '@/components/grid-add-button/GridAddButton.vue'
 import { type Api as DataTableApi } from 'datatables.net'
 import { type Metabolite } from '@/models/metabolite'
+import { useDockingStore } from '@/stores/DockingStore'
+import { useToastStore } from '@/stores/ToastStore'
 
 DataTable.use(DataTableCore)
 const metabolovigilanceStore = useMetabolovigilanceStore()
+const dockingStore = useDockingStore()
+const toastStore = useToastStore()
 
 const metaboliteColumns = [
   {
@@ -148,6 +152,16 @@ const applyFilters = () => {
 const filter = () => {
   applyFilters()
 }
+
+const onMetaboliteAddToDocking = (rowData: Metabolite) => {
+  dockingStore.dockingInputAF.drugName = rowData.drug_name
+  dockingStore.dockingInputAF.metaboliteSmilesCode = rowData.metabolite_smile_string
+  toastStore.setToastState({
+    show: true,
+    header: 'Docking Prep',
+    message: `${rowData.drug_name}'s metabolite ${rowData.metabolite_smile_string} has been prepped for Docking!`
+  })
+}
 </script>
 <template>
   <div style="margin-top: 40px; margin-bottom: 40px" class="container-fluid">
@@ -222,8 +236,34 @@ const filter = () => {
       ref="metaboliteTable"
     >
       <template #showStructureButton="props">
-        <GridAddButton :onAdd="() => showStructure(props)" :onRemove="() => hideStructure(props)" />
+        <div class="dt-actions">
+          <GridAddButton
+            :onAdd="() => showStructure(props)"
+            :onRemove="() => hideStructure(props)"
+          />
+          <button
+            type="button"
+            class="btn btn-secondary"
+            title="Prep metabolite for docking"
+            @click="() => onMetaboliteAddToDocking(props.rowData)"
+          >
+            <i class="bi bi-bookmark-plus-fill"></i>
+          </button>
+        </div>
       </template>
     </DataTable>
   </div>
 </template>
+
+<style>
+/* keep buttons on one line and add spacing */
+.dt-actions {
+  display: inline-flex; /* or flex */
+  align-items: center;
+  gap: 0.5rem; /* space between buttons */
+  white-space: nowrap; /* don’t wrap to new line */
+}
+.display td .btn {
+  display: inline-block;
+}
+</style>

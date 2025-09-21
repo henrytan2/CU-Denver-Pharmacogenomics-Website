@@ -1,13 +1,15 @@
-def generate_af_molecular_docking_notebook_str(file_name: str):
+def generate_af_molecular_docking_notebook_str(file_name: str, drug_name: str, smiles_code: str):
     # read jupyter notebook template file as text
     with open('./api/business/docking/MolecularDocking_AlphaFold_template.ipynb', 'r') as file:
         content = file.read()
     # replace PDB_INPUT with the actual PDB
     PDB_INPUT = f'{file_name}'
     content = content.replace('{PDB_INPUT}', PDB_INPUT)
+    content = content.replace('{drug_name}', drug_name)
+    content = content.replace('{smiles_code}', smiles_code)
     return content
 
-def generate_blind_docking_notebook_alphafold_str(alphafold_name: str):
+def generate_blind_docking_notebook_alphafold_str(alphafold_name: str, drug_name: str, smiles_code: str):
     # read jupyter notebook template file as text
     with open('./api/business/docking/BlindDock_AlphaFold_template.ipynb', 'r') as file:
         content = file.read()

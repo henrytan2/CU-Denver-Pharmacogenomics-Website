@@ -16,6 +16,7 @@ import * as yup from 'yup'
 import type { ExacGeneSearchResponse } from '@/models/exac'
 import type { GeneIdAndCCID } from '@/models/refold'
 import { useDockingStore } from '@/stores/DockingStore'
+import { useToastStore } from '@/stores/ToastStore'
 
 const infoModalText = `You will arrive at this page with a geneID and mutation (CCID) populated.
 A search for experimental and AlphaFold2 structures starts automatically.
@@ -34,6 +35,7 @@ const RefoldStore = useRefoldStore()
 const pdbgenStore = usePdbgenStore()
 const GTExomeStore = useGTExomeStore()
 const DockingStore = useDockingStore()
+const toastStore = useToastStore()
 
 DockingStore.loadingState = ApiLoadingState.Idle
 
@@ -73,6 +75,15 @@ watch(
     }
   }
 )
+
+const onPDBAddToDocking = () => {
+  DockingStore.dockingInputAF.fileName = pdbgenStore.findPLDDTResponse.af_file_location ?? ''
+  toastStore.setToastState({
+    show: true,
+    header: 'Docking Prep',
+    message: `${pdbgenStore.findPLDDTResponse.af_file_location} has been prepped for Docking!`
+  })
+}
 
 const getBestResolutionAndPlddtScore = () => {
   if (geneSymbol.value != undefined && ccid.value != undefined) {
@@ -307,14 +318,13 @@ const onSubmit = handleSubmit(
               />
               <Button
                 :className="'btn btn-primary ms-2'"
-                :buttonText="'Save Structure'"
+                :buttonText="'Save PDB For Docking'"
                 :button-type="'button'"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="Prep protein PDB for docking"
                 :disabled="pdbgenStore.fasprPrepLoadingState != ApiLoadingState.Success"
-                @click="
-                  DockingStore.downloadDockingResultsAF(
-                    pdbgenStore.findPLDDTResponse.af_file_location ?? ''
-                  )
-                "
+                @click="onPDBAddToDocking"
               />
             </div>
             <div>
