@@ -14,6 +14,7 @@ website_activity
 
 # Distribution / packaging
 bin/
+!mysite/api/business/docking/docking_output/bin
 build/
 develop-eggs/
 dist/
