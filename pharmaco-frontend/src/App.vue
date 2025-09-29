@@ -3,6 +3,7 @@ import { RouterView } from 'vue-router'
 import './scss/styles.scss'
 import NavBar from './components/navbar/NavBar.vue'
 import Footer from './components/footer/Footer.vue'
+import Toast from './components/toast/Toast.vue'
 </script>
 
 <template>
@@ -10,5 +11,6 @@ import Footer from './components/footer/Footer.vue'
   <div class="d-flex flex-col w-100">
     <RouterView />
   </div>
+  <Toast />
   <Footer />
 </template>

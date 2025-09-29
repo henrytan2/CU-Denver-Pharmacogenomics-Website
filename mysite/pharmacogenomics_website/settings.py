@@ -124,19 +124,19 @@ CHANNEL_LAYERS = {
 }
 
 MIDDLEWARE = [
-    'django.middleware.cache.UpdateCacheMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.http.ConditionalGetMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',
+    'django.middleware.http.ConditionalGetMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
     'django_plotly_dash.middleware.BaseMiddleware',
     'django_plotly_dash.middleware.ExternalRedirectionMiddleware',
-    'django.middleware.cache.FetchFromCacheMiddleware',
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -145,6 +145,8 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:443',
     'https://pharmacogenomics.clas.ucdenver.edu'
 ]
+
+CORS_EXPOSE_HEADERS = ["Content-Disposition"]
 
 LOGIN_REDIRECT_URL = '/api/templates/profile/'
 

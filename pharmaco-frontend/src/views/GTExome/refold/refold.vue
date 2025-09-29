@@ -15,6 +15,8 @@ import { useField, useForm } from 'vee-validate'
 import * as yup from 'yup'
 import type { ExacGeneSearchResponse } from '@/models/exac'
 import type { GeneIdAndCCID } from '@/models/refold'
+import { useDockingStore } from '@/stores/DockingStore'
+import { useToastStore } from '@/stores/ToastStore'
 
 const infoModalText = `You will arrive at this page with a geneID and mutation (CCID) populated.
 A search for experimental and AlphaFold2 structures starts automatically.
@@ -32,6 +34,10 @@ const geneID = route.query.geneID
 const RefoldStore = useRefoldStore()
 const pdbgenStore = usePdbgenStore()
 const GTExomeStore = useGTExomeStore()
+const DockingStore = useDockingStore()
+const toastStore = useToastStore()
+
+DockingStore.loadingState = ApiLoadingState.Idle
 
 const schema = yup.object({
   geneSymbol: yup
@@ -69,6 +75,15 @@ watch(
     }
   }
 )
+
+const onPDBAddToDocking = () => {
+  DockingStore.dockingInputAF.fileName = pdbgenStore.findPLDDTResponse.af_file_location ?? ''
+  toastStore.setToastState({
+    show: true,
+    header: 'Docking Prep',
+    message: `${pdbgenStore.findPLDDTResponse.af_file_location} has been prepped for Docking!`
+  })
+}
 
 const getBestResolutionAndPlddtScore = () => {
   if (geneSymbol.value != undefined && ccid.value != undefined) {
@@ -297,9 +312,19 @@ const onSubmit = handleSubmit(
             <div>
               <Button
                 :className="'btn btn-primary'"
-                :buttonText="'Submit'"
+                :buttonText="'View Structure'"
                 :button-type="'submit'"
                 :disabled="pdbgenStore.fasprPrepLoadingState != ApiLoadingState.Success"
+              />
+              <Button
+                :className="'btn btn-primary ms-2'"
+                :buttonText="'Save PDB For Docking'"
+                :button-type="'button'"
+                data-bs-toggle="tooltip"
+                data-bs-placement="top"
+                title="Prep protein PDB for docking"
+                :disabled="pdbgenStore.fasprPrepLoadingState != ApiLoadingState.Success"
+                @click="onPDBAddToDocking"
               />
             </div>
             <div>

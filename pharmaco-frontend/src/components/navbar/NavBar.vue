@@ -49,6 +49,14 @@ const isActive = (path: string) => {
           <li class="nav-item">
             <RouterLink
               class="nav-link text-white"
+              :class="{ active: isActive(paths[PATH_NAME.DOCKING]) }"
+              :to="paths[PATH_NAME.DOCKING]"
+              >Docking</RouterLink
+            >
+          </li>
+          <li class="nav-item">
+            <RouterLink
+              class="nav-link text-white"
               :class="{ active: isActive(paths[PATH_NAME.PEOPLE]) }"
               :to="paths[PATH_NAME.PEOPLE]"
               >People</RouterLink

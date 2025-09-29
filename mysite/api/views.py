@@ -3,15 +3,22 @@ from os import remove
 
 import paramiko
 import json
+
+from django.http.response import HttpResponseBadRequest, FileResponse
 from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
+from rest_framework.decorators import permission_classes
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import AccessToken
+
+from .business.docking.docking_service import generate_docking_zip_output, generate_docking_zip_output_alphafold
 from .business.faspr_prep import FasprPrep
 from .business.faspr_prep import FasprPrepUpload
 from .business.faspr_run import FasprRun
@@ -577,3 +584,49 @@ class FasprPrepPublicAPI(APIView):
     @method_decorator(name='create', decorator=swagger_auto_schema(auto_schema=None))
     def get(self, request):
         return Response(request)
+
+@permission_classes([AllowAny])
+@csrf_exempt
+@never_cache
+@require_http_methods(["GET"])
+def download_docking_results(request):
+    ligand_name = request.GET.get('ligand_name')
+    if not ligand_name:
+        return HttpResponseBadRequest("Missing ?ligand_name=")
+
+    buf, size = generate_docking_zip_output(ligand_name)
+    filename = f"docking_output_{ligand_name}.zip"
+    buf.seek(0)
+
+    # Option A: FileResponse (streaming)
+    resp = FileResponse(buf, content_type="application/zip")
+    resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+    resp["Content-Length"] = str(size)
+    return resp
+
+@permission_classes([AllowAny])
+@csrf_exempt
+@never_cache
+@require_http_methods(["GET"])
+def download_docking_results_af(request):
+    file_name = request.GET.get('file_name')
+    drug_name = request.GET.get('drug_name')
+    smiles_code = request.GET.get('smiles_code')
+    if not file_name:
+        return HttpResponseBadRequest("Missing ?file_name=")
+    if not drug_name:
+        return HttpResponseBadRequest("Missing ?drug_name=")
+    if not smiles_code:
+        return HttpResponseBadRequest("Missing ?smiles_code=")
+
+    buf, size = generate_docking_zip_output_alphafold(file_name, drug_name, smiles_code)
+
+    filename = f"docking_output_{file_name}.zip"
+    buf.seek(0)
+
+    # Option A: FileResponse (streaming)
+    resp = FileResponse(buf, content_type="application/zip")
+    resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+    resp["Content-Length"] = str(size)
+    return resp
+

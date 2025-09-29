@@ -1,3 +1,6 @@
+import gzip
+import pathlib
+
 import paramiko
 import os
 import logging
@@ -38,3 +41,19 @@ class Alderaan:
 
     def send_chmod(self, path):
         self.sftp.chmod(path, 0o775)
+
+    def read_file(self,
+                      remote_path: str):
+        try:
+            with self.sftp.open(remote_path, "rb") as remote_file:
+                magic = remote_file.read(2)
+                remote_file.seek(0)
+                if magic == b"\x1f\x8b": #gzip
+                    with gzip.GzipFile(fileobj=remote_file, mode="rb") as gz_file:
+                        content = gz_file.read().decode("utf-8")
+                else:
+                    content = remote_file.read().decode("utf-8")
+                return content
+        finally:
+            self.sftp.close()
+            self.client.close()
