@@ -176,7 +176,7 @@ export const usePdbgenStore = defineStore('Pdbgen', {
           console.log(error)
         })
     },
-    fasprRun: function (uploaded: boolean = false) {
+    fasprRun: function (uploaded: boolean = false, redirect: boolean = false) {
       const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.FASPR_RUN]}`
       this.fasprRunLoadingState = ApiLoadingState.Pending
       const request: FasprRunRequest = {
@@ -200,11 +200,14 @@ export const usePdbgenStore = defineStore('Pdbgen', {
             Accept: 'application/json'
           }
         })
-        .then((response) => {
+        .then(async (response) => {
           if (response.status == 200) {
             this.fasprRunLoadingState = ApiLoadingState.Success
             this.fasprRunResponse = response.data
-            this.storePdbGenData()
+            await this.storePdbGenData()
+            if (redirect) {
+              router.push(`${paths[PATH_NAME.PDBGEN_RESULTS]}`)
+            }
           } else {
             this.fasprRunLoadingState = ApiLoadingState.Failed
             throw Error('Get Faspr Run response failed')
@@ -241,7 +244,7 @@ export const usePdbgenStore = defineStore('Pdbgen', {
           if (response.status == 200) {
             this.storePdbgenDataLoadingState = ApiLoadingState.Success
             this.storePdbGenDataResponse = response.data
-            router.push(`${paths[PATH_NAME.PDBGEN_RESULTS]}`)
+            return Promise.resolve()
           } else {
             this.storePdbgenDataLoadingState = ApiLoadingState.Failed
             throw Error('Faspr store data failed')

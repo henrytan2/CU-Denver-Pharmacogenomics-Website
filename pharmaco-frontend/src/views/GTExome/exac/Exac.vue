@@ -10,6 +10,7 @@ import { paths } from '@/constants/paths'
 import { PATH_NAME } from '@/constants/paths'
 import { useField, useForm } from 'vee-validate'
 import * as yup from 'yup'
+import InputErrorMessage from '@/components/input-error-message/input-error-message.vue'
 
 const ExacStore = useExacStore()
 const router = useRouter()
@@ -66,9 +67,7 @@ const onSubmit = handleSubmit(() => {
       >must be valid gnomad v2.1 (https://gnomad.broadinstitute.org/) name.
     </span>
     <!-- Display Error Message if Validation Fails -->
-    <div class="w-30">
-      <span v-if="geneSymbolError" class="ms-2 text-danger">{{ geneSymbolError }}</span>
-    </div>
+    <InputErrorMessage :show="geneSymbolError != undefined" :error-text="geneSymbolError ?? ''" />
     <div class="d-flex flex-row-reverse" style="margin-top: 10px">
       <Button
         :className="'btn btn-primary'"

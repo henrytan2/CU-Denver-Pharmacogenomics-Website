@@ -12,7 +12,7 @@ export const useDockingStore = defineStore('Docking', {
     return {
       loadingState: ApiLoadingState.Idle,
       dockingInput: { ligand: '' } as DockingModel,
-      dockingInputAF: { fileName: '', drugName: '', metaboliteSmilesCode: '' } as DockingModelAF
+      dockingInputAF: { fileName: '', dockingLigandModels: [] } as DockingModelAF
     }
   },
   actions: {
@@ -43,12 +43,22 @@ export const useDockingStore = defineStore('Docking', {
           this.loadingState = ApiLoadingState.Failed
         })
     },
-    downloadDockingResultsAF: function (fileName: string, drugName: string, smilesCode: string) {
+    downloadDockingResultsAF: function (
+      fileName: string,
+      repackedProteinPDB: string,
+      drugName: string,
+      smilesCode: string
+    ) {
+      const request = {
+        file_name: fileName,
+        repacked_protein_pdb: repackedProteinPDB,
+        drug_name: drugName,
+        smiles_code: smilesCode
+      }
       const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.DOWNLOAD_DOCKING_RESULTS_AF]}`
       this.loadingState = ApiLoadingState.Pending
       axios
-        .get(url, {
-          params: { file_name: fileName, drug_name: drugName, smiles_code: smilesCode },
+        .post(url, JSON.stringify(request), {
           responseType: 'blob',
           headers: { Accept: 'application/zip' }
         })

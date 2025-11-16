@@ -6,7 +6,7 @@
 
 ######
 ## Set some environment variables.
-ADS_ROOT="/Users/jessicatan/Downloads/ADFRsuite_x86_64Darwin_1.0" 
+ADS_ROOT="../ADFRsuite_x86_64Darwin_1.0"
 export ADS_ROOT
 
 ########
