@@ -4,6 +4,10 @@ export interface DockingModel {
 
 export interface DockingModelAF {
   fileName: string
+  dockingLigandModels: DockingLigandModel[]
+}
+
+export interface DockingLigandModel {
   drugName: string
-  metaboliteSmilesCode: string
+  smilesCode: string
 }

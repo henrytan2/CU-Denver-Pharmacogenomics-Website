@@ -39,7 +39,7 @@ def generate_docking_zip_output(ligand_name: str):
     buf.seek(0)
     return buf, size
 
-def generate_docking_zip_output_alphafold(file_name: str, drug_name: str, smiles_code: str):
+def generate_docking_zip_output_alphafold(file_name: str, repacked_protein: str, drug_name: str, smiles_code: str):
     buf = io.BytesIO()
 
     src = Path("./api/business/docking/docking_output").resolve()
@@ -50,6 +50,7 @@ def generate_docking_zip_output_alphafold(file_name: str, drug_name: str, smiles
     alphafold_directory = '/home/boss/Documents/alphafold'
 
     output_dir = f"docking_output_{file_name}"
+    repacked_protein_file = 'repacked_af_protein.pdb'
     pdb_contents = alderaan.read_file(f'{alphafold_directory}/{file_name}.gz')
     pdb_gzip_stripped = file_name.strip(".gz")
     af_molecular_docking_notebook = generate_af_molecular_docking_notebook_str(pdb_gzip_stripped, drug_name, smiles_code)
@@ -68,6 +69,9 @@ def generate_docking_zip_output_alphafold(file_name: str, drug_name: str, smiles
         if af_molecular_docking_notebook is not None:
             arcname = Path(output_dir) / f'Alphafold_molecular_dock_{pdb_gzip_stripped}.ipynb'
             z.writestr(str(arcname), af_molecular_docking_notebook)
+
+        arcname = Path(output_dir) / repacked_protein_file
+        z.writestr(str(arcname), repacked_protein)
 
     # Now the ZIP is closed and fully written
     size = buf.tell()

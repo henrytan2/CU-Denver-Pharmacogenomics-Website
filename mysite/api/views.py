@@ -607,11 +607,13 @@ def download_docking_results(request):
 @permission_classes([AllowAny])
 @csrf_exempt
 @never_cache
-@require_http_methods(["GET"])
+@require_http_methods(["POST"])
 def download_docking_results_af(request):
-    file_name = request.GET.get('file_name')
-    drug_name = request.GET.get('drug_name')
-    smiles_code = request.GET.get('smiles_code')
+    data = json.loads(request.body)
+    file_name = data.get('file_name')
+    repacked_protein_pdb = data.get('repacked_protein_pdb')
+    drug_name = data.get('drug_name')
+    smiles_code = data.get('smiles_code')
     if not file_name:
         return HttpResponseBadRequest("Missing ?file_name=")
     if not drug_name:
@@ -619,7 +621,7 @@ def download_docking_results_af(request):
     if not smiles_code:
         return HttpResponseBadRequest("Missing ?smiles_code=")
 
-    buf, size = generate_docking_zip_output_alphafold(file_name, drug_name, smiles_code)
+    buf, size = generate_docking_zip_output_alphafold(file_name, repacked_protein_pdb, drug_name, smiles_code)
 
     filename = f"docking_output_{file_name}.zip"
     buf.seek(0)

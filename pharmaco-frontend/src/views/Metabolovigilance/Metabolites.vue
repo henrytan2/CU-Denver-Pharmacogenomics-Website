@@ -11,6 +11,7 @@ import { type Api as DataTableApi } from 'datatables.net'
 import { type Metabolite } from '@/models/metabolite'
 import { useDockingStore } from '@/stores/DockingStore'
 import { useToastStore } from '@/stores/ToastStore'
+import type { DockingLigandModel } from '@/models/docking'
 
 DataTable.use(DataTableCore)
 const metabolovigilanceStore = useMetabolovigilanceStore()
@@ -154,8 +155,11 @@ const filter = () => {
 }
 
 const onMetaboliteAddToDocking = (rowData: Metabolite) => {
-  dockingStore.dockingInputAF.drugName = rowData.drug_name
-  dockingStore.dockingInputAF.metaboliteSmilesCode = rowData.metabolite_smile_string
+  dockingStore.dockingInputAF.dockingLigandModels.push({
+    smilesCode: rowData.metabolite_smile_string,
+    drugName: rowData.drug_name
+  } as DockingLigandModel)
+
   toastStore.setToastState({
     show: true,
     header: 'Docking Prep',
