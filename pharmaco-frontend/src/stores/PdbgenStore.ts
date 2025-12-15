@@ -176,7 +176,7 @@ export const usePdbgenStore = defineStore('Pdbgen', {
           console.log(error)
         })
     },
-    fasprRun: function (uploaded: boolean = false, redirect: boolean = false) {
+    fasprRun: async function (uploaded: boolean = false, redirect: boolean = false) {
       const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.FASPR_RUN]}`
       this.fasprRunLoadingState = ApiLoadingState.Pending
       const request: FasprRunRequest = {
