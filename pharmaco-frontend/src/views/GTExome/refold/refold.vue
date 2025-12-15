@@ -76,8 +76,8 @@ watch(
   }
 )
 
-const onPDBAddToDocking = () => {
-  pdbgenStore.fasprRun(false, false)
+const onPDBAddToDocking = async () => {
+  await pdbgenStore.fasprRun(false, false)
   DockingStore.dockingInputAF.fileName = pdbgenStore.findPLDDTResponse.af_file_location ?? ''
   toastStore.setToastState({
     show: true,
@@ -324,6 +324,7 @@ const onSubmit = handleSubmit(
                 data-bs-toggle="tooltip"
                 data-bs-placement="top"
                 title="Prep protein PDB for docking"
+                :show-spinner="pdbgenStore.fasprRunLoadingState == ApiLoadingState.Pending"
                 :disabled="pdbgenStore.fasprPrepLoadingState != ApiLoadingState.Success"
                 @click="onPDBAddToDocking"
               />
