@@ -75,6 +75,23 @@ const onClearAllSmilesCode = () => {
         >https://ccsb.scripps.edu/adfr/downloads/</a
       >
     </p>
+    <!--ARCADE EMBED START-->
+    <div
+      style="position: relative; padding-bottom: calc(77.2093% + 41px); height: 0px; width: 100%"
+    >
+      <iframe
+        src="https://demo.arcade.software/EjrzGcxQFTKJVXAknewH?embed&embed_mobile=tab&embed_desktop=inline&show_copy_link=true"
+        title="Download a Docking Preparation Suite for Your Selected Protein and Molecule"
+        frameborder="0"
+        loading="lazy"
+        webkitallowfullscreen
+        mozallowfullscreen
+        allowfullscreen
+        allow="clipboard-write"
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; color-scheme: light"
+      ></iframe>
+    </div>
+    <!--ARCADE EMBED END-->
     <form class="d-flex-col align-items-center" @submit.prevent="onSubmit">
       <label for="docking-AF-file-input" class="form-label">AlphaFold File Name</label>
       <input class="form-control" type="text" id="docking-AF-file-input" v-model="alphaFoldFile" />
