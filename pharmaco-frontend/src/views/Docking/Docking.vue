@@ -9,6 +9,7 @@ import type { DockingLigandModel } from '@/models/docking'
 import InputErrorMessage from '@/components/input-error-message/input-error-message.vue'
 import { usePdbgenStore } from '@/stores/PdbgenStore'
 import { useToastStore } from '@/stores/ToastStore'
+import { PATH_NAME, paths } from '@/constants/paths'
 
 const dockingStore = useDockingStore()
 const pdbgenStore = usePdbgenStore()
@@ -67,31 +68,77 @@ const onClearAllSmilesCode = () => {
 }
 </script>
 <template>
-  <div class="mt-5 w-85">
+  <div class="mt-5 mb-5 w-85">
     <h2>Docking</h2>
     <p>
-      Download software suite for your OS and place into zip folder from download before beginning
+      1. Download software suite for your OS and place into zip folder after downloading Docking Zip
       <a href="https://ccsb.scripps.edu/adfr/downloads/"
         >https://ccsb.scripps.edu/adfr/downloads/</a
       >
     </p>
-    <!--ARCADE EMBED START-->
-    <div
-      style="position: relative; padding-bottom: calc(77.2093% + 41px); height: 0px; width: 100%"
-    >
-      <iframe
-        src="https://demo.arcade.software/EjrzGcxQFTKJVXAknewH?embed&embed_mobile=tab&embed_desktop=inline&show_copy_link=true"
-        title="Download a Docking Preparation Suite for Your Selected Protein and Molecule"
-        frameborder="0"
-        loading="lazy"
-        webkitallowfullscreen
-        mozallowfullscreen
-        allowfullscreen
-        allow="clipboard-write"
-        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; color-scheme: light"
-      ></iframe>
+    <p>
+      2. Add SMILES or select docking ligands from
+      <RouterLink :to="paths[PATH_NAME.METABOLOVIGILANCE]">Metabolovigilance</RouterLink>
+    </p>
+    <p>
+      3. End Alphafold code or select experimental or alpha fold structures from
+      <RouterLink :to="paths[PATH_NAME.GTEXOME]">GTExome</RouterLink>
+    </p>
+    <p>4. View Docking Tutorial below for help</p>
+    <div class="accordion" id="dockingAccordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button
+            class="accordion-button collapsed"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#dockingAccordionItem"
+            aria-expanded="true"
+            aria-controls="dockingAccordionItem"
+          >
+            Docking Tutorial
+          </button>
+        </h2>
+        <div
+          id="dockingAccordionItem"
+          class="accordion-collapse collapse"
+          data-bs-parent="#dockingAccordion"
+        >
+          <div class="accordion-body">
+            <div
+              style="
+                position: relative;
+                padding-bottom: calc(77.2093% + 41px);
+                height: 0px;
+                width: 100%;
+              "
+            >
+              <!--ARCADE EMBED START-->
+              <iframe
+                src="https://demo.arcade.software/EjrzGcxQFTKJVXAknewH?embed&embed_mobile=tab&embed_desktop=inline&show_copy_link=true"
+                title="Download a Docking Preparation Suite for Your Selected Protein and Molecule"
+                frameborder="0"
+                loading="lazy"
+                webkitallowfullscreen
+                mozallowfullscreen
+                allowfullscreen
+                allow="clipboard-write"
+                style="
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  width: 100%;
+                  height: 100%;
+                  color-scheme: light;
+                "
+              ></iframe>
+            </div>
+            <!--ARCADE EMBED END-->
+          </div>
+        </div>
+      </div>
     </div>
-    <!--ARCADE EMBED END-->
+
     <form class="d-flex-col align-items-center" @submit.prevent="onSubmit">
       <label for="docking-AF-file-input" class="form-label">AlphaFold File Name</label>
       <input class="form-control" type="text" id="docking-AF-file-input" v-model="alphaFoldFile" />
