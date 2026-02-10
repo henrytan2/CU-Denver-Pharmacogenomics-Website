@@ -90,9 +90,75 @@ const onSubmit = handleSubmit(
   <div class="d-flex justify-content-center">
     <h2 class="align-self-center">Upload PDB</h2>
   </div>
+  <div class="container text-center" style="margin-top: 20px">
+    <div class="row">
+      <div class="accordion" id="exacAccordion">
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#exacAccordionItem"
+              aria-expanded="true"
+              aria-controls="exacAccordionItem"
+            >
+              Upload Tutorial
+            </button>
+          </h2>
+          <div
+            id="exacAccordionItem"
+            class="accordion-collapse collapse"
+            data-bs-parent="#exacAccordion"
+          >
+            <div class="accordion-body">
+              <div
+                style="
+                  position: relative;
+                  padding-bottom: calc(77.2093% + 41px);
+                  height: 0px;
+                  width: 100%;
+                "
+              >
+                <!--ARCADE EMBED START-->
+                <div
+                  style="
+                    position: relative;
+                    padding-bottom: calc(77.2992% + 41px);
+                    height: 0px;
+                    width: 100%;
+                  "
+                >
+                  <iframe
+                    src="https://demo.arcade.software/OeQUiBaXLrfR8jcUEpbK?embed&embed_mobile=tab&embed_desktop=inline&show_copy_link=true"
+                    title="Upload a PDB and generate a structure for a specific variant"
+                    frameborder="0"
+                    loading="lazy"
+                    webkitallowfullscreen
+                    mozallowfullscreen
+                    allowfullscreen
+                    allow="clipboard-write"
+                    style="
+                      position: absolute;
+                      top: 0;
+                      left: 0;
+                      width: 100%;
+                      height: 100%;
+                      color-scheme: light;
+                    "
+                  ></iframe>
+                </div>
+                <!--ARCADE EMBED END-->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <!-- <form @submit.prevent="onSubmit" v-if="userStore.getAPITokenResponse != undefined">
      -->
-  <form @submit.prevent="onSubmit" v-if="true">
+  <form @submit.prevent="onSubmit" v-if="true" style="margin-top: 20px">
     <div class="d-flex-row w-100">
       <div class="d-flex-col">
         <div class="d-flex justify-content-center align-items-center">
