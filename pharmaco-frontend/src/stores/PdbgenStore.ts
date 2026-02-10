@@ -218,7 +218,7 @@ export const usePdbgenStore = defineStore('Pdbgen', {
           console.log(error)
         })
     },
-    storePdbGenData: function () {
+    storePdbGenData: async function () {
       const url = `${import.meta.env.VITE_API_BASE_URL}${apiUrls[API_URL_NAME.STORE_PDB_GEN_DATA]}`
       this.storePdbgenDataLoadingState = ApiLoadingState.Pending
       const request: StorePdbGenDataRequest = {

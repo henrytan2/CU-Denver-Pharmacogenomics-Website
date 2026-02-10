@@ -79,7 +79,7 @@ const handleGeneratePdbStructure = async () => {
 const onSubmit = handleSubmit(
   (values) => {
     console.log(values)
-    pdbgenStore.fasprRun(true)
+    pdbgenStore.fasprRun(true, true)
   },
   (errors) => {
     console.log(errors)
