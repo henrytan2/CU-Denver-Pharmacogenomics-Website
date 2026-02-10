@@ -1,9 +1,15 @@
 REMARK created on GTExome (https://pharmacogenomics.clas.ucdenver.edu/gtexome/)
-REMARK created on: 2025-11-16
+REMARK created on: 2026-02-10
+REMARK from user provided file: website_activity/tmp/repacked_protein (5)_8uzy4uy8qnlt5jfaon1xg59eucbwiyz2.pdb
+REMARK introducing mutation: p.His144Gln
+REMARK FASPR Repacked these residues:[110, 111, 112, 113, 114, 115, 116, 117, 118, 121, 122, 125, 141, 142, 143, 144, 145, 146, 147]
+REMARK created on GTExome (https://pharmacogenomics.clas.ucdenver.edu/gtexome/)
+REMARK created on: 2026-02-10
 REMARK using gene ID: ENSG00000001561
 REMARK from file: AF-Q9Y6X5-F1-model_v1.pdb
 REMARK introducing mutation: p.His144Gln
 REMARK FASPR Repacked these residues:[86, 110, 111, 112, 113, 114, 115, 116, 117, 118, 121, 122, 125, 141, 142, 143, 144, 145, 146, 147]
+REMARK repacked structure by FASPR
 REMARK repacked structure by FASPR
 ATOM      1  N   MET A   1       8.667  -3.659  70.879  1.00  0.00           N  
 ATOM      2  CA  MET A   1       8.674  -4.212  69.502  1.00  0.00           C  

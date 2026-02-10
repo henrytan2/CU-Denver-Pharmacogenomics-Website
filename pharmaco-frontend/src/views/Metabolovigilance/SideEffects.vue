@@ -101,13 +101,6 @@ let drugsTable = ref()
         that cause side effects. Note: Placebo side effects have been removed. Drug names in the
         following tables are links to get updated side effects from the
         <a href="https://www.fda.gov">FDA</a>.<br />
-        <b>Instructions:</b><br />
-        1. Select tab, then add the Side Effects or Drugs using the plus button. Hit Submit. <br />
-        2. You will be redirected to a page with a filtered list of the side effects you chose
-        <br />
-        3. From that page you can view the drugs ranked by count by clicking on the 'View Drugs
-        Ranked' button<br />
-        4. Both result pages are available for download in CSV format. <br />
         If you use Metabolovigilance please cite:
         <a href="https://onlinelibrary.wiley.com/doi/10.1002/minf.202100261"
           >Tan, H. and Reed, S. M. Molecular Informatics,</a
@@ -122,8 +115,61 @@ let drugsTable = ref()
         <a href="https://jcheminf.biomedcentral.com/articles/10.1186/s13321-018-0324-5"
           >Biotransformer</a
         ><br />
-        <a href="https://youtu.be/NwXIbgUmT0g">Video walkthrough</a><br />
       </p>
+      <div class="accordion" id="dockingAccordion">
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button collapsed"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#dockingAccordionItem"
+              aria-expanded="true"
+              aria-controls="dockingAccordionItem"
+            >
+              Metabolovigilance Tutorial
+            </button>
+          </h2>
+        </div>
+        <div
+          id="dockingAccordionItem"
+          class="accordion-collapse collapse"
+          data-bs-parent="#dockingAccordion"
+        >
+          <div class="accordion-body">
+            <div
+              style="
+                position: relative;
+                padding-bottom: calc(77.2093% + 41px);
+                height: 0px;
+                width: 100%;
+              "
+            >
+              <!--ARCADE EMBED START-->
+              <iframe
+                src="https://demo.arcade.software/vgH36FFoKT1fdhqE6hNK?embed&embed_mobile=tab&embed_desktop=inline&show_copy_link=true"
+                title="Find drugs and metabolites linked to selected side effects"
+                frameborder="0"
+                loading="lazy"
+                webkitallowfullscreen
+                mozallowfullscreen
+                allowfullscreen
+                allow="clipboard-write"
+                style="
+                  position: absolute;
+                  top: 0;
+                  left: 0;
+                  width: 100%;
+                  height: 100%;
+                  color-scheme: light;
+                "
+              ></iframe>
+            </div>
+            <!--ARCADE EMBED END-->
+          </div>
+        </div>
+      </div>
+
       <PageSpinner
         :showSpinner="
           metabolovigilanceStore.sideEffectLoadingState == ApiLoadingState.Pending ||

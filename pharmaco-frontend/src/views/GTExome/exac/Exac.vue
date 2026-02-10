@@ -48,6 +48,73 @@ const onSubmit = handleSubmit(() => {
 
 <template>
   <form @submit.prevent="onSubmit">
+    <div class="container text-center" style="margin-top: 20px">
+      <div class="row">
+        <div class="accordion" id="exacAccordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#exacAccordionItem"
+                aria-expanded="true"
+                aria-controls="exacAccordionItem"
+              >
+                Exac Tutorial
+              </button>
+            </h2>
+            <div
+              id="exacAccordionItem"
+              class="accordion-collapse collapse"
+              data-bs-parent="#exacAccordion"
+            >
+              <div class="accordion-body">
+                <div
+                  style="
+                    position: relative;
+                    padding-bottom: calc(77.2093% + 41px);
+                    height: 0px;
+                    width: 100%;
+                  "
+                >
+                  <!--ARCADE EMBED START-->
+                  <div
+                    style="
+                      position: relative;
+                      padding-bottom: calc(77.2992% + 41px);
+                      height: 0px;
+                      width: 100%;
+                    "
+                  >
+                    <iframe
+                      src="https://demo.arcade.software/POP3t6qH37in6VGAP6EH?embed&embed_mobile=tab&embed_desktop=inline&show_copy_link=true"
+                      title="Search a gene in ExAC and filter variants for export or mutation details"
+                      frameborder="0"
+                      loading="lazy"
+                      webkitallowfullscreen
+                      mozallowfullscreen
+                      allowfullscreen
+                      allow="clipboard-write"
+                      style="
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        color-scheme: light;
+                      "
+                    ></iframe>
+                  </div>
+                  <!--ARCADE EMBED END-->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div>
       <label> Gene Symbol </label>
       <Multiselect

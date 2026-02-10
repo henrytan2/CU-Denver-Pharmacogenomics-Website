@@ -143,7 +143,9 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://localhost:30441',
     'http://localhost:443',
-    'https://pharmacogenomics.clas.ucdenver.edu'
+    'https://pharmacogenomics.clas.ucdenver.edu',
+    'https://3dmol.csb.pitt.edu'
+    
 ]
 
 CORS_EXPOSE_HEADERS = ["Content-Disposition"]
