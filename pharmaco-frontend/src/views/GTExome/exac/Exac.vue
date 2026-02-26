@@ -11,6 +11,7 @@ import { PATH_NAME } from '@/constants/paths'
 import { useField, useForm } from 'vee-validate'
 import * as yup from 'yup'
 import InputErrorMessage from '@/components/input-error-message/input-error-message.vue'
+import '@/scss/accordion.scss'
 
 const ExacStore = useExacStore()
 const router = useRouter()
@@ -50,7 +51,7 @@ const onSubmit = handleSubmit(() => {
   <form @submit.prevent="onSubmit">
     <div class="container text-center" style="margin-top: 20px">
       <div class="row">
-        <div class="accordion" id="exacAccordion">
+        <div class="accordion custom-accordion" id="exacAccordion">
           <div class="accordion-item">
             <h2 class="accordion-header">
               <button
@@ -116,7 +117,7 @@ const onSubmit = handleSubmit(() => {
     </div>
 
     <div>
-      <label> Gene Symbol </label>
+      <label style="margin-top: 10px"> Gene Symbol </label>
       <Multiselect
         v-model="geneSymbol"
         :options="

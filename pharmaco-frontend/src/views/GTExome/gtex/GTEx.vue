@@ -10,6 +10,8 @@ import Button from '@/components/button/button.vue'
 import InfoModal from '@/components/info-modal/info-modal.vue'
 import { Form, useField, useForm } from 'vee-validate'
 import * as yup from 'yup'
+import '@/scss/accordion.scss'
+import Refoldviz from '@/assets/refoldviz.jpeg'
 
 const GTExomeStore = useGTExomeStore()
 if (GTExomeStore.tissueLoadingState != ApiLoadingState.Success) {
@@ -63,7 +65,6 @@ const infoModalText = `GTExome is a tool to connect genotype expression data to 
 
 <template>
   <form @submit.prevent="onSubmit">
-    <InfoModal v-if="GTExomeStore.selectedTab == GTExomeTab.gtex" :modal-text="infoModalText" />
     <div class="container text-center" style="margin-top: 20px">
       <div class="row">
         <div
@@ -78,7 +79,7 @@ const infoModalText = `GTExome is a tool to connect genotype expression data to 
             :checked="GTExomeStore.filterType == gtexFilter.ratio"
             @click="GTExomeStore.setSelectedFilter(gtexFilter.ratio)"
           />
-          <div class="accordion" id="dockingAccordion">
+          <div class="accordion custom-accordion" id="dockingAccordion">
             <div class="accordion-item">
               <h2 class="accordion-header">
                 <button
@@ -106,6 +107,14 @@ const infoModalText = `GTExome is a tool to connect genotype expression data to 
                       width: 100%;
                     "
                   >
+                    <p>
+                      GTExome is a tool to connect genotype expression data to exome data by
+                      filtering the GTEx database for specific TPM ranges in different tissue types
+                      to get a list of genes. From the list of genes, you can view the exome data
+                      sourced from gnomAD/ExAC. To go directly to refold a protein you must have an
+                      Ensemble ENSG number and mutation info (CCID). To get a list of mutations for
+                      a protein use the exac tab and enter a gnomad valid protein name.
+                    </p>
                     <!--ARCADE EMBED START-->
                     <div
                       style="
@@ -129,7 +138,7 @@ const infoModalText = `GTExome is a tool to connect genotype expression data to 
                           top: 0;
                           left: 0;
                           width: 100%;
-                          height: 100%;
+                          height: 85%;
                           color-scheme: light;
                         "
                       ></iframe>
@@ -140,7 +149,7 @@ const infoModalText = `GTExome is a tool to connect genotype expression data to 
               </div>
             </div>
 
-            <label class="btn btn-outline-secondary" for="ratio-btn-radio"
+            <label class="btn btn-outline-secondary" for="ratio-btn-radio" style="margin-top: 10px"
               >Filter By TPM Ratio</label
             >
             <input
@@ -150,7 +159,7 @@ const infoModalText = `GTExome is a tool to connect genotype expression data to 
               :checked="GTExomeStore.filterType == gtexFilter.range"
               @click="GTExomeStore.setSelectedFilter(gtexFilter.range)"
             />
-            <label class="btn btn-outline-secondary" for="range-btn-radio"
+            <label class="btn btn-outline-secondary" for="range-btn-radio" style="margin-top: 10px"
               >Filter By TPM Range</label
             >
           </div>

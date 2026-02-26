@@ -10,6 +10,7 @@ import InputErrorMessage from '@/components/input-error-message/input-error-mess
 import { usePdbgenStore } from '@/stores/PdbgenStore'
 import { useToastStore } from '@/stores/ToastStore'
 import { PATH_NAME, paths } from '@/constants/paths'
+import '@/scss/accordion.scss'
 
 const dockingStore = useDockingStore()
 const pdbgenStore = usePdbgenStore()
@@ -85,7 +86,7 @@ const onClearAllSmilesCode = () => {
       <RouterLink :to="paths[PATH_NAME.GTEXOME]">GTExome</RouterLink>
     </p>
     <p>4. View Docking Tutorial below for help</p>
-    <div class="accordion" id="dockingAccordion">
+    <div class="accordion custom-accordion" id="dockingAccordion">
       <div class="accordion-item">
         <h2 class="accordion-header">
           <button

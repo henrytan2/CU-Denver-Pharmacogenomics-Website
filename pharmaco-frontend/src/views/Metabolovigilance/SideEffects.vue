@@ -9,6 +9,8 @@ import { useMetabolovigilanceStore } from '@/stores/metabolovigilanceStore'
 import { ApiLoadingState, MetabolovigilanceTab } from '@/constants/enums'
 import Button from '@/components/button/button.vue'
 import PageSpinner from '@/components/page-spinner/PageSpinner.vue'
+import '@/scss/accordion.scss'
+import Ertapenem from '@/assets/Ertapenem_Conformer3D_large.png'
 
 DataTable.use(DataTablesCore)
 
@@ -116,7 +118,46 @@ let drugsTable = ref()
           >Biotransformer</a
         ><br />
       </p>
-      <div class="accordion" id="dockingAccordion">
+      <div class="w-75" style="margin-bottom: 20px">
+        <div class="d-flex flex-col align-items-center">
+          <div>
+            <img
+              src="https://pubchem.ncbi.nlm.nih.gov/image/imgsrv.fcgi?cid=150610&t=l"
+              width="300px"
+              height="300px"
+              style="margin-right: 50px"
+            />
+          </div>
+          <div>
+            <div class="d-flex flex-row">
+              <img
+                style="border: 5px solid yellow"
+                width="200px"
+                height="200px"
+                src="https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/CC1C2C(C(=O)N2C(=C1SC3CC(NC3)C(=O)NC4=C(C=CC(=C4)C(=O)O)O)C(=O)O)C(C)O/PNG"
+              /><img
+                width="200px"
+                height="200px"
+                src="https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/CC1C2C(C(=O)N2C(=C1SC3CC(NC3)C(=O)NC4=CC=CC(=C4)C(=O)NCC(O)=O)C(=O)O)C(C)O/PNG"
+              />
+            </div>
+            <div class="d-flex flex-row-reverse">
+              <img
+                style="border: 5px solid yellow"
+                width="200px"
+                height="200px"
+                src="https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/CC1C2C(C(=O)N2C(=C1SC3CC(NC3)C(=O)NC4=CC=CC(=C4)C(=O)OC5OC(C(O)C(O)C5O)C(O)=O)C(=O)O)C(C)O/PNG"
+              />
+              <img
+                width="200px"
+                height="200px"
+                src="https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/CC1C2C(C(=O)N2C(=C1SC3CC(NC3)C(=O)NC=4C5C(C=C(C4)C(=O)O)O5)C(=O)O)C(C)O/PNG"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="accordion custom-accordion" id="dockingAccordion" style="margin-bottom: 10px">
         <div class="accordion-item">
           <h2 class="accordion-header">
             <button
