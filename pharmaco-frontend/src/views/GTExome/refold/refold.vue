@@ -17,6 +17,8 @@ import type { ExacGeneSearchResponse } from '@/models/exac'
 import type { GeneIdAndCCID } from '@/models/refold'
 import { useDockingStore } from '@/stores/DockingStore'
 import { useToastStore } from '@/stores/ToastStore'
+import '@/scss/accordion.scss'
+import Refoldviz from '@/assets/refoldviz.jpeg'
 
 const infoModalText = `You will arrive at this page with a geneID and mutation (CCID) populated.
 A search for experimental and AlphaFold2 structures starts automatically.
@@ -170,6 +172,13 @@ const onSubmit = handleSubmit(
   <form @submit.prevent="onSubmit">
     <div style="margin-top: 40px; margin-bottom: 40px" class="container-fluid d-flex">
       <div class="d-flex-col">
+        <div class="d-flex flex-row">
+          <img :src="Refoldviz" style="height: 350px" /><img
+            class="img-responsive center-block mainImage"
+            src="https://cdn.rcsb.org/images/structures/11ba_assembly-1.jpeg"
+            style="height: 350px; image-rendering: -webkit-optimize-contrast"
+          />
+        </div>
         <div>
           <span
             >Select preferred source of protein data and then repack amino acids
@@ -177,13 +186,9 @@ const onSubmit = handleSubmit(
             entering a diameter (in Angstroms)</span
           >
         </div>
-        <InfoModal
-          v-if="GTExomeStore.selectedTab == GTExomeTab.refold"
-          :modal-text="infoModalText"
-        />
-        <div class="container text-center" style="margin-top: 20px">
-          <div class="row">
-            <div class="accordion" id="exacAccordion">
+        <div class="container text-center" style="margin-top: 15px">
+          <div class="row" style="margin-bottom: 10px">
+            <div class="accordion custom-accordion" id="exacAccordion">
               <div class="accordion-item">
                 <h2 class="accordion-header">
                   <button

@@ -92,7 +92,7 @@ const onSubmit = handleSubmit(
   </div>
   <div class="container text-center" style="margin-top: 20px">
     <div class="row">
-      <div class="accordion" id="exacAccordion">
+      <div class="accordion custom-accordion" id="exacAccordion">
         <div class="accordion-item">
           <h2 class="accordion-header">
             <button
